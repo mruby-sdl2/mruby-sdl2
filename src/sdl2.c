@@ -10,6 +10,7 @@
 #include "sdl2_thread.h"
 #include "sdl2_mutex.h"
 #include "sdl2_timer.h"
+#include "sdl2_pixels.h"
 #include "misc.h"
 #include "mruby/string.h"
 #include <SDL2/SDL.h>
@@ -147,6 +148,10 @@ mrb_mruby_sdl2_gem_init(mrb_state *mrb)
   mrb_gc_arena_restore(mrb, arena_size);
 
   arena_size = mrb_gc_arena_save(mrb);
+  mruby_sdl2_pixels_init(mrb);
+  mrb_gc_arena_restore(mrb, arena_size);
+
+  arena_size = mrb_gc_arena_save(mrb);
   mruby_sdl2_version_init(mrb);
   mrb_gc_arena_restore(mrb, arena_size);
 
@@ -207,5 +212,5 @@ mrb_mruby_sdl2_gem_final(mrb_state *mrb)
   mruby_sdl2_version_final(mrb);
   mruby_sdl2_hints_final(mrb);
   mruby_sdl2_module_final(mrb);
+  mruby_sdl2_pixels_final(mrb);
 }
-

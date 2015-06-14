@@ -312,6 +312,17 @@ mrb_sdl2_pixels_calculate_gamma_ramp(mrb_state *mrb, mrb_value self)
 *
 ***************************************************************************/
 
+mrb_value
+mrb_sdl2_pixels_pixelformat_new(mrb_state *mrb, SDL_PixelFormat *format)
+{
+  //@todo how do better?
+  mrb_value args[] = {mrb_fixnum_value(format->format)};
+  mrb_value oformat = mrb_obj_new(mrb, class_PixelFormat, 1, args);
+  mrb_sdl2_pixels_pixelformat_data_t *data = (mrb_sdl2_pixels_pixelformat_data_t*)DATA_PTR(oformat);
+  data->pixelformat = format;
+  DATA_PTR(oformat) = data;
+  return oformat;
+}
 
 static mrb_value
 mrb_sdl2_pixels_pixelformat_initialize(mrb_state *mrb, mrb_value self)

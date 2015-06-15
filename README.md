@@ -61,7 +61,7 @@ Sample code is contained into 'samples' directory.
 |:------------------------------------|:--------------|:-----------:|
 |Display and Window Management        |SDL_video.h    |  supported  |
 |2D Accelerated Rendering             |SDL_render.h   |  supported  |
-|Pixel Formats and Conversion Routines|SDL_pixels.h   |not supported|
+|Pixel Formats and Conversion Routines|SDL_pixels.h   |  supported  |
 |Rectangle Functions                  |SDL_rect.h     |  supported  |
 |Surface Creation and Simple Drawing  |SDL_surface.h  |  supported  |
 |Platform-specific Window Management  |SDL_syswm.h    |not supported|

@@ -238,7 +238,7 @@ mrb_sdl2_video_surface_get_solor_key(mrb_state *mrb, mrb_value self)
   uint32_t key;
   int flag;
   SDL_Surface *s = mrb_sdl2_video_surface_get_ptr(mrb, self);
-  mrb_get_args(mrb, "ii", &flag, &key); 
+  mrb_get_args(mrb, "ii", &flag, &key);
   if (0 != SDL_SetColorKey(s, flag, key)) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -407,9 +407,9 @@ mruby_sdl2_video_surface_init(mrb_state *mrb, struct RClass *mod_Video)
   mrb_define_method(mrb, class_Surface, "blit_scaled",    mrb_sdl2_video_surface_blit_scaled,    ARGS_REQ(2) | ARGS_OPT(1));
   mrb_define_method(mrb, class_Surface, "blit_surface",   mrb_sdl2_video_surface_blit_surface,   ARGS_REQ(3));
   mrb_define_method(mrb, class_Surface, "convert_format", mrb_sdl2_video_surface_convert_format, ARGS_REQ(2));
-  
+
   mrb_define_method(mrb, class_Surface, "format",         mrb_sdl2_video_surface_format,         ARGS_NONE());
-    
+
   mrb_define_method(mrb, class_Surface, "fill_rect",      mrb_sdl2_video_surface_fill_rect,      ARGS_REQ(1) | ARGS_OPT(1));
   mrb_define_method(mrb, class_Surface, "fill_rects",     mrb_sdl2_video_surface_fill_rects,     ARGS_REQ(2));
   mrb_define_method(mrb, class_Surface, "clip_rect",      mrb_sdl2_video_surface_get_clip_rect,  ARGS_NONE());
@@ -435,6 +435,3 @@ void
 mruby_sdl2_video_surface_final(mrb_state *mrb, struct RClass *mod_Video)
 {
 }
-
-
-

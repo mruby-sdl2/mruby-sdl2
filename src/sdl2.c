@@ -8,9 +8,14 @@
 #include "sdl2_keyboard.h"
 #include "sdl2_mouse.h"
 #include "sdl2_thread.h"
+#include "sdl2_pixels.h"
 #include "sdl2_mutex.h"
 #include "sdl2_timer.h"
-#include "sdl2_pixels.h"
+#include "sdl2_joystick.h"
+#include "sdl2_haptic.h"
+#include "sdl2_cpuinfo.h"
+#include "sdl2_platform.h"
+#include "sdl2_power.h"
 #include "misc.h"
 #include "mruby/string.h"
 #include <SDL2/SDL.h>
@@ -148,10 +153,6 @@ mrb_mruby_sdl2_gem_init(mrb_state *mrb)
   mrb_gc_arena_restore(mrb, arena_size);
 
   arena_size = mrb_gc_arena_save(mrb);
-  mruby_sdl2_pixels_init(mrb);
-  mrb_gc_arena_restore(mrb, arena_size);
-
-  arena_size = mrb_gc_arena_save(mrb);
   mruby_sdl2_version_init(mrb);
   mrb_gc_arena_restore(mrb, arena_size);
 
@@ -194,6 +195,30 @@ mrb_mruby_sdl2_gem_init(mrb_state *mrb)
   arena_size = mrb_gc_arena_save(mrb);
   mruby_sdl2_misc_init(mrb);
   mrb_gc_arena_restore(mrb, arena_size);
+
+  arena_size = mrb_gc_arena_save(mrb);
+  mruby_sdl2_joystick_init(mrb);
+  mrb_gc_arena_restore(mrb, arena_size);
+
+  arena_size = mrb_gc_arena_save(mrb);
+  mruby_sdl2_haptic_init(mrb);
+  mrb_gc_arena_restore(mrb, arena_size);
+
+  arena_size = mrb_gc_arena_save(mrb);
+  mruby_sdl2_cpuinfo_init(mrb);
+  mrb_gc_arena_restore(mrb, arena_size);
+
+  arena_size = mrb_gc_arena_save(mrb);
+  mruby_sdl2_platform_init(mrb);
+  mrb_gc_arena_restore(mrb, arena_size);
+
+  arena_size = mrb_gc_arena_save(mrb);
+  mruby_sdl2_power_init(mrb);
+  mrb_gc_arena_restore(mrb, arena_size);
+
+  arena_size = mrb_gc_arena_save(mrb);
+  mruby_sdl2_pixels_init(mrb);
+  mrb_gc_arena_restore(mrb, arena_size);
 }
 
 void
@@ -213,4 +238,9 @@ mrb_mruby_sdl2_gem_final(mrb_state *mrb)
   mruby_sdl2_hints_final(mrb);
   mruby_sdl2_module_final(mrb);
   mruby_sdl2_pixels_final(mrb);
+  mruby_sdl2_joystick_final(mrb);
+  mruby_sdl2_haptic_final(mrb);
+  mruby_sdl2_cpuinfo_final(mrb);
+  mruby_sdl2_platform_final(mrb);
+  mruby_sdl2_power_final(mrb);
 }

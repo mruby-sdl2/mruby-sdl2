@@ -6,7 +6,7 @@
 #include "mruby/data.h"
 #include "mruby/class.h"
 
-static struct RClass *mod_Mouse = NULL;
+struct RClass *mod_Mouse = NULL;
 static struct RClass *class_Cursor = NULL;
 
 typedef struct mrb_sdl2_input_mouse_cursor_data_t {
@@ -302,4 +302,3 @@ void
 mruby_sdl2_mouse_final(mrb_state *mrb)
 {
 }
-

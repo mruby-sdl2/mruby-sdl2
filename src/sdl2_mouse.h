@@ -8,6 +8,8 @@
 extern "C" {
 #endif
 
+extern struct RClass *mod_Mouse;
+
 extern void mruby_sdl2_mouse_init(mrb_state *mrb);
 extern void mruby_sdl2_mouse_final(mrb_state *mrb);
 
@@ -16,4 +18,3 @@ extern void mruby_sdl2_mouse_final(mrb_state *mrb);
 #endif
 
 #endif /* end of MRUBY_SDL2_MOUSE_H */
-

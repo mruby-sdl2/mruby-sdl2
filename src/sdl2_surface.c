@@ -1,5 +1,6 @@
 #include "sdl2_surface.h"
 #include "sdl2_rect.h"
+#include "sdl2_pixels.h"
 #include "mruby/data.h"
 #include "mruby/class.h"
 #include "mruby/string.h"
@@ -142,6 +143,19 @@ mrb_sdl2_video_surface_convert_format(mrb_state *mrb, mrb_value self)
 {
   mrb_raise(mrb, E_NOTIMP_ERROR, "not implemented.");
   return self;
+}
+
+static mrb_value
+mrb_sdl2_video_surface_format(mrb_state *mrb, mrb_value self)
+{
+  mrb_value format = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "__pixel_format__"));
+
+  if (mrb_nil_p(format)){
+    format = mrb_sdl2_pixels_pixelformat_new(mrb, mrb_sdl2_video_surface_get_ptr(mrb, self)->format);
+    mrb_iv_set(mrb, self, mrb_intern_lit(mrb, "__pixel_format__"), format);
+  }
+
+  return format;
 }
 
 static mrb_value
@@ -393,6 +407,9 @@ mruby_sdl2_video_surface_init(mrb_state *mrb, struct RClass *mod_Video)
   mrb_define_method(mrb, class_Surface, "blit_scaled",    mrb_sdl2_video_surface_blit_scaled,    ARGS_REQ(2) | ARGS_OPT(1));
   mrb_define_method(mrb, class_Surface, "blit_surface",   mrb_sdl2_video_surface_blit_surface,   ARGS_REQ(3));
   mrb_define_method(mrb, class_Surface, "convert_format", mrb_sdl2_video_surface_convert_format, ARGS_REQ(2));
+  
+  mrb_define_method(mrb, class_Surface, "format",         mrb_sdl2_video_surface_format,         ARGS_NONE());
+    
   mrb_define_method(mrb, class_Surface, "fill_rect",      mrb_sdl2_video_surface_fill_rect,      ARGS_REQ(1) | ARGS_OPT(1));
   mrb_define_method(mrb, class_Surface, "fill_rects",     mrb_sdl2_video_surface_fill_rects,     ARGS_REQ(2));
   mrb_define_method(mrb, class_Surface, "clip_rect",      mrb_sdl2_video_surface_get_clip_rect,  ARGS_NONE());

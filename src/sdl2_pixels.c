@@ -51,9 +51,7 @@ mrb_sdl2_pixels_palette(mrb_state *mrb, SDL_PixelFormat *palette)
 
   mrb_sdl2_pixels_palette_data_t *data =
     (mrb_sdl2_pixels_palette_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_pixels_palette_data_t));
-  if (NULL == data) {
-    mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-  }
+
   data->is_associated = false;
   data->palette = palette;
   return mrb_obj_value(Data_Wrap_Struct(mrb, class_Palette, &mrb_sdl2_pixels_palette_data_type, data));
@@ -68,9 +66,7 @@ mrb_sdl2_pixels_associated_palette(mrb_state *mrb, SDL_Palette *palette)
 
   mrb_sdl2_pixels_palette_data_t *data =
     (mrb_sdl2_pixels_palette_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_pixels_palette_data_t));
-  if (NULL == data) {
-    mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-  }
+
   data->is_associated = true;
   data->palette = palette;
   return mrb_obj_value(Data_Wrap_Struct(mrb, class_Palette, &mrb_sdl2_pixels_palette_data_type, data));
@@ -121,9 +117,6 @@ mrb_sdl2_pixels_pixelformat(mrb_state *mrb, SDL_PixelFormat *pixelformat)
 
   mrb_sdl2_pixels_pixelformat_data_t *data =
     (mrb_sdl2_pixels_pixelformat_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_pixels_pixelformat_data_t));
-  if (NULL == data) {
-    mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-  }
   data->is_associated = false;
   data->pixelformat = pixelformat;
   return mrb_obj_value(Data_Wrap_Struct(mrb, class_PixelFormat, &mrb_sdl2_pixels_pixelformat_data_type, data));
@@ -138,9 +131,7 @@ mrb_sdl2_pixels_associated_pixelformat(mrb_state *mrb, SDL_PixelFormat *pixelfor
 
   mrb_sdl2_pixels_pixelformat_data_t *data =
     (mrb_sdl2_pixels_pixelformat_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_pixels_pixelformat_data_t));
-  if (NULL == data) {
-    mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-  }
+
   data->is_associated = true;
   data->pixelformat = pixelformat;
   return mrb_obj_value(Data_Wrap_Struct(mrb, class_PixelFormat, &mrb_sdl2_pixels_pixelformat_data_type, data));
@@ -321,6 +312,17 @@ mrb_sdl2_pixels_calculate_gamma_ramp(mrb_state *mrb, mrb_value self)
 *
 ***************************************************************************/
 
+mrb_value
+mrb_sdl2_pixels_pixelformat_new(mrb_state *mrb, SDL_PixelFormat *format)
+{
+  //@todo how do better?
+  mrb_value args[] = {mrb_fixnum_value(format->format)};
+  mrb_value oformat = mrb_obj_new(mrb, class_PixelFormat, 1, args);
+  mrb_sdl2_pixels_pixelformat_data_t *data = (mrb_sdl2_pixels_pixelformat_data_t*)DATA_PTR(oformat);
+  data->pixelformat = format;
+  DATA_PTR(oformat) = data;
+  return oformat;
+}
 
 static mrb_value
 mrb_sdl2_pixels_pixelformat_initialize(mrb_state *mrb, mrb_value self)
@@ -330,9 +332,6 @@ mrb_sdl2_pixels_pixelformat_initialize(mrb_state *mrb, mrb_value self)
 
   if (NULL == data) {
     data = (mrb_sdl2_pixels_pixelformat_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_pixels_pixelformat_data_t));
-    if (NULL == data) {
-      mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-    }
     data->is_associated = false;
     data->pixelformat = NULL;
   }
@@ -385,9 +384,6 @@ mrb_sdl2_pixels_palette_initialize(mrb_state *mrb, mrb_value self)
 
   if (NULL == data) {
     data = (mrb_sdl2_pixels_palette_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_pixels_palette_data_t));
-    if (NULL == data) {
-      mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-    }
     data->is_associated = false;
     data->palette = NULL;
   }

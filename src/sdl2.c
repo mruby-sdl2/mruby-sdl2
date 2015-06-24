@@ -16,6 +16,13 @@
 #include "sdl2_cpuinfo.h"
 #include "sdl2_platform.h"
 #include "sdl2_power.h"
+#include "sdl2_gamecontroller.h"
+#include "sdl2_rwops.h"
+#include "sdl2_touch.h"
+#include "sdl2_gesture.h"
+#include "sdl2_filesystem.h"
+#include "sdl2_messagebox.h"
+#include "sdl2_clipboard.h"
 #include "misc.h"
 #include "mruby/string.h"
 #include <SDL2/SDL.h>
@@ -219,6 +226,34 @@ mrb_mruby_sdl2_gem_init(mrb_state *mrb)
   arena_size = mrb_gc_arena_save(mrb);
   mruby_sdl2_pixels_init(mrb);
   mrb_gc_arena_restore(mrb, arena_size);
+
+  arena_size = mrb_gc_arena_save(mrb);
+  mruby_sdl2_gamecontroller_init(mrb);
+  mrb_gc_arena_restore(mrb, arena_size);
+
+  arena_size = mrb_gc_arena_save(mrb);
+  mruby_sdl2_rwops_init(mrb);
+  mrb_gc_arena_restore(mrb, arena_size);
+
+  arena_size = mrb_gc_arena_save(mrb);
+  mruby_sdl2_touch_init(mrb);
+  mrb_gc_arena_restore(mrb, arena_size);
+
+  arena_size = mrb_gc_arena_save(mrb);
+  mruby_sdl2_gesture_init(mrb);
+  mrb_gc_arena_restore(mrb, arena_size);
+
+  arena_size = mrb_gc_arena_save(mrb);
+  mruby_sdl2_filesystem_init(mrb);
+  mrb_gc_arena_restore(mrb, arena_size);
+
+  arena_size = mrb_gc_arena_save(mrb);
+  mruby_sdl2_messagebox_init(mrb);
+  mrb_gc_arena_restore(mrb, arena_size);
+
+  arena_size = mrb_gc_arena_save(mrb);
+  mruby_sdl2_clipboard_init(mrb);
+  mrb_gc_arena_restore(mrb, arena_size);
 }
 
 void
@@ -243,4 +278,11 @@ mrb_mruby_sdl2_gem_final(mrb_state *mrb)
   mruby_sdl2_cpuinfo_final(mrb);
   mruby_sdl2_platform_final(mrb);
   mruby_sdl2_power_final(mrb);
+  mruby_sdl2_gamecontroller_final(mrb);
+  mruby_sdl2_rwops_final(mrb);
+  mruby_sdl2_touch_final(mrb);
+  mruby_sdl2_gesture_final(mrb);
+  mruby_sdl2_filesystem_final(mrb);
+  mruby_sdl2_messagebox_final(mrb);
+  mruby_sdl2_clipboard_final(mrb);
 }

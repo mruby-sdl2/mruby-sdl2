@@ -128,10 +128,11 @@ mrb_sdl2_size(mrb_state *mrb, int w, int h)
 SDL_Rect *
 mrb_sdl2_rect_get_ptr(mrb_state *mrb, mrb_value rect)
 {
+  mrb_sdl2_rect_rect_data_t *data;
   if (mrb_nil_p(rect)) {
     return NULL;
   }
-  mrb_sdl2_rect_rect_data_t *data =
+  data =
     (mrb_sdl2_rect_rect_data_t*)mrb_data_get_ptr(mrb, rect, &mrb_sdl2_rect_rect_data_type);
   return &data->rect;
 }
@@ -139,10 +140,11 @@ mrb_sdl2_rect_get_ptr(mrb_state *mrb, mrb_value rect)
 SDL_Point *
 mrb_sdl2_point_get_ptr(mrb_state *mrb, mrb_value point)
 {
+  mrb_sdl2_rect_point_data_t *data;
   if (mrb_nil_p(point)) {
     return NULL;
   }
-  mrb_sdl2_rect_point_data_t *data =
+  data =
     (mrb_sdl2_rect_point_data_t*)mrb_data_get_ptr(mrb, point, &mrb_sdl2_rect_point_data_type);
   return &data->point;
 }
@@ -150,10 +152,11 @@ mrb_sdl2_point_get_ptr(mrb_state *mrb, mrb_value point)
 size_data_t *
 mrb_sdl2_size_get_ptr(mrb_state *mrb, mrb_value size)
 {
+  mrb_sdl2_rect_size_data_t *data;
   if (mrb_nil_p(size)) {
     return NULL;
   }
-  mrb_sdl2_rect_size_data_t *data =
+  data =
     (mrb_sdl2_rect_size_data_t*)mrb_data_get_ptr(mrb, size, &mrb_sdl2_rect_size_data_type);
   return &data->size;
 }
@@ -296,8 +299,8 @@ static mrb_value
 mrb_sdl2_rect_rect_set_position(mrb_state *mrb, mrb_value self)
 {
   mrb_value arg;
-  mrb_get_args(mrb, "o", &arg);
   SDL_Rect * const lhs = mrb_sdl2_rect_get_ptr(mrb, self);
+  mrb_get_args(mrb, "o", &arg);
   if (mrb_type(arg) != MRB_TT_DATA) {
     mrb_raise(mrb, E_TYPE_ERROR, "unexpected type of argument.");
   }
@@ -333,8 +336,8 @@ static mrb_value
 mrb_sdl2_rect_rect_set_size(mrb_state *mrb, mrb_value self)
 {
   mrb_value arg;
-  mrb_get_args(mrb, "o", &arg);
   SDL_Rect * const lhs = mrb_sdl2_rect_get_ptr(mrb, self);
+  mrb_get_args(mrb, "o", &arg);
   if (mrb_type(arg) != MRB_TT_DATA) {
     mrb_raise(mrb, E_TYPE_ERROR, "unexpected type of argument.");
   }
@@ -356,9 +359,10 @@ static mrb_value
 mrb_sdl2_rect_rect_has_intersection(mrb_state *mrb, mrb_value self)
 {
   mrb_value arg;
-  mrb_get_args(mrb, "o", &arg);
+  SDL_Rect * rhs;
   SDL_Rect const * const lhs = mrb_sdl2_rect_get_ptr(mrb, self);
-  SDL_Rect const * const rhs = mrb_sdl2_rect_get_ptr(mrb, arg);
+  mrb_get_args(mrb, "o", &arg);
+  rhs = mrb_sdl2_rect_get_ptr(mrb, arg);
   return SDL_HasIntersection(lhs, rhs) == SDL_FALSE ? mrb_false_value() : mrb_true_value();
 }
 
@@ -366,10 +370,11 @@ static mrb_value
 mrb_sdl2_rect_rect_intersection(mrb_state *mrb, mrb_value self)
 {
   mrb_value arg;
-  mrb_get_args(mrb, "o", &arg);
+  SDL_Rect * rhs;
   SDL_Rect const * const lhs = mrb_sdl2_rect_get_ptr(mrb, self);
-  SDL_Rect const * const rhs = mrb_sdl2_rect_get_ptr(mrb, arg);
   SDL_Rect result = { 0, };
+  mrb_get_args(mrb, "o", &arg);
+  rhs = mrb_sdl2_rect_get_ptr(mrb, arg);
   if (SDL_FALSE == SDL_IntersectRect(lhs, rhs, &result)) {
     return mrb_nil_value();
   }
@@ -380,11 +385,14 @@ static mrb_value
 mrb_sdl2_rect_rect_intersection_line(mrb_state *mrb, mrb_value self)
 {
   mrb_value p1, p2;
-  mrb_get_args(mrb, "oo", &p1, &p2);
-  SDL_Rect const * const rect = mrb_sdl2_rect_get_ptr(mrb, self);
-  SDL_Point const * const pt1 = mrb_sdl2_point_get_ptr(mrb, p1);
-  SDL_Point const * const pt2 = mrb_sdl2_point_get_ptr(mrb, p2);
   int x1, y1, x2, y2;
+  SDL_Point * pt1;
+  SDL_Point * pt2;
+  mrb_value points[2];
+  SDL_Rect const * const rect = mrb_sdl2_rect_get_ptr(mrb, self);
+  mrb_get_args(mrb, "oo", &p1, &p2);
+  pt1 = mrb_sdl2_point_get_ptr(mrb, p1);
+  pt2 = mrb_sdl2_point_get_ptr(mrb, p2);
   x1 = pt1->x;
   y1 = pt1->y;
   x2 = pt2->x;
@@ -392,10 +400,14 @@ mrb_sdl2_rect_rect_intersection_line(mrb_state *mrb, mrb_value self)
   if (SDL_FALSE == SDL_IntersectRectAndLine(rect, &x1, &y1, &x2, &y2)) {
     return mrb_nil_value();
   }
+  points[0] = mrb_sdl2_point(mrb, x1, y1);
+  points[1] = mrb_sdl2_point(mrb, x2, y2);
+  /*
   mrb_value const points[] = {
     mrb_sdl2_point(mrb, x1, y1),
     mrb_sdl2_point(mrb, x2, y2),
   };
+  */
   return mrb_ary_new_from_values(mrb, 2, points);
 }
 
@@ -410,9 +422,10 @@ static mrb_value
 mrb_sdl2_rect_rect_equals(mrb_state *mrb, mrb_value self)
 {
   mrb_value arg;
-  mrb_get_args(mrb, "o", &arg);
   SDL_Rect const * const lhs = mrb_sdl2_rect_get_ptr(mrb, self);
-  SDL_Rect const * const rhs = mrb_sdl2_rect_get_ptr(mrb, arg);
+  SDL_Rect * rhs;
+  mrb_get_args(mrb, "o", &arg);
+  rhs = mrb_sdl2_rect_get_ptr(mrb, arg);
   return (SDL_FALSE == SDL_RectEquals(lhs, rhs)) ? mrb_false_value() : mrb_true_value();
 }
 
@@ -420,9 +433,10 @@ static mrb_value
 mrb_sdl2_rect_rect_not_equals(mrb_state *mrb, mrb_value self)
 {
   mrb_value arg;
-  mrb_get_args(mrb, "o", &arg);
+  SDL_Rect * rhs;
   SDL_Rect const * const lhs = mrb_sdl2_rect_get_ptr(mrb, self);
-  SDL_Rect const * const rhs = mrb_sdl2_rect_get_ptr(mrb, arg);
+  mrb_get_args(mrb, "o", &arg);
+  rhs = mrb_sdl2_rect_get_ptr(mrb, arg);
   return (SDL_FALSE != SDL_RectEquals(lhs, rhs)) ? mrb_false_value() : mrb_true_value();
 }
 
@@ -430,10 +444,11 @@ static mrb_value
 mrb_sdl2_rect_rect_union(mrb_state *mrb, mrb_value self)
 {
   mrb_value arg;
-  mrb_get_args(mrb, "o", &arg);
+  SDL_Rect * rhs;
   SDL_Rect const * const lhs = mrb_sdl2_rect_get_ptr(mrb, self);
-  SDL_Rect const * const rhs = mrb_sdl2_rect_get_ptr(mrb, arg);
   SDL_Rect result = { 0, };
+  mrb_get_args(mrb, "o", &arg);
+  rhs = mrb_sdl2_rect_get_ptr(mrb, arg);
   SDL_UnionRect(lhs, rhs, &result);
   return mrb_sdl2_rect_direct(mrb, &result);
 }
@@ -444,11 +459,14 @@ mrb_sdl2_rect_rect_enclose_points(mrb_state *mrb, mrb_value self)
   mrb_value clip;
   mrb_value *argv;
   mrb_int argc;
-  mrb_get_args(mrb, "o*", &clip, &argv, &argc);
-  SDL_Rect const * const c = mrb_sdl2_rect_get_ptr(mrb, clip);
-  SDL_Point points[argc];
   SDL_Rect result;
+  SDL_Rect * c;
   mrb_int i;
+  SDL_Point * points;
+  mrb_get_args(mrb, "o*", &clip, &argv, &argc);
+  c = mrb_sdl2_rect_get_ptr(mrb, clip);
+  points = (SDL_Point *) SDL_malloc(sizeof(SDL_Point) * argc);
+  //SDL_Point points[argc];
   for (i = 0; i < argc; ++i) {
     SDL_Point const * const p = mrb_sdl2_point_get_ptr(mrb, argv[i]);
     points[i] = *p;

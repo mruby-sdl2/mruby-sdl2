@@ -16,8 +16,9 @@ static mrb_value
 mrb_sdl2_touch_get_device(mrb_state *mrb, mrb_value self)
 {
   mrb_int index;
+  SDL_TouchID result;
   mrb_get_args(mrb, "i", &index);
-  SDL_TouchID result = SDL_GetTouchDevice(index);
+  result = SDL_GetTouchDevice(index);
   return mrb_fixnum_value(result);
 }
 
@@ -25,8 +26,9 @@ static mrb_value
 mrb_sdl2_touch_num_fingers(mrb_state *mrb, mrb_value self)
 {
   mrb_int index;
+  int result;
   mrb_get_args(mrb, "i", &index);
-  int result = SDL_GetNumTouchFingers((Sint64) index);
+  result = SDL_GetNumTouchFingers((Sint64) index);
   return mrb_fixnum_value(result);
 }
 
@@ -34,10 +36,12 @@ static mrb_value
 mrb_sdl2_touch_get_touch_finger(mrb_state *mrb, mrb_value self)
 {
   mrb_int touchid, index;
+  SDL_Finger * result;
+  mrb_value array;
   mrb_get_args(mrb, "ii", &touchid, &index);
-  SDL_Finger * result = SDL_GetTouchFinger((SDL_TouchID) touchid, index);
+  result = SDL_GetTouchFinger((SDL_TouchID) touchid, index);
 
-  mrb_value array = mrb_ary_new_capa(mrb, 4);
+  array = mrb_ary_new_capa(mrb, 4);
   mrb_ary_push(mrb, array, mrb_fixnum_value(result->id));
   mrb_ary_push(mrb, array, mrb_float_value(mrb, result->x));
   mrb_ary_push(mrb, array, mrb_float_value(mrb, result->y));

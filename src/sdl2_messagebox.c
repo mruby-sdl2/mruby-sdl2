@@ -30,10 +30,12 @@ static struct mrb_data_type const mrb_sdl2_message_boxdata_data_type = {
 SDL_MessageBoxData *
 mrb_sdl2_message_boxdata_get_ptr(mrb_state *mrb, mrb_value boxdata)
 {
+  mrb_sdl2_message_boxdata_data_t *data;
   if (mrb_nil_p(boxdata)) {
     return NULL;
   }
-  mrb_sdl2_message_boxdata_data_t *data =
+
+  data =
     (mrb_sdl2_message_boxdata_data_t*)mrb_data_get_ptr(mrb, boxdata, &mrb_sdl2_message_boxdata_data_type);
   return data->boxdata;
 }
@@ -41,10 +43,10 @@ mrb_sdl2_message_boxdata_get_ptr(mrb_state *mrb, mrb_value boxdata)
 static mrb_value
 mrb_sdl2_message_boxdata_initialize(mrb_state *mrb, mrb_value self)
 {
+  mrb_value window;
   mrb_sdl2_message_boxdata_data_t *data =
     (mrb_sdl2_message_boxdata_data_t*)DATA_PTR(self);
 
-  mrb_value window;
   int const argc = mrb_get_args(mrb, "|o", &window);
   if ((0 != argc) && (1 != argc)) {
     mrb_raise(mrb, E_ARGUMENT_ERROR, "wrong number of arguments.");
@@ -84,11 +86,12 @@ mrb_sdl2_message_boxdata_destroy(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_window_show_simple_message_box(mrb_state *mrb, mrb_value self)
 {
+  SDL_Window * window;
   mrb_int flags;
   mrb_value title, message;
   mrb_get_args(mrb, "iSS", &flags, &title, &message);
 
-  SDL_Window * window = mrb_sdl2_video_window_get_ptr(mrb, self);
+  window = mrb_sdl2_video_window_get_ptr(mrb, self);
   SDL_ShowSimpleMessageBox((Uint32) flags, RSTRING_PTR(title), RSTRING_PTR(message), window);
   return self;
 }
@@ -135,17 +138,19 @@ mrb_sdl2_message_boxdata_set_message(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_message_boxdata_set_buttons(mrb_state *mrb, mrb_value self)
 {
+  mrb_sdl2_message_boxdata_data_t *data_ptr;
+  SDL_MessageBoxButtonData * data;
+  struct RArray * rary;
   mrb_value buttons;
+  int i;
   mrb_get_args(mrb, "A", &buttons);
-  int err = 0;
 
-  mrb_sdl2_message_boxdata_data_t *data_ptr =
+  data_ptr =
     (mrb_sdl2_message_boxdata_data_t*)DATA_PTR(self);
 
-  struct RArray * rary = mrb_ary_ptr(buttons);
+  rary = mrb_ary_ptr(buttons);
   data_ptr->boxdata->numbuttons = (int) rary->len;
-  SDL_MessageBoxButtonData * data = (SDL_MessageBoxButtonData *) SDL_malloc(sizeof(SDL_MessageBoxButtonData) * rary->len);
-  int i;
+  data = (SDL_MessageBoxButtonData *) SDL_malloc(sizeof(SDL_MessageBoxButtonData) * rary->len);
   for (i = 0; i<rary->len; ++i) {
     struct RArray * temp_rary = mrb_ary_ptr(rary->ptr[i]);
     data[i].flags = (Uint32) temp_rary->ptr[0].value.i;
@@ -160,16 +165,17 @@ mrb_sdl2_message_boxdata_set_buttons(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_message_boxdata_set_color_scheme(mrb_state *mrb, mrb_value self)
 {
+  // TODO
   return self;
 }
 
 static mrb_value
 mrb_sdl2_message_boxdata_show(mrb_state *mrb, mrb_value self)
 {
+  int result;
   mrb_sdl2_message_boxdata_data_t *data_ptr =
     (mrb_sdl2_message_boxdata_data_t*)DATA_PTR(self);
 
-  int result;
   SDL_ShowMessageBox(data_ptr->boxdata, &result);
   return mrb_fixnum_value(result);
 }
@@ -177,9 +183,11 @@ mrb_sdl2_message_boxdata_show(mrb_state *mrb, mrb_value self)
 void
 mruby_sdl2_messagebox_init(mrb_state *mrb)
 {
+  struct RClass * mod_Video;
+  struct RClass * class_Window;
   class_MessageBoxData = mrb_define_class_under(mrb, mod_SDL2, "MessageBox", mrb->object_class);
-  struct RClass * mod_Video = mrb_module_get_under(mrb, mod_SDL2, "Video");
-  struct RClass * class_Window = mrb_class_get_under(mrb, mod_Video, "Window");
+  mod_Video = mrb_module_get_under(mrb, mod_SDL2, "Video");
+  class_Window = mrb_class_get_under(mrb, mod_Video, "Window");
 
   mrb_define_module_function(mrb, class_Window, "show_simple_message_box", mrb_sdl2_window_show_simple_message_box,  ARGS_REQ(3));
 

@@ -32,11 +32,12 @@ static struct mrb_data_type const mrb_sdl2_rwops_data_type = {
 SDL_RWops *
 mrb_sdl2_rwops_get_ptr(mrb_state *mrb, mrb_value rwops)
 {
+  mrb_sdl2_rwops_data_t *data;
   if (mrb_nil_p(rwops)) {
     return NULL;
   }
 
-  mrb_sdl2_rwops_data_t *data =
+  data =
     (mrb_sdl2_rwops_data_t*)mrb_data_get_ptr(mrb, rwops, &mrb_sdl2_rwops_data_type);
   return data->rwops;
 }
@@ -44,11 +45,12 @@ mrb_sdl2_rwops_get_ptr(mrb_state *mrb, mrb_value rwops)
 mrb_value
 mrb_sdl2_rwops(mrb_state *mrb, SDL_RWops *rwops)
 {
+  mrb_sdl2_rwops_data_t *data;
   if (NULL == rwops) {
     return mrb_nil_value();
   }
 
-  mrb_sdl2_rwops_data_t *data =
+  data =
     (mrb_sdl2_rwops_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_rwops_data_t));
   if (NULL == data) {
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
@@ -61,11 +63,12 @@ mrb_sdl2_rwops(mrb_state *mrb, SDL_RWops *rwops)
 mrb_value
 mrb_sdl2_rwops_associated_rwops(mrb_state *mrb, SDL_RWops *rwops)
 {
+  mrb_sdl2_rwops_data_t *data;
   if (NULL == rwops) {
     return mrb_nil_value();
   }
 
-  mrb_sdl2_rwops_data_t *data =
+  data =
     (mrb_sdl2_rwops_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_rwops_data_t));
   if (NULL == data) {
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
@@ -87,6 +90,7 @@ mrb_sdl2_rwops_associated_rwops(mrb_state *mrb, SDL_RWops *rwops)
 static mrb_value
 mrb_sdl2_rwops_initialize(mrb_state *mrb, mrb_value self)
 {
+  SDL_RWops *rwops = NULL;
   mrb_sdl2_rwops_data_t *data =
     (mrb_sdl2_rwops_data_t*)DATA_PTR(self);
 
@@ -99,7 +103,6 @@ mrb_sdl2_rwops_initialize(mrb_state *mrb, mrb_value self)
     data->rwops = NULL;
   }
 
-  SDL_RWops *rwops = NULL;
   if (2 == mrb->c->ci->argc) {
     mrb_value file, mode;
     mrb_get_args(mrb, "SS", &file, &mode);
@@ -143,10 +146,11 @@ mrb_sdl2_rwops_size(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_rwops_seek(mrb_state *mrb, mrb_value self)
 {
-  mrb_int offset, whence;
-  mrb_get_args(mrb, "ii", &offset, &whence);
   SDL_RWops * rwops = mrb_sdl2_rwops_get_ptr(mrb, self);
-  Sint64 result = SDL_RWseek(rwops, (Sint64) offset, (int) whence);
+  mrb_int offset, whence;
+  Sint64 result;
+  mrb_get_args(mrb, "ii", &offset, &whence);
+  result = SDL_RWseek(rwops, (Sint64) offset, (int) whence);
   return mrb_fixnum_value(result);
 }
 
@@ -161,28 +165,27 @@ mrb_sdl2_rwops_tell(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_rwops_read(mrb_state *mrb, mrb_value self)
 {
-
+    // TODO ?
     // mrb_class_ptr - gets the class ptr. Maybe can be used to find the size of object
     mrb_int size, maxnum;
-    mrb_get_args(mrb, "ii", &size, &maxnum);
-    SDL_RWops * rwops = mrb_sdl2_rwops_get_ptr(mrb, self);
     Uint8 buf[30];
-    printf("vars %d %d %d\n", (int) size, (int) maxnum, sizeof(buf));
+    mrb_value read;
+    size_t result;
+    SDL_RWops * rwops = mrb_sdl2_rwops_get_ptr(mrb, self);
+    mrb_get_args(mrb, "ii", &size, &maxnum);
     SDL_RWread(rwops, buf, ((size_t) size), (size_t) maxnum);
-    printf("Something %s\n", buf);
-    mrb_value read = mrb_str_new(mrb, NULL, size);
     read = mrb_str_resize(mrb, read, size);
-    size_t result = SDL_RWread(rwops, RSTRING_PTR(read),(size_t) size,(size_t) maxnum);
+    result = SDL_RWread(rwops, RSTRING_PTR(read),(size_t) size,(size_t) maxnum);
     if (0 == result) {
       mruby_sdl2_raise_error(mrb);
     }
-    return mrb_fixnum_value(buf);
+    return mrb_fixnum_value(*buf);
 }
 
 static mrb_value
 mrb_sdl2_rwops_write(mrb_state *mrb, mrb_value self)
 {
-
+  SDL_RWops * rwops;
   mrb_value ptr, buf;
   mrb_get_args(mrb, "S", &ptr);
 
@@ -192,7 +195,7 @@ mrb_sdl2_rwops_write(mrb_state *mrb, mrb_value self)
     buf = ptr;
   }
 
-  SDL_RWops * rwops = mrb_sdl2_rwops_get_ptr(mrb, self);
+  rwops = mrb_sdl2_rwops_get_ptr(mrb, self);
   if(rwops != NULL) {
       char *str = RSTRING_PTR(buf);
       size_t len = SDL_strlen(str);
@@ -218,6 +221,7 @@ mrb_sdl2_rwops_close(mrb_state *mrb, mrb_value self)
 void
 mruby_sdl2_rwops_init(mrb_state *mrb)
 {
+  int arena_size;
   struct RClass *class_RWops = mrb_define_class_under(mrb, mod_SDL2, "RWops", mrb->object_class);
 
   MRB_SET_INSTANCE_TT(class_RWops, MRB_TT_DATA);
@@ -233,7 +237,7 @@ mruby_sdl2_rwops_init(mrb_state *mrb)
   mrb_define_method(mrb, class_RWops, "close",      mrb_sdl2_rwops_close,      ARGS_NONE());
 
 
-  int arena_size = mrb_gc_arena_save(mrb);
+  arena_size = mrb_gc_arena_save(mrb);
   mrb_define_const(mrb, class_RWops, "RW_SEEK_SET", mrb_fixnum_value(RW_SEEK_SET));
   mrb_define_const(mrb, class_RWops, "RW_SEEK_CUR", mrb_fixnum_value(RW_SEEK_CUR));
   mrb_define_const(mrb, class_RWops, "RW_SEEK_END", mrb_fixnum_value(RW_SEEK_END));

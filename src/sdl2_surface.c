@@ -47,10 +47,11 @@ mrb_sdl2_video_surface(mrb_state *mrb, SDL_Surface *surface, bool is_associated)
 SDL_Surface *
 mrb_sdl2_video_surface_get_ptr(mrb_state *mrb, mrb_value surface)
 {
+  mrb_sdl2_video_surface_data_t *data;
   if (mrb_nil_p(surface)) {
     return NULL;
   }
-  mrb_sdl2_video_surface_data_t *data =
+  data =
     (mrb_sdl2_video_surface_data_t*)mrb_data_get_ptr(mrb, surface, &mrb_sdl2_video_surface_data_type);
   return data->surface;
 }
@@ -59,10 +60,10 @@ mrb_sdl2_video_surface_get_ptr(mrb_state *mrb, mrb_value surface)
 static mrb_value
 mrb_sdl2_video_surface_initialize(mrb_state *mrb, mrb_value self)
 {
-  mrb_sdl2_video_surface_data_t *data =
-    (mrb_sdl2_video_surface_data_t*)DATA_PTR(self);
   uint32_t flags, rmask, gmask, bmask, amask;
   mrb_int width, height, depth;
+  mrb_sdl2_video_surface_data_t *data =
+    (mrb_sdl2_video_surface_data_t*)DATA_PTR(self);
   mrb_get_args(mrb, "iiiiiiii", &flags, &width, &height, &depth, &rmask, &gmask, &bmask, &amask);
   if (NULL == data) {
     data = (mrb_sdl2_video_surface_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_video_surface_data_t));
@@ -100,13 +101,17 @@ mrb_sdl2_video_surface_free(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_surface_blit_scaled(mrb_state *mrb, mrb_value self)
 {
+  int ret;
+  SDL_Surface * ds;
+  SDL_Rect * sr;
+  SDL_Surface * ss;
+  SDL_Rect * dr;
   mrb_value src_rect, dst, dst_rect;
   mrb_get_args(mrb, "ooo", &src_rect, &dst, &dst_rect);
-  SDL_Surface * const    ss = mrb_sdl2_video_surface_get_ptr(mrb, self);
-  SDL_Rect const * const sr = mrb_sdl2_rect_get_ptr(mrb, src_rect);
-  SDL_Surface * const    ds = mrb_sdl2_video_surface_get_ptr(mrb, dst);
-  SDL_Rect * const       dr = mrb_sdl2_rect_get_ptr(mrb, dst_rect);
-  int ret;
+  ss = mrb_sdl2_video_surface_get_ptr(mrb, self);
+  sr = mrb_sdl2_rect_get_ptr(mrb, src_rect);
+  ds = mrb_sdl2_video_surface_get_ptr(mrb, dst);
+  dr = mrb_sdl2_rect_get_ptr(mrb, dst_rect);
   if (NULL != dr) {
     SDL_Rect tmp = *dr;
     ret = SDL_BlitScaled(ss, sr, ds, &tmp);
@@ -122,16 +127,21 @@ mrb_sdl2_video_surface_blit_scaled(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_surface_blit_surface(mrb_state *mrb, mrb_value self)
 {
+  SDL_Surface * ds;
+  SDL_Rect * sr;
+  SDL_Surface * ss;
+  SDL_Rect * dr;
+  SDL_Rect tmp;
   mrb_value src_rect, dst, dst_rect;
   mrb_get_args(mrb, "ooo", &src_rect, &dst, &dst_rect);
-  SDL_Surface * const    ss = mrb_sdl2_video_surface_get_ptr(mrb, self);
-  SDL_Rect const * const sr = mrb_sdl2_rect_get_ptr(mrb, src_rect);
-  SDL_Surface * const    ds = mrb_sdl2_video_surface_get_ptr(mrb, dst);
-  SDL_Rect * const       dr = mrb_sdl2_rect_get_ptr(mrb, dst_rect);
+  ss = mrb_sdl2_video_surface_get_ptr(mrb, self);
+  sr = mrb_sdl2_rect_get_ptr(mrb, src_rect);
+  ds = mrb_sdl2_video_surface_get_ptr(mrb, dst);
+  dr = mrb_sdl2_rect_get_ptr(mrb, dst_rect);
   if (NULL == dr) {
     mrb_raise(mrb, E_ARGUMENT_ERROR, "cannot set 3rd argument nil.");
   }
-  SDL_Rect tmp = *dr;
+  tmp = *dr;
   if (0 != SDL_BlitSurface(ss, sr, ds, &tmp)) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -163,9 +173,11 @@ mrb_sdl2_video_surface_fill_rect(mrb_state *mrb, mrb_value self)
 {
   uint32_t color;
   mrb_value rect;
+  SDL_Surface *s;
+  SDL_Rect * r;
   mrb_get_args(mrb, "i|o", &color, &rect);
-  SDL_Surface *s = mrb_sdl2_video_surface_get_ptr(mrb, self);
-  SDL_Rect const * const r = mrb_sdl2_rect_get_ptr(mrb, rect);
+  s = mrb_sdl2_video_surface_get_ptr(mrb, self);
+  r = mrb_sdl2_rect_get_ptr(mrb, rect);
   if (0 != SDL_FillRect(s, r, color)) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -177,14 +189,17 @@ mrb_sdl2_video_surface_fill_rects(mrb_state *mrb, mrb_value self)
 {
   uint32_t color;
   mrb_value rects;
+  mrb_int n;
+  SDL_Surface *s;
+  SDL_Rect * r;
+  mrb_int i;
   mrb_get_args(mrb, "io", &color, &rects);
   if (!mrb_array_p(rects)) {
     mrb_raise(mrb, E_TYPE_ERROR, "given 2nd argument is unexpected type (expected Array).");
   }
-  mrb_int const n = mrb_ary_len(mrb, rects);
-  SDL_Surface *s = mrb_sdl2_video_surface_get_ptr(mrb, self);
-  SDL_Rect r[n];
-  mrb_int i;
+  n = mrb_ary_len(mrb, rects);
+  s = mrb_sdl2_video_surface_get_ptr(mrb, self);
+  r = (SDL_Rect *) SDL_malloc(sizeof(SDL_Rect) * n);
   for (i = 0; i < n; ++i) {
     SDL_Rect const * const ptr = mrb_sdl2_rect_get_ptr(mrb, mrb_ary_ref(mrb, rects, i));
     if (NULL != ptr) {
@@ -202,8 +217,8 @@ mrb_sdl2_video_surface_fill_rects(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_surface_get_clip_rect(mrb_state *mrb, mrb_value self)
 {
-  SDL_Surface *s = mrb_sdl2_video_surface_get_ptr(mrb, self);
   SDL_Rect rect;
+  SDL_Surface *s = mrb_sdl2_video_surface_get_ptr(mrb, self);
   SDL_GetClipRect(s, &rect);
   return mrb_sdl2_rect_direct(mrb, &rect);
 }
@@ -211,10 +226,11 @@ mrb_sdl2_video_surface_get_clip_rect(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_surface_set_clip_rect(mrb_state *mrb, mrb_value self)
 {
-  SDL_Surface *s = mrb_sdl2_video_surface_get_ptr(mrb, self);
+  SDL_Rect * rect;
   mrb_value arg;
+  SDL_Surface *s = mrb_sdl2_video_surface_get_ptr(mrb, self);
   mrb_get_args(mrb, "o", &arg);
-  SDL_Rect const * const rect = mrb_sdl2_rect_get_ptr(mrb, arg);
+  rect = mrb_sdl2_rect_get_ptr(mrb, arg);
   if (SDL_FALSE == SDL_SetClipRect(s, rect)) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -259,9 +275,10 @@ mrb_sdl2_video_surface_get_alpha_mod(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_surface_set_alpha_mod(mrb_state *mrb, mrb_value self)
 {
+  SDL_Surface *s;
   mrb_int alpha;
   mrb_get_args(mrb, "i", &alpha);
-  SDL_Surface *s = mrb_sdl2_video_surface_get_ptr(mrb, self);
+  s = mrb_sdl2_video_surface_get_ptr(mrb, self);
   if (0 != SDL_SetSurfaceAlphaMod(s, (uint8_t)(alpha & 0xff))) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -282,9 +299,10 @@ mrb_sdl2_video_surface_get_blend_mode(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_surface_set_blend_mode(mrb_state *mrb, mrb_value self)
 {
+  SDL_Surface *s;
   mrb_int mode;
   mrb_get_args(mrb, "i", &mode);
-  SDL_Surface *s = mrb_sdl2_video_surface_get_ptr(mrb, self);
+  s = mrb_sdl2_video_surface_get_ptr(mrb, self);
   if (0 != SDL_SetSurfaceBlendMode(s, (SDL_BlendMode)mode)) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -294,31 +312,32 @@ mrb_sdl2_video_surface_set_blend_mode(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_surface_get_color_mod(mrb_state *mrb, mrb_value self)
 {
+  mrb_value rgb[3];
   uint8_t r, g, b;
   SDL_Surface *s = mrb_sdl2_video_surface_get_ptr(mrb, self);
   if (0 != SDL_GetSurfaceColorMod(s, &r, &g, &b)) {
     mruby_sdl2_raise_error(mrb);
   }
-  mrb_value rgb[3] = {
-    mrb_fixnum_value(r),
-    mrb_fixnum_value(g),
-    mrb_fixnum_value(b)
-  };
+  rgb[0] = mrb_fixnum_value(r);
+  rgb[1] = mrb_fixnum_value(g);
+  rgb[2] = mrb_fixnum_value(b);
+
   return mrb_obj_new(mrb, mrb_class_get_under(mrb, mod_SDL2, "RGB"), 3, rgb);
 }
 
 static mrb_value
 mrb_sdl2_video_surface_set_color_mod(mrb_state *mrb, mrb_value self)
 {
+  uint8_t r, g, b;
   mrb_value color;
   SDL_Surface *s = mrb_sdl2_video_surface_get_ptr(mrb, self);
   mrb_get_args(mrb, "o", &color);
   if (!mrb_obj_is_kind_of(mrb, color, mrb_class_get_under(mrb, mod_SDL2, "RGB"))) {
     mrb_raise(mrb, E_TYPE_ERROR, "given 1st argument is unexpected type (expected RGB).");
   }
-  uint8_t const r = mrb_fixnum(mrb_iv_get(mrb, color, mrb_intern(mrb, "@r", 2)));
-  uint8_t const g = mrb_fixnum(mrb_iv_get(mrb, color, mrb_intern(mrb, "@g", 2)));
-  uint8_t const b = mrb_fixnum(mrb_iv_get(mrb, color, mrb_intern(mrb, "@b", 2)));
+  r = mrb_fixnum(mrb_iv_get(mrb, color, mrb_intern(mrb, "@r", 2)));
+  g = mrb_fixnum(mrb_iv_get(mrb, color, mrb_intern(mrb, "@g", 2)));
+  b = mrb_fixnum(mrb_iv_get(mrb, color, mrb_intern(mrb, "@b", 2)));
   if (0 != SDL_SetSurfaceColorMod(s, r, g, b)) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -369,9 +388,10 @@ mrb_sdl2_video_surface_unlock(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_surface_load_bmp(mrb_state *mrb, mrb_value self)
 {
+  SDL_Surface *surface;
   mrb_value file;
   mrb_get_args(mrb, "S", &file);
-  SDL_Surface *surface = SDL_LoadBMP(RSTRING_PTR(file));
+  surface = SDL_LoadBMP(RSTRING_PTR(file));
   if (NULL == surface) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -384,9 +404,10 @@ mrb_sdl2_video_surface_load_bmp(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_surface_save_bmp(mrb_state *mrb, mrb_value self)
 {
+  SDL_Surface * s;
   mrb_value surface, file;
   mrb_get_args(mrb, "oo", &surface, &file);
-  SDL_Surface * const s = mrb_sdl2_video_surface_get_ptr(mrb, surface);
+  s = mrb_sdl2_video_surface_get_ptr(mrb, surface);
   if (0 != SDL_SaveBMP(s, RSTRING_PTR(file))) {
     mruby_sdl2_raise_error(mrb);
   }

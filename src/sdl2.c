@@ -37,11 +37,12 @@ struct RClass *class_SDL2Error = NULL;
 void
 mruby_sdl2_raise_error(mrb_state *mrb)
 {
+  mrb_value exc;
   char const *e = SDL_GetError();
   if (NULL == e) {
     e = "";
   }
-  mrb_value const exc = mrb_exc_new(mrb, class_SDL2Error, e, strlen(e));
+  exc = mrb_exc_new(mrb, class_SDL2Error, e, strlen(e));
   SDL_ClearError();
   mrb_exc_raise(mrb, exc);
 }

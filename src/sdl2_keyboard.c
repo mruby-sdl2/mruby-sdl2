@@ -123,13 +123,15 @@ mrb_sdl2_keyboard_scancode_name(mrb_state *mrb, mrb_value mod)
 static mrb_value
 mrb_sdl2_keyboard_text_input_rect(mrb_state *mrb, mrb_value mod)
 {
+  SDL_Rect * r;
+  SDL_Rect tmp;
   mrb_value rect;
   mrb_get_args(mrb, "o", &rect);
-  SDL_Rect const * const r = mrb_sdl2_rect_get_ptr(mrb, rect);
+  r = mrb_sdl2_rect_get_ptr(mrb, rect);
   if (NULL == r) {
     return mrb_nil_value();
   }
-  SDL_Rect tmp = *r;
+  tmp = *r;
   SDL_SetTextInputRect(&tmp);
   return mod;
 }
@@ -182,6 +184,7 @@ mrb_sdl2_keyboard_keysym_get_modifier(mrb_state *mrb, mrb_value self)
 void
 mruby_sdl2_keyboard_init(mrb_state *mrb)
 {
+  int arena_size;
   struct RClass *mod_Input = mrb_module_get_under(mrb, mod_SDL2, "Input");
 
   mod_Keyboard = mrb_define_module_under(mrb, mod_Input, "Keyboard");
@@ -207,7 +210,7 @@ mruby_sdl2_keyboard_init(mrb_state *mrb)
   mrb_define_method(mrb, class_Keysym, "symbol",   mrb_sdl2_keyboard_keysym_get_symbol,   ARGS_NONE());
   mrb_define_method(mrb, class_Keysym, "modifier", mrb_sdl2_keyboard_keysym_get_modifier, ARGS_NONE());
 
-  int arena_size = mrb_gc_arena_save(mrb);
+  arena_size = mrb_gc_arena_save(mrb);
 
   /* SDL_Scancode */
   mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_0", mrb_fixnum_value(SDL_SCANCODE_0));

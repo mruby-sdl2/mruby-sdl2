@@ -31,10 +31,12 @@ static struct mrb_data_type const mrb_sdl2_misc_buffer_data_type = {
 static mrb_value
 mrb_sdl2_misc_buffer_initialize(mrb_state *mrb, mrb_value self)
 {
+  mrb_sdl2_misc_buffer_data_t *data;
+  enum mrb_vtype arg_type;
   mrb_value arg;
   mrb_get_args(mrb, "o", &arg);
 
-  mrb_sdl2_misc_buffer_data_t *data =
+  data =
     (mrb_sdl2_misc_buffer_data_t*)DATA_PTR(self);
 
   if (NULL == data) {
@@ -46,7 +48,7 @@ mrb_sdl2_misc_buffer_initialize(mrb_state *mrb, mrb_value self)
     data->size   = 0;
   }
 
-  enum mrb_vtype const arg_type = mrb_type(arg);
+  arg_type = mrb_type(arg);
   switch (arg_type) {
   case MRB_TT_FIXNUM:
     data->size = (size_t)mrb_fixnum(arg);
@@ -60,11 +62,11 @@ mrb_sdl2_misc_buffer_initialize(mrb_state *mrb, mrb_value self)
   case MRB_TT_ARRAY:
     {
       mrb_int const n = mrb_ary_len(mrb, arg);
+      mrb_value const item = mrb_ary_ref(mrb, arg, 0);
+      enum mrb_vtype const item_vtype = mrb_type(item);
       if (0 == n) {
         mrb_raise(mrb, E_ARGUMENT_ERROR, "cannot accept empty array.");
       }
-      mrb_value const item = mrb_ary_ref(mrb, arg, 0);
-      enum mrb_vtype const item_vtype = mrb_type(item);
       switch (item_vtype) {
       case MRB_TT_FIXNUM:
         data->size = n * sizeof(int32_t);
@@ -105,8 +107,8 @@ mrb_sdl2_misc_buffer_initialize(mrb_state *mrb, mrb_value self)
   }
 
   if (arg_type == MRB_TT_ARRAY) {
-    mrb_int const n = mrb_ary_len(mrb, arg);
     mrb_int i;
+    mrb_int const n = mrb_ary_len(mrb, arg);
     enum mrb_vtype item_type = MRB_TT_MAXDEFINE;
     for (i = 0; i < n; ++i) {
       mrb_value const item = mrb_ary_ref(mrb, arg, i);
@@ -198,10 +200,13 @@ mrb_sdl2_misc_buffer_get_cptr(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_misc_floatbuffer_initialize(mrb_state *mrb, mrb_value self)
 {
+  mrb_sdl2_misc_buffer_data_t *data;
+  size_t i = 0;
   mrb_value arg;
+  enum mrb_vtype arg_type;
   mrb_get_args(mrb, "o", &arg);
 
-  mrb_sdl2_misc_buffer_data_t *data =
+  data =
     (mrb_sdl2_misc_buffer_data_t*)DATA_PTR(self);
 
   if (NULL == data) {
@@ -213,7 +218,7 @@ mrb_sdl2_misc_floatbuffer_initialize(mrb_state *mrb, mrb_value self)
     data->size   = 0;
   }
 
-  enum mrb_vtype const arg_type = mrb_type(arg);
+  arg_type = mrb_type(arg);
   switch (arg_type) {
   case MRB_TT_FIXNUM:
     data->size = sizeof(float) * (size_t)mrb_fixnum(arg);
@@ -250,7 +255,6 @@ mrb_sdl2_misc_floatbuffer_initialize(mrb_state *mrb, mrb_value self)
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
   }
 
-  size_t i = 0;
   for (i = 0; i < data->size/sizeof(float); ++i) {
     ((float*)data->buffer)[i] = 0;
   }
@@ -302,9 +306,10 @@ mrb_sdl2_misc_floatbuffer_get_size(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_misc_floatbuffer_get_at(mrb_state *mrb, mrb_value self)
 {
+  mrb_sdl2_misc_buffer_data_t *data;
   mrb_int index;
   mrb_get_args(mrb, "i", &index);
-  mrb_sdl2_misc_buffer_data_t *data =
+  data =
     (mrb_sdl2_misc_buffer_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_misc_buffer_data_type);
   if ((index < 0) || (index >= (data->size/sizeof(float)))) {
     mrb_raise(mrb, E_INDEX_ERROR, "index out of bounds.");
@@ -315,10 +320,11 @@ mrb_sdl2_misc_floatbuffer_get_at(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_misc_floatbuffer_set_at(mrb_state *mrb, mrb_value self)
 {
+  mrb_sdl2_misc_buffer_data_t *data;
   mrb_int index;
   mrb_float value;
   mrb_get_args(mrb, "if", &index, &value);
-  mrb_sdl2_misc_buffer_data_t *data =
+  data =
     (mrb_sdl2_misc_buffer_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_misc_buffer_data_type);
   if ((index < 0) || (index >= (data->size/sizeof(float)))) {
     mrb_raise(mrb, E_INDEX_ERROR, "index out of bounds.");
@@ -331,10 +337,13 @@ mrb_sdl2_misc_floatbuffer_set_at(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_misc_bytebuffer_initialize(mrb_state *mrb, mrb_value self)
 {
+  mrb_sdl2_misc_buffer_data_t *data;
+  size_t i = 0;
   mrb_value arg;
+  enum mrb_vtype arg_type;
   mrb_get_args(mrb, "o", &arg);
 
-  mrb_sdl2_misc_buffer_data_t *data =
+  data =
     (mrb_sdl2_misc_buffer_data_t*)DATA_PTR(self);
 
   if (NULL == data) {
@@ -346,7 +355,7 @@ mrb_sdl2_misc_bytebuffer_initialize(mrb_state *mrb, mrb_value self)
     data->size   = 0;
   }
 
-  enum mrb_vtype const arg_type = mrb_type(arg);
+  arg_type = mrb_type(arg);
   switch (arg_type) {
   case MRB_TT_FIXNUM:
     data->size = (size_t)mrb_fixnum(arg);
@@ -383,7 +392,6 @@ mrb_sdl2_misc_bytebuffer_initialize(mrb_state *mrb, mrb_value self)
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
   }
 
-  size_t i = 0;
   for (i = 0; i < data->size/sizeof(uint8_t); ++i) {
     ((uint8_t*)data->buffer)[i] = 0;
   }
@@ -427,9 +435,10 @@ mrb_sdl2_misc_bytebuffer_initialize(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_misc_bytebuffer_get_at(mrb_state *mrb, mrb_value self)
 {
+  mrb_sdl2_misc_buffer_data_t *data;
   mrb_int index;
   mrb_get_args(mrb, "i", &index);
-  mrb_sdl2_misc_buffer_data_t *data =
+  data =
     (mrb_sdl2_misc_buffer_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_misc_buffer_data_type);
   if ((index < 0) || (index >= (data->size/sizeof(uint8_t)))) {
     mrb_raise(mrb, E_INDEX_ERROR, "index out of bounds.");
@@ -440,10 +449,11 @@ mrb_sdl2_misc_bytebuffer_get_at(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_misc_bytebuffer_set_at(mrb_state *mrb, mrb_value self)
 {
+  mrb_sdl2_misc_buffer_data_t *data;
   mrb_int index;
   mrb_int value;
   mrb_get_args(mrb, "ii", &index, &value);
-  mrb_sdl2_misc_buffer_data_t *data =
+  data =
     (mrb_sdl2_misc_buffer_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_misc_buffer_data_type);
   if ((index < 0) || (index >= (data->size/sizeof(uint8_t)))) {
     mrb_raise(mrb, E_INDEX_ERROR, "index out of bounds.");

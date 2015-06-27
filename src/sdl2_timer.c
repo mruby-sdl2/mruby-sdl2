@@ -59,6 +59,9 @@ typedef struct mrb_sdl2_timer_param_t {
 
 static Uint32 mrb_sdl2_timer_callback(Uint32 interval, void *param)
 {
+  mrb_value arg;
+  mrb_value ret;
+  Uint32 next_interval;
   mrb_sdl2_timer_param_t *p = (mrb_sdl2_timer_param_t*)param;
   mrb_state *mrb = p->mrb;
   mrb_value  callback = p->callback;
@@ -68,8 +71,6 @@ static Uint32 mrb_sdl2_timer_callback(Uint32 interval, void *param)
     return 0;
   }
 
-  mrb_value arg;
-  mrb_value ret;
   if (interval > MRB_INT_MAX) {
     arg = mrb_float_value(new_mrb, interval);
   } else {
@@ -79,7 +80,6 @@ static Uint32 mrb_sdl2_timer_callback(Uint32 interval, void *param)
 
   mrb_close_for_thread(new_mrb);
 
-  Uint32 next_interval;
   switch (mrb_type(ret)) {
   case MRB_TT_FIXNUM:
     next_interval = (Uint32)mrb_fixnum(ret);
@@ -100,19 +100,20 @@ static Uint32 mrb_sdl2_timer_callback(Uint32 interval, void *param)
 static mrb_value
 mrb_sdl2_timer_add(mrb_state *mrb, mrb_value mod)
 {
+  SDL_TimerID id = 0;
+  mrb_sdl2_timer_param_t *param;
   mrb_value interval, callback;
   mrb_get_args(mrb, "o&", &interval, &callback);
   if (mrb_nil_p(callback)) {
     mrb_raise(mrb, E_TYPE_ERROR, "non block argument is given.");
   }
-  mrb_sdl2_timer_param_t *param = (mrb_sdl2_timer_param_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_timer_param_t));
+  param = (mrb_sdl2_timer_param_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_timer_param_t));
   if (NULL == param) {
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
   }
   param->mrb = mrb;
   param->callback = callback;
 
-  SDL_TimerID id = 0;
   switch (mrb_type(interval)) {
   case MRB_TT_FIXNUM:
     id = SDL_AddTimer((Uint32)mrb_fixnum(interval), mrb_sdl2_timer_callback, param);
@@ -139,9 +140,9 @@ mrb_sdl2_timer_add(mrb_state *mrb, mrb_value mod)
 static mrb_value
 mrb_sdl2_timer_remove(mrb_state *mrb, mrb_value mod)
 {
+  SDL_bool ret = SDL_FALSE;
   mrb_value id;
   mrb_get_args(mrb, "o", &id);
-  SDL_bool ret = SDL_FALSE;
   switch (mrb_type(id)) {
   case MRB_TT_FIXNUM:
     ret = SDL_RemoveTimer((SDL_TimerID)mrb_fixnum(id));

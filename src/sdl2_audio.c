@@ -200,10 +200,11 @@ static mrb_value
 mrb_sdl2_audio_open(mrb_state *mrb, mrb_value mod)
 {
   mrb_value arg;
-  mrb_get_args(mrb, "o", &arg);
   int ret;
-  SDL_AudioSpec *desired = (SDL_AudioSpec*)mrb_sdl2_audiospec_get_ptr(mrb, arg);
   SDL_AudioSpec obtained;
+  SDL_AudioSpec *desired;
+  mrb_get_args(mrb, "o", &arg);
+  desired = (SDL_AudioSpec*)mrb_sdl2_audiospec_get_ptr(mrb, arg);
   if (NULL == desired) {
     mrb_raise(mrb, E_ARGUMENT_ERROR, "1st argument cannot be set to null.");
   }
@@ -229,6 +230,7 @@ mrb_sdl2_audio_open_device(mrb_state *mrb, mrb_value mod)
   mrb_value device, desired, obtained;
   mrb_bool iscapture;
   mrb_int allowed_changes;
+  SDL_AudioDeviceID id;
   int const argc = mrb_get_args(mrb, "Sbo|oi", &device, &iscapture, &desired, &obtained, &allowed_changes);
 
   mrb_sdl2_audio_audiodevice_data_t *data =
@@ -237,7 +239,7 @@ mrb_sdl2_audio_open_device(mrb_state *mrb, mrb_value mod)
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
   }
 
-  SDL_AudioDeviceID id = 0;
+  id = 0;
   switch (argc) {
   case 3:
     id = SDL_OpenAudioDevice(
@@ -304,12 +306,15 @@ static mrb_value
 mrb_sdl2_audio_get_devices(mrb_state *mrb, mrb_value mod)
 {
   mrb_bool iscapture = false;
-  mrb_get_args(mrb, "|b", &iscapture);
-  int const n = SDL_GetNumAudioDevices(iscapture ? 1 : 0);
   int i;
-  mrb_value array = mrb_ary_new_capa(mrb, n);
+  int n;
+  mrb_value array;
+  const char * name;
+  mrb_get_args(mrb, "|b", &iscapture);
+  n = SDL_GetNumAudioDevices(iscapture ? 1 : 0);
+  array = mrb_ary_new_capa(mrb, n);
   for (i = 0; i < n; ++i) {
-    char const * const name = SDL_GetAudioDeviceName(i, iscapture ? 1 : 0);
+    name = SDL_GetAudioDeviceName(i, iscapture ? 1 : 0);
     if (NULL == name) {
       continue;
     }
@@ -347,9 +352,10 @@ mrb_sdl2_audio_mix_audio(mrb_state *mrb, mrb_value mod)
 {
   mrb_value dst, src;
   mrb_int dpos, spos, len, volume;
-  mrb_get_args(mrb, "oioiii", &dst, &dpos, &src, &spos, &len, &volume);
+  size_t sz;
   Uint8 *dst_ptr = NULL;
   Uint8 const *src_ptr = NULL;
+  mrb_get_args(mrb, "oioiii", &dst, &dpos, &src, &spos, &len, &volume);
   if (mrb_type(dst) == MRB_TT_CPTR) {
     dst_ptr = (Uint8*)mrb_cptr(dst);
   }
@@ -375,7 +381,7 @@ mrb_sdl2_audio_mix_audio(mrb_state *mrb, mrb_value mod)
         (mrb_sdl2_audio_audiocvt_data_t*)mrb_data_get_ptr(mrb, src, &mrb_sdl2_audio_audiocvt_data_type);
       if (NULL != data->cvt.buf) {
         src_ptr = (Uint8 const *)data->cvt.buf;
-        size_t const sz = data->cvt.len * data->cvt.len_mult;
+        sz = data->cvt.len * data->cvt.len_mult;
         if (spos > sz) {
           len = 0;
         } else if (len > (sz - spos)) {
@@ -408,7 +414,7 @@ mrb_sdl2_audio_audiospec_callback(void *userdata, Uint8 *stream, int len)
   mrb_sdl2_audio_userdata_t *data = (mrb_sdl2_audio_userdata_t*)userdata;
   mrb_state *mrb = data->mrb;
   mrb_value obj = data->obj;
-
+  mrb_value args[3];
   SDL_AudioSpec const * const spec = mrb_sdl2_audiospec_get_ptr(mrb, obj);
   mrb_value udata = mrb_iv_get(mrb, obj, mrb_intern(mrb, "userdata", 8));
   mrb_value block = mrb_iv_get(mrb, obj, mrb_intern(mrb, "callback", 8));
@@ -420,12 +426,16 @@ mrb_sdl2_audio_audiospec_callback(void *userdata, Uint8 *stream, int len)
   }
 
   // TODO migrate thread context if necessary.
-
+  args[0] = udata;
+  args[1] = mrb_cptr_value(mrb, stream);
+  args[2] = mrb_fixnum_value(len);
+  /*
   mrb_value args[3] = {
     udata,
     mrb_cptr_value(mrb, stream),
     mrb_fixnum_value(len)
   };
+  */
   mrb_yield_argv(mrb, block, 3, args);
 }
 
@@ -592,15 +602,19 @@ mrb_sdl2_audio_audiocvt_initialize(mrb_state *mrb, mrb_value self)
 {
   mrb_value src_spec, src_data;
   mrb_int format, channels, freq;
+  mrb_sdl2_audio_audiospec_data_t *sspec;
+  mrb_sdl2_audio_audiodata_data_t *sdata;
+  mrb_sdl2_audio_audiocvt_data_t *data;
+  int ret;
   mrb_get_args(mrb, "ooiii", &src_spec, &src_data, &format, &channels, &freq);
 
-  mrb_sdl2_audio_audiospec_data_t *sspec =
+  sspec =
     (mrb_sdl2_audio_audiospec_data_t*)mrb_data_get_ptr(mrb, src_spec, &mrb_sdl2_audio_audiospec_data_type);
 
-  mrb_sdl2_audio_audiodata_data_t *sdata = 
+  sdata = 
     (mrb_sdl2_audio_audiodata_data_t*)mrb_data_get_ptr(mrb, src_data, &mrb_sdl2_audio_audiodata_data_type);
 
-  mrb_sdl2_audio_audiocvt_data_t *data =
+  data =
     (mrb_sdl2_audio_audiocvt_data_t*)DATA_PTR(self);
 
   if (NULL == data) {
@@ -611,7 +625,7 @@ mrb_sdl2_audio_audiocvt_initialize(mrb_state *mrb, mrb_value self)
     data->cvt = (SDL_AudioCVT){ 0, };
   }
 
-  int const ret = SDL_BuildAudioCVT(
+  ret = SDL_BuildAudioCVT(
                     &data->cvt,
                     sspec->spec.format,
                     sspec->spec.channels,
@@ -660,15 +674,17 @@ mrb_sdl2_audio_audiocvt_convert(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_audio_audiodevice_initialize(mrb_state *mrb, mrb_value self)
 {
-  mrb_sdl2_audio_audiodevice_data_t *data =
-    (mrb_sdl2_audio_audiodevice_data_t*)DATA_PTR(self);
   mrb_value devname, spec;
   mrb_bool iscapture;
   mrb_int allowed_changes;
-  mrb_get_args(mrb, "oboi", &devname, &iscapture, &spec, &allowed_changes);
-  char const *device = NULL;
-  SDL_AudioSpec *desired = mrb_sdl2_audiospec_get_ptr(mrb, spec);
   SDL_AudioSpec obtained;
+  char const *device = NULL;
+  SDL_AudioSpec *desired;
+  SDL_AudioDeviceID id;
+  mrb_sdl2_audio_audiodevice_data_t *data =
+    (mrb_sdl2_audio_audiodevice_data_t*)DATA_PTR(self);
+  mrb_get_args(mrb, "oboi", &devname, &iscapture, &spec, &allowed_changes);
+  desired = mrb_sdl2_audiospec_get_ptr(mrb, spec);
 
   if (mrb_nil_p(devname)) {
     device = NULL;
@@ -687,7 +703,7 @@ mrb_sdl2_audio_audiodevice_initialize(mrb_state *mrb, mrb_value self)
     data->spec = (SDL_AudioSpec){ 0, };
   }
 
-  SDL_AudioDeviceID id = SDL_OpenAudioDevice(
+  id = SDL_OpenAudioDevice(
     device, iscapture ? 1 : 0, desired, &obtained, allowed_changes);
   if (0 == id) {
     mruby_sdl2_raise_error(mrb);
@@ -725,9 +741,9 @@ mrb_sdl2_audio_audiodevice_get_spec(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_audio_audiodevice_pause(mrb_state *mrb, mrb_value self)
 {
+  mrb_bool pause;
   mrb_sdl2_audio_audiodevice_data_t *data =
     (mrb_sdl2_audio_audiodevice_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_audio_audiodevice_data_type);
-  mrb_bool pause;
   mrb_get_args(mrb, "b", &pause);
   if (0 < data->id) {
     SDL_PauseAudioDevice(data->id, pause ? 1 : 0);
@@ -778,6 +794,7 @@ static mrb_value
 mrb_sdl2_audio_audiodata_initialize(mrb_state *mrb, mrb_value self)
 {
   mrb_value file;
+  mrb_value s;
   mrb_sdl2_audio_audiodata_data_t *data =
     (mrb_sdl2_audio_audiodata_data_t*)DATA_PTR(self);
 
@@ -804,7 +821,7 @@ mrb_sdl2_audio_audiodata_initialize(mrb_state *mrb, mrb_value self)
     mruby_sdl2_raise_error(mrb);
   }
 
-  mrb_value s = mrb_obj_value(Data_Wrap_Struct(mrb, class_AudioSpec, &mrb_sdl2_audio_audiospec_data_type, spec));
+  s = mrb_obj_value(Data_Wrap_Struct(mrb, class_AudioSpec, &mrb_sdl2_audio_audiospec_data_type, spec));
 
   spec->spec.userdata = &spec->udata;
   spec->spec.callback = &mrb_sdl2_audio_audiospec_callback;
@@ -858,6 +875,7 @@ mrb_sdl2_audio_audiodata_get_length(mrb_state *mrb, mrb_value self)
 void
 mruby_sdl2_audio_init(mrb_state *mrb)
 {
+  int arena_size;
   mod_Audio = mrb_define_module_under(mrb, mod_SDL2, "Audio");
   class_AudioCVT    = mrb_define_class_under(mrb, mod_Audio, "AudioCVT",    mrb->object_class);
   class_AudioSpec   = mrb_define_class_under(mrb, mod_Audio, "AudioSpec",   mrb->object_class);
@@ -916,7 +934,7 @@ mruby_sdl2_audio_init(mrb_state *mrb)
   mrb_define_method(mrb, class_AudioData, "buffer",     mrb_sdl2_audio_audiodata_get_buffer, ARGS_NONE());
   mrb_define_method(mrb, class_AudioData, "length",     mrb_sdl2_audio_audiodata_get_length, ARGS_NONE());
 
-  int arena_size = mrb_gc_arena_save(mrb);
+  arena_size = mrb_gc_arena_save(mrb);
 
   /* SDL_AudioFormat */
   mrb_define_const(mrb, mod_Audio, "AUDIO_S8",     mrb_fixnum_value(AUDIO_S8));

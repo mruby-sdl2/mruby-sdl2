@@ -73,10 +73,11 @@ static struct mrb_data_type mrb_sdl2_cond_data_type = {
 SDL_mutex *
 mrb_sdl2_mutex_get_ptr(mrb_state *mrb, mrb_value mutex)
 {
+  mrb_sdl2_mutex_data_t *data;
   if (mrb_nil_p(mutex)) {
     return NULL;
   }
-  mrb_sdl2_mutex_data_t *data =
+  data =
     (mrb_sdl2_mutex_data_t*)mrb_data_get_ptr(mrb, mutex, &mrb_sdl2_mutex_data_type);
   return data->mutex;
 }
@@ -84,10 +85,11 @@ mrb_sdl2_mutex_get_ptr(mrb_state *mrb, mrb_value mutex)
 mrb_value
 mrb_sdl2_mutex(mrb_state *mrb, SDL_mutex *mutex)
 {
+  mrb_sdl2_mutex_data_t *data;
   if (NULL == mutex) {
     return mrb_nil_value();
   }
-  mrb_sdl2_mutex_data_t *data =
+  data =
     (mrb_sdl2_mutex_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_mutex_data_t));
   if (NULL == data) {
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
@@ -253,12 +255,13 @@ mrb_sdl2_semaphore_wait(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_semaphore_try_wait(mrb_state *mrb, mrb_value self)
 {
+  int status;
   mrb_sdl2_semaphore_data_t *data =
     (mrb_sdl2_semaphore_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_semaphore_data_type);
   if (NULL == data->semaphore) {
     return mrb_nil_value();
   }
-  int const status = SDL_SemTryWait(data->semaphore);
+  status = SDL_SemTryWait(data->semaphore);
   if (0 > status) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -271,14 +274,15 @@ mrb_sdl2_semaphore_try_wait(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_semaphore_wait_timeout(mrb_state *mrb, mrb_value self)
 {
+  mrb_int ms;
+  int status;
   mrb_sdl2_semaphore_data_t *data =
     (mrb_sdl2_semaphore_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_semaphore_data_type);
-  mrb_int ms;
   mrb_get_args(mrb, "i", &ms);
   if (NULL == data->semaphore) {
     return mrb_nil_value();
   }
-  int const status = SDL_SemWaitTimeout(data->semaphore, (Uint32)ms);
+  status = SDL_SemWaitTimeout(data->semaphore, (Uint32)ms);
   if (0 > status) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -291,12 +295,13 @@ mrb_sdl2_semaphore_wait_timeout(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_semaphore_get_value(mrb_state *mrb, mrb_value self)
 {
+  Uint32 value;
   mrb_sdl2_semaphore_data_t *data =
     (mrb_sdl2_semaphore_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_semaphore_data_type);
   if (NULL == data->semaphore) {
     return mrb_nil_value();
   }
-  Uint32 const value = SDL_SemValue(data->semaphore);
+  value = SDL_SemValue(data->semaphore);
   return mrb_fixnum_value((mrb_int)value);
 }
 
@@ -370,14 +375,15 @@ mrb_sdl2_cond_signal(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_cond_wait(mrb_state *mrb, mrb_value self)
 {
+  mrb_value mutex;
+  mrb_sdl2_mutex_data_t *mutex_data;
   mrb_sdl2_cond_data_t *data =
     (mrb_sdl2_cond_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_cond_data_type);
   if (NULL == data->cond) {
     return mrb_nil_value();
   }
-  mrb_value mutex;
   mrb_get_args(mrb, "o", &mutex);
-  mrb_sdl2_mutex_data_t *mutex_data =
+  mutex_data =
     (mrb_sdl2_mutex_data_t*)mrb_data_get_ptr(mrb, mutex, &mrb_sdl2_mutex_data_type);
   if (0 > SDL_CondWait(data->cond, mutex_data->mutex)) {
     mruby_sdl2_raise_error(mrb);
@@ -388,15 +394,16 @@ mrb_sdl2_cond_wait(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_cond_wait_timeout(mrb_state *mrb, mrb_value self)
 {
+  mrb_value mutex;
+  mrb_int ms;
+  mrb_sdl2_mutex_data_t *mutex_data;
   mrb_sdl2_cond_data_t *data =
     (mrb_sdl2_cond_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_cond_data_type);
   if (NULL == data->cond) {
     return mrb_nil_value();
   }
-  mrb_value mutex;
-  mrb_int ms;
   mrb_get_args(mrb, "oi", &mutex, &ms);
-  mrb_sdl2_mutex_data_t *mutex_data =
+  mutex_data =
     (mrb_sdl2_mutex_data_t*)mrb_data_get_ptr(mrb, mutex, &mrb_sdl2_mutex_data_type);
   if (0 > SDL_CondWaitTimeout(data->cond, mutex_data->mutex, (Uint32)ms)) {
     mruby_sdl2_raise_error(mrb);

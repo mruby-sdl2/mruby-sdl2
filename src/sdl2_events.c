@@ -49,23 +49,23 @@ static struct mrb_data_type const mrb_sdl2_input_event_data_type = {
 SDL_Event *
 mrb_sdl2_input_event_get_ptr(mrb_state *mrb, mrb_value value)
 {
+  mrb_sdl2_input_event_data_t *data;
   if (mrb_nil_p(value)) {
     return NULL;
   }
-  mrb_sdl2_input_event_data_t *data =
-    (mrb_sdl2_input_event_data_t*)mrb_data_get_ptr(mrb, value, &mrb_sdl2_input_event_data_type);
+  data = (mrb_sdl2_input_event_data_t*)mrb_data_get_ptr(mrb, value, &mrb_sdl2_input_event_data_type);
   return &data->event;
 }
 
 mrb_value
 mrb_sdl2_input_event(mrb_state *mrb, SDL_Event const *event)
 {
+  mrb_sdl2_input_event_data_t *data;
   if (NULL == event) {
     return mrb_nil_value();
   }
 
-  mrb_sdl2_input_event_data_t *data =
-    (mrb_sdl2_input_event_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_input_event_data_t));
+  data = (mrb_sdl2_input_event_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_input_event_data_t));
   if (NULL == data) {
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
   }
@@ -179,8 +179,8 @@ static mrb_value
 mrb_sdl2_input_wait_timeout(mrb_state *mrb, mrb_value mod)
 {
   mrb_int timeout;
-  mrb_get_args(mrb, "i", &timeout);
   SDL_Event event;
+  mrb_get_args(mrb, "i", &timeout);
   if (0 == SDL_WaitEventTimeout(&event, timeout)) {
     return mrb_nil_value();
   }
@@ -249,10 +249,12 @@ static mrb_value
 mrb_sdl2_input_push(mrb_state *mrb, mrb_value self)
 {
   mrb_value event;
+  mrb_sdl2_input_event_data_t *data;
+  int ret;
   mrb_get_args(mrb, "o", &event);
-  mrb_sdl2_input_event_data_t *data =
+  data =
     (mrb_sdl2_input_event_data_t*)mrb_data_get_ptr(mrb, event, &mrb_sdl2_input_event_data_type);
-  int const ret = SDL_PushEvent(&data->event);
+  ret = SDL_PushEvent(&data->event);
   if (0 > ret) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -556,12 +558,12 @@ mrb_sdl2_input_to_voidp(mrb_state *mrb, mrb_value data)
 static mrb_value
 mrb_sdl2_input_to_value(mrb_state *mrb, void *data)
 {
+  mrb_value value;
   mrb_sdl2_input_user_data_t *udata =
     (mrb_sdl2_input_user_data_t*)data;
   if (NULL == udata) {
     return mrb_nil_value();
   }
-  mrb_value value;
   switch (udata->type) {
   case MRB_TT_FIXNUM:
     value = mrb_fixnum_value(udata->data.fixnum_value);
@@ -587,6 +589,9 @@ mrb_sdl2_input_to_value(mrb_state *mrb, void *data)
 static mrb_value
 mrb_sdl2_input_userevent_initialize(mrb_state *mrb, mrb_value self)
 {
+  mrb_int type, code;
+  mrb_value data1, data2;
+  int argc;
   mrb_sdl2_input_event_data_t *data =
     (mrb_sdl2_input_event_data_t*)DATA_PTR(self);
 
@@ -598,9 +603,7 @@ mrb_sdl2_input_userevent_initialize(mrb_state *mrb, mrb_value self)
     data->event = (SDL_Event){ 0 };
   }
 
-  mrb_int type, code;
-  mrb_value data1, data2;
-  int const argc = mrb_get_args(mrb, "ii|oo", &type, &code, &data1, &data2);
+  argc = mrb_get_args(mrb, "ii|oo", &type, &code, &data1, &data2);
 
   switch (argc) {
   case 4:
@@ -776,6 +779,7 @@ mrb_sdl2_input_windowevent_get_data2(mrb_state *mrb, mrb_value self)
 void
 mruby_sdl2_events_init(mrb_state *mrb)
 {
+  int arena_size;
   mod_Input = mrb_define_module_under(mrb, mod_SDL2, "Input");
 
   class_Event       = mrb_define_class_under(mrb, mod_Input, "Event",       mrb->object_class);
@@ -891,7 +895,7 @@ mruby_sdl2_events_init(mrb_state *mrb)
   mrb_define_method(mrb, class_WindowEvent, "data1",     mrb_sdl2_input_windowevent_get_data1,     ARGS_NONE());
   mrb_define_method(mrb, class_WindowEvent, "data2",     mrb_sdl2_input_windowevent_get_data2,     ARGS_NONE());
 
-  int arena_size = mrb_gc_arena_save(mrb);
+  arena_size = mrb_gc_arena_save(mrb);
 
   /* SDL_EventType */
   mrb_define_const(mrb, mod_Input, "SDL_FIRSTEVENT",               mrb_fixnum_value(SDL_FIRSTEVENT));

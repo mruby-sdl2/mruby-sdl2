@@ -33,23 +33,24 @@ static struct mrb_data_type const mrb_sdl2_pixels_palette_data_type = {
 SDL_Palette *
 mrb_sdl2_pixels_palette_get_ptr(mrb_state *mrb, mrb_value palette)
 {
-  if (mrb_nil_p(palette)) {
+  mrb_sdl2_pixels_palette_data_t *data;
+  if (mrb_nil_p(palette))
     return NULL;
-  }
 
-  mrb_sdl2_pixels_palette_data_t *data =
+   data =
     (mrb_sdl2_pixels_palette_data_t*)mrb_data_get_ptr(mrb, palette, &mrb_sdl2_pixels_palette_data_type);
   return data->palette;
 }
 
 mrb_value
-mrb_sdl2_pixels_palette(mrb_state *mrb, SDL_PixelFormat *palette)
+mrb_sdl2_pixels_palette(mrb_state *mrb, SDL_Palette *palette)
 {
+  mrb_sdl2_pixels_palette_data_t *data;
   if (NULL == palette) {
     return mrb_nil_value();
   }
 
-  mrb_sdl2_pixels_palette_data_t *data =
+  data =
     (mrb_sdl2_pixels_palette_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_pixels_palette_data_t));
 
   data->is_associated = false;
@@ -60,11 +61,12 @@ mrb_sdl2_pixels_palette(mrb_state *mrb, SDL_PixelFormat *palette)
 mrb_value
 mrb_sdl2_pixels_associated_palette(mrb_state *mrb, SDL_Palette *palette)
 {
+  mrb_sdl2_pixels_palette_data_t *data;
   if (NULL == palette) {
     return mrb_nil_value();
   }
 
-  mrb_sdl2_pixels_palette_data_t *data =
+  data =
     (mrb_sdl2_pixels_palette_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_pixels_palette_data_t));
 
   data->is_associated = true;
@@ -99,11 +101,12 @@ static struct mrb_data_type const mrb_sdl2_pixels_pixelformat_data_type = {
 SDL_PixelFormat *
 mrb_sdl2_pixels_pixelformat_get_ptr(mrb_state *mrb, mrb_value pixelformat)
 {
+  mrb_sdl2_pixels_pixelformat_data_t *data;
   if (mrb_nil_p(pixelformat)) {
     return NULL;
   }
 
-  mrb_sdl2_pixels_pixelformat_data_t *data =
+  data =
     (mrb_sdl2_pixels_pixelformat_data_t*)mrb_data_get_ptr(mrb, pixelformat, &mrb_sdl2_pixels_pixelformat_data_type);
   return data->pixelformat;
 }
@@ -111,11 +114,12 @@ mrb_sdl2_pixels_pixelformat_get_ptr(mrb_state *mrb, mrb_value pixelformat)
 mrb_value
 mrb_sdl2_pixels_pixelformat(mrb_state *mrb, SDL_PixelFormat *pixelformat)
 {
+  mrb_sdl2_pixels_pixelformat_data_t *data;
   if (NULL == pixelformat) {
     return mrb_nil_value();
   }
 
-  mrb_sdl2_pixels_pixelformat_data_t *data =
+  data =
     (mrb_sdl2_pixels_pixelformat_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_pixels_pixelformat_data_t));
   data->is_associated = false;
   data->pixelformat = pixelformat;
@@ -125,11 +129,12 @@ mrb_sdl2_pixels_pixelformat(mrb_state *mrb, SDL_PixelFormat *pixelformat)
 mrb_value
 mrb_sdl2_pixels_associated_pixelformat(mrb_state *mrb, SDL_PixelFormat *pixelformat)
 {
+  mrb_sdl2_pixels_pixelformat_data_t *data;
   if (NULL == pixelformat) {
     return mrb_nil_value();
   }
 
-  mrb_sdl2_pixels_pixelformat_data_t *data =
+  data =
     (mrb_sdl2_pixels_pixelformat_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_pixels_pixelformat_data_t));
 
   data->is_associated = true;
@@ -148,9 +153,10 @@ static mrb_value
 mrb_sdl2_pixels_get_pixel_format_name(mrb_state *mrb, mrb_value mod)
 {
   mrb_int format;
+  mrb_value result;
   mrb_get_args(mrb, "i", &format);
 
-  mrb_value result = mrb_str_new_cstr(mrb, SDL_GetPixelFormatName((int) format));
+  result = mrb_str_new_cstr(mrb, SDL_GetPixelFormatName((int) format));
   return result;
 }
 
@@ -158,23 +164,20 @@ static mrb_value
 mrb_sdl2_pixels_format_to_masks(mrb_state *mrb, mrb_value mod)
 {
   mrb_int format;
+  int bpp;
+  Uint32 Rmask;
+  Uint32 Gmask;
+  Uint32 Bmask;
+  Uint32 Amask;
+  mrb_value array;
   mrb_get_args(mrb, "i", &format);
 
-  int * bpp;
-  Uint32 * Rmask;
-  Uint32 * Gmask;
-  Uint32 * Bmask;
-  Uint32 * Amask;
-  if (SDL_PixelFormatEnumToMasks((Uint32) format, bpp, Rmask, Gmask, Bmask, Amask) != SDL_FALSE) {
-    mrb_value array = mrb_ary_new_capa(mrb, 4);
-    mrb_ary_push(mrb, array, mrb_fixnum_value(format));
-    mrb_ary_push(mrb, array, mrb_fixnum_value(format));
-    /* TBD
+  if (SDL_PixelFormatEnumToMasks((Uint32) format, &bpp, &Rmask, &Gmask, &Bmask, &Amask) != SDL_FALSE) {
+    array = mrb_ary_new_capa(mrb, 4);
     mrb_ary_push(mrb, array, mrb_fixnum_value(bpp));
     mrb_ary_push(mrb, array, mrb_fixnum_value(Rmask));
     mrb_ary_push(mrb, array, mrb_fixnum_value(Gmask));
     mrb_ary_push(mrb, array, mrb_fixnum_value(Amask));
-    */
     return array;
   }
   return mrb_false_value();
@@ -183,9 +186,10 @@ mrb_sdl2_pixels_format_to_masks(mrb_state *mrb, mrb_value mod)
 static mrb_value
 mrb_sdl2_pixels_masks_to_format(mrb_state *mrb, mrb_value mod) {
   mrb_int bpp, Rmask, Gmask, Bmask, Amask;
+  Uint32 result;
   mrb_get_args(mrb, "iiiii", &bpp, &Rmask, &Gmask, &Bmask, &Amask);
 
-  Uint32 result = SDL_MasksToPixelFormatEnum((int) bpp, (Uint32) Rmask, (Uint32) Gmask, (Uint32) Bmask, (Uint32) Amask);
+  result = SDL_MasksToPixelFormatEnum((int) bpp, (Uint32) Rmask, (Uint32) Gmask, (Uint32) Bmask, (Uint32) Amask);
 
   if (result == SDL_PIXELFORMAT_UNKNOWN)
     return mrb_false_value();
@@ -198,10 +202,13 @@ static mrb_value
 mrb_sdl2_pixels_pixelformat_set_palette(mrb_state *mrb, mrb_value self)
 {
   mrb_value palette;
+  SDL_PixelFormat * pixelformat_p;
+  SDL_Palette * palette_p;
+  int result;
   mrb_get_args(mrb, "o", &palette);
-  SDL_PixelFormat * pixelformat_p = mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self);
-  SDL_Palette * palette_p = mrb_sdl2_pixels_palette_get_ptr(mrb, palette);
-  int result = SDL_SetPixelFormatPalette(pixelformat_p, palette_p);
+  pixelformat_p = mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self);
+  palette_p = mrb_sdl2_pixels_palette_get_ptr(mrb, palette);
+  result = SDL_SetPixelFormatPalette(pixelformat_p, palette_p);
   if (0 > result) {
     // error occurred
     mruby_sdl2_raise_error(mrb);
@@ -214,14 +221,16 @@ static mrb_value
 mrb_sdl2_pixels_palette_set_color(mrb_state *mrb, mrb_value self)
 {
   mrb_int r, g, b, a, firstcolor, ncolors;
-  mrb_get_args(mrb, "iiiiii", &r, &g, &b, &a, &firstcolor, &ncolors);
+  SDL_Palette *palette_p;
+  int result;
   SDL_Color color;
+  mrb_get_args(mrb, "iiiiii", &r, &g, &b, &a, &firstcolor, &ncolors);
   color.r = (Uint8) r;
   color.g = (Uint8) g;
   color.b = (Uint8) b;
   color.a = (Uint8) a;
-  SDL_Palette *palette_p = mrb_sdl2_pixels_palette_get_ptr(mrb, self);
-  int result = SDL_SetPaletteColors(palette_p, &color, (int) firstcolor, (int) ncolors);
+  palette_p = mrb_sdl2_pixels_palette_get_ptr(mrb, self);
+  result = SDL_SetPaletteColors(palette_p, &color, (int) firstcolor, (int) ncolors);
   if (result == 1) {
     // error occurred
     mruby_sdl2_raise_error(mrb);
@@ -233,9 +242,11 @@ static mrb_value
 mrb_sdl2_pixels_pixelformat_map_rgb(mrb_state *mrb, mrb_value self)
 {
   mrb_int r, g, b;
+  Uint32 result;
+  SDL_PixelFormat * pixelformat_p;
   mrb_get_args(mrb, "iii", &r, &g, &b);
-  SDL_PixelFormat * pixelformat_p = mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self);
-  Uint32 result = SDL_MapRGB(pixelformat_p, (Uint8) r, (Uint8) g, (Uint8) b);
+  pixelformat_p = mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self);
+  result = SDL_MapRGB(pixelformat_p, (Uint8) r, (Uint8) g, (Uint8) b);
 
   return mrb_fixnum_value((mrb_int) result);
 }
@@ -244,9 +255,11 @@ static mrb_value
 mrb_sdl2_pixels_pixelformat_map_rgba(mrb_state *mrb, mrb_value self)
 {
   mrb_int r, g, b, a;
+  Uint32 result;
+  SDL_PixelFormat * pixelformat_p;
   mrb_get_args(mrb, "iiii", &r, &g, &b, &a);
-  SDL_PixelFormat * pixelformat_p = mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self);
-  Uint32 result = SDL_MapRGBA(pixelformat_p, (Uint8) r, (Uint8) g, (Uint8) b, (Uint8) a);
+  pixelformat_p = mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self);
+  result = SDL_MapRGBA(pixelformat_p, (Uint8) r, (Uint8) g, (Uint8) b, (Uint8) a);
 
   return mrb_fixnum_value((mrb_int) result);
 }
@@ -255,19 +268,21 @@ static mrb_value
 mrb_sdl2_pixels_pixelformat_get_rgb(mrb_state *mrb, mrb_value self)
 {
   mrb_int pixel;
+  Uint8 r;
+  Uint8 g;
+  Uint8 b;
+  SDL_PixelFormat * pixelformat_p;
+  mrb_value array;
   mrb_get_args(mrb, "i", &pixel);
 
-  SDL_PixelFormat * pixelformat_p = mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self);
+  pixelformat_p = mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self);
 
-  Uint8 * r;
-  Uint8 * g;
-  Uint8 * b;
-  SDL_GetRGB((Uint32) pixel, pixelformat_p, r, g ,b);
+  SDL_GetRGB((Uint32) pixel, pixelformat_p, &r, &g ,&b);
 
-  mrb_value array = mrb_ary_new_capa(mrb, 3);
-  mrb_ary_push(mrb, array, mrb_fixnum_value((int) *r));
-  mrb_ary_push(mrb, array, mrb_fixnum_value((int) *g));
-  mrb_ary_push(mrb, array, mrb_fixnum_value((int) *b));
+  array = mrb_ary_new_capa(mrb, 3);
+  mrb_ary_push(mrb, array, mrb_fixnum_value(r));
+  mrb_ary_push(mrb, array, mrb_fixnum_value(g));
+  mrb_ary_push(mrb, array, mrb_fixnum_value(b));
 
   return array;
 }
@@ -276,21 +291,23 @@ static mrb_value
 mrb_sdl2_pixels_pixelformat_get_rgba(mrb_state *mrb, mrb_value self)
 {
   mrb_int pixel;
+  Uint8 r;
+  Uint8 g;
+  Uint8 b;
+  Uint8 a;
+  SDL_PixelFormat * pixelformat_p;
+  mrb_value array;
   mrb_get_args(mrb, "i", &pixel);
 
-  SDL_PixelFormat * pixelformat_p = mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self);
+  pixelformat_p = mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self);
 
-  Uint8 * r;
-  Uint8 * g;
-  Uint8 * b;
-  Uint8 * a;
-  SDL_GetRGBA((Uint32) pixel, pixelformat_p, r, g ,b, a);
+  SDL_GetRGBA((Uint32) pixel, pixelformat_p, &r, &g , &b, &a);
 
-  mrb_value array = mrb_ary_new_capa(mrb, 4);
-  mrb_ary_push(mrb, array, mrb_fixnum_value((int) *r));
-  mrb_ary_push(mrb, array, mrb_fixnum_value((int) *g));
-  mrb_ary_push(mrb, array, mrb_fixnum_value((int) *b));
-  mrb_ary_push(mrb, array, mrb_fixnum_value((int) *a));
+  array = mrb_ary_new_capa(mrb, 4);
+  mrb_ary_push(mrb, array, mrb_fixnum_value(r));
+  mrb_ary_push(mrb, array, mrb_fixnum_value(g));
+  mrb_ary_push(mrb, array, mrb_fixnum_value(b));
+  mrb_ary_push(mrb, array, mrb_fixnum_value(a));
 
   return array;
 }
@@ -300,9 +317,9 @@ static mrb_value
 mrb_sdl2_pixels_calculate_gamma_ramp(mrb_state *mrb, mrb_value self)
 {
   mrb_float gamma;
+  Uint16 ramp;
   mrb_get_args(mrb, "f", &gamma);
-  Uint16 * ramp;
-  SDL_CalculateGammaRamp((float) gamma, ramp);
+  SDL_CalculateGammaRamp((float) gamma, &ramp);
 
   return mrb_fixnum_value(ramp);
 }
@@ -316,9 +333,10 @@ mrb_value
 mrb_sdl2_pixels_pixelformat_new(mrb_state *mrb, SDL_PixelFormat *format)
 {
   //@todo how do better?
+  mrb_sdl2_pixels_pixelformat_data_t *data;
   mrb_value args[] = {mrb_fixnum_value(format->format)};
   mrb_value oformat = mrb_obj_new(mrb, class_PixelFormat, 1, args);
-  mrb_sdl2_pixels_pixelformat_data_t *data = (mrb_sdl2_pixels_pixelformat_data_t*)DATA_PTR(oformat);
+  data = (mrb_sdl2_pixels_pixelformat_data_t*)DATA_PTR(oformat);
   data->pixelformat = format;
   DATA_PTR(oformat) = data;
   return oformat;
@@ -327,6 +345,7 @@ mrb_sdl2_pixels_pixelformat_new(mrb_state *mrb, SDL_PixelFormat *format)
 static mrb_value
 mrb_sdl2_pixels_pixelformat_initialize(mrb_state *mrb, mrb_value self)
 {
+	SDL_PixelFormat *pixelformat;
   mrb_sdl2_pixels_pixelformat_data_t *data =
     (mrb_sdl2_pixels_pixelformat_data_t*)DATA_PTR(self);
 
@@ -336,7 +355,7 @@ mrb_sdl2_pixels_pixelformat_initialize(mrb_state *mrb, mrb_value self)
     data->pixelformat = NULL;
   }
 
-  SDL_PixelFormat *pixelformat = NULL;
+  pixelformat = NULL;
   if (1 == mrb->c->ci->argc) {
     mrb_int pixel_format;
     mrb_get_args(mrb, "i", &pixel_format);
@@ -379,6 +398,7 @@ mrb_sdl2_pixels_pixelformat_free(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_pixels_palette_initialize(mrb_state *mrb, mrb_value self)
 {
+	SDL_Palette *palette;
   mrb_sdl2_pixels_palette_data_t *data =
     (mrb_sdl2_pixels_palette_data_t*)DATA_PTR(self);
 
@@ -388,7 +408,7 @@ mrb_sdl2_pixels_palette_initialize(mrb_state *mrb, mrb_value self)
     data->palette = NULL;
   }
 
-  SDL_Palette *palette = NULL;
+  palette = NULL;
   if (1 == mrb->c->ci->argc) {
     mrb_int ncolors;
     mrb_get_args(mrb, "i", &ncolors);
@@ -425,6 +445,7 @@ mrb_sdl2_pixels_palette_free(mrb_state *mrb, mrb_value self)
 void
 mruby_sdl2_pixels_init(mrb_state *mrb)
 {
+	int arena_size;
   struct RClass *mod_Pixels = mrb_define_module_under(mrb, mod_SDL2, "Pixels");
 
   class_PixelFormat = mrb_define_class_under(mrb, mod_Pixels, "PixelFormat", mrb->object_class);
@@ -454,7 +475,7 @@ mruby_sdl2_pixels_init(mrb_state *mrb)
   mrb_define_method(mrb, class_Palette, "free",       mrb_sdl2_pixels_palette_free,       ARGS_NONE());
 
   /* PixelFormats start */
-  int arena_size = mrb_gc_arena_save(mrb);
+  arena_size = mrb_gc_arena_save(mrb);
   mrb_define_const(mrb, mod_Pixels, "SDL_PIXELFORMAT_UNKNOWN",       mrb_fixnum_value(SDL_PIXELFORMAT_UNKNOWN));
   mrb_define_const(mrb, mod_Pixels, "SDL_PIXELFORMAT_INDEX1LSB",     mrb_fixnum_value(SDL_PIXELFORMAT_INDEX1LSB));
   mrb_define_const(mrb, mod_Pixels, "SDL_PIXELFORMAT_INDEX1MSB",     mrb_fixnum_value(SDL_PIXELFORMAT_INDEX1MSB));

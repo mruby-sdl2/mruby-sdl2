@@ -82,7 +82,9 @@ void mruby_sdl2_cpuinfo_init(mrb_state *mrb)
 
   struct RClass * mod_CPUInfo = mrb_define_module_under(mrb, mod_SDL2, "CPUInfo");
   mrb_define_module_function(mrb, mod_CPUInfo, "get_cpu_count", mrb_sdl2_cpuinfo_get_cpu_count,  ARGS_NONE());
+  mrb_define_module_function(mrb, mod_CPUInfo, "cache_line_size", mrb_sdl2_cpuinfo_cache_line_size,  ARGS_NONE());
   mrb_define_module_function(mrb, mod_CPUInfo, "has_RDTSC?", mrb_sdl2_cpuinfo_has_rdtsc,  ARGS_NONE());
+  mrb_define_module_function(mrb, mod_CPUInfo, "has_mmx?", mrb_sdl2_cpuinfo_has_mmx,  ARGS_NONE());
   mrb_define_module_function(mrb, mod_CPUInfo, "has_AltiVec?", mrb_sdl2_cpuinfo_has_altivec,  ARGS_NONE());
   mrb_define_module_function(mrb, mod_CPUInfo, "has_3DNow?", mrb_sdl2_cpuinfo_has_3dnow,  ARGS_NONE());
   mrb_define_module_function(mrb, mod_CPUInfo, "has_SSE?", mrb_sdl2_cpuinfo_has_sse,  ARGS_NONE());

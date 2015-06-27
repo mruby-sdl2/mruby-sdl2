@@ -34,11 +34,12 @@ static struct mrb_data_type const mrb_sdl2_input_mouse_cursor_data_type = {
 SDL_Cursor *
 mrb_sdl2_input_cursor_get_ptr(mrb_state *mrb, mrb_value cursor)
 {
+  mrb_sdl2_input_mouse_cursor_data_t *data;
   if (mrb_nil_p(cursor)) {
     return NULL;
   }
 
-  mrb_sdl2_input_mouse_cursor_data_t *data =
+  data =
     (mrb_sdl2_input_mouse_cursor_data_t*)mrb_data_get_ptr(mrb, cursor, &mrb_sdl2_input_mouse_cursor_data_type);
   return data->cursor;
 }
@@ -46,11 +47,12 @@ mrb_sdl2_input_cursor_get_ptr(mrb_state *mrb, mrb_value cursor)
 mrb_value
 mrb_sdl2_input_cursor(mrb_state *mrb, SDL_Cursor *cursor)
 {
+  mrb_sdl2_input_mouse_cursor_data_t *data;
   if (NULL == cursor) {
     return mrb_nil_value();
   }
 
-  mrb_sdl2_input_mouse_cursor_data_t *data =
+  data =
     (mrb_sdl2_input_mouse_cursor_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_input_mouse_cursor_data_t));
   if (NULL == data) {
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
@@ -63,11 +65,12 @@ mrb_sdl2_input_cursor(mrb_state *mrb, SDL_Cursor *cursor)
 mrb_value
 mrb_sdl2_input_associated_cursor(mrb_state *mrb, SDL_Cursor *cursor)
 {
+  mrb_sdl2_input_mouse_cursor_data_t *data;
   if (NULL == cursor) {
     return mrb_nil_value();
   }
 
-  mrb_sdl2_input_mouse_cursor_data_t *data =
+  data =
     (mrb_sdl2_input_mouse_cursor_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_input_mouse_cursor_data_t));
   if (NULL == data) {
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
@@ -163,9 +166,10 @@ mrb_sdl2_input_mouse_get_cursor(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_input_mouse_set_cursor(mrb_state *mrb, mrb_value self)
 {
+  mrb_sdl2_input_mouse_cursor_data_t *data;
   mrb_value cursor;
   mrb_get_args(mrb, "o", &cursor);
-  mrb_sdl2_input_mouse_cursor_data_t *data =
+  data =
     (mrb_sdl2_input_mouse_cursor_data_t*)mrb_data_get_ptr(mrb, cursor, &mrb_sdl2_input_mouse_cursor_data_type);
   SDL_SetCursor(data->cursor);
   data->is_associated = true;
@@ -194,9 +198,10 @@ static mrb_value
 mrb_sdl2_input_mouse_warp(mrb_state *mrb, mrb_value self)
 {
   mrb_value window;
+  SDL_Window *w;
   mrb_int x, y;
   mrb_get_args(mrb, "oii", &window, &x, &y);
-  SDL_Window *w = mrb_sdl2_video_window_get_ptr(mrb, window);
+  w = mrb_sdl2_video_window_get_ptr(mrb, window);
   SDL_WarpMouseInWindow(w, x, y);
   return self;
 }
@@ -210,6 +215,7 @@ mrb_sdl2_input_mouse_warp(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_input_mouse_cursor_initialize(mrb_state *mrb, mrb_value self)
 {
+  SDL_Cursor *cursor = NULL;
   mrb_sdl2_input_mouse_cursor_data_t *data =
     (mrb_sdl2_input_mouse_cursor_data_t*)DATA_PTR(self);
 
@@ -222,12 +228,12 @@ mrb_sdl2_input_mouse_cursor_initialize(mrb_state *mrb, mrb_value self)
     data->cursor = NULL;
   }
 
-  SDL_Cursor *cursor = NULL;
   if (3 == mrb->c->ci->argc) {
     mrb_value surface;
     mrb_int hot_x, hot_y;
+    SDL_Surface *s;
     mrb_get_args(mrb, "oii", &surface, &hot_x, &hot_y);
-    SDL_Surface *s = mrb_sdl2_video_surface_get_ptr(mrb, surface);
+    s = mrb_sdl2_video_surface_get_ptr(mrb, surface);
     cursor = SDL_CreateColorCursor(s, hot_x, hot_y);
   } else if (6 == mrb->c->ci->argc) {
     mrb_value data_ptr, mask_ptr;

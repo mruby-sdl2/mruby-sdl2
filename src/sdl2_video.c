@@ -80,10 +80,11 @@ static struct mrb_data_type const mrb_sdl2_video_glcontext_data_type = {
 SDL_Window *
 mrb_sdl2_video_window_get_ptr(mrb_state *mrb, mrb_value window)
 {
+  mrb_sdl2_video_window_data_t *data;
   if (mrb_nil_p(window)) {
     return NULL;
   }
-  mrb_sdl2_video_window_data_t *data =
+  data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, window, &mrb_sdl2_video_window_data_type);
   return data->window;
 }
@@ -127,8 +128,8 @@ static mrb_value
 mrb_sdl2_video_init(mrb_state *mrb, mrb_value self)
 {
   mrb_value name;
-  int const argc = mrb_get_args(mrb, "|o", &name);
   int ret = 0;
+  int const argc = mrb_get_args(mrb, "|o", &name);
   if (0 == argc) {
     ret = SDL_VideoInit(NULL);
   } else if (mrb_string_p(name)) {
@@ -186,12 +187,13 @@ mrb_sdl2_video_set_screen_saver_enabled(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_get_video_drivers(mrb_state *mrb, mrb_value self)
 {
+  int i;
+  mrb_value array;
   int const n = SDL_GetNumVideoDrivers();
   if (n < 0) {
     mruby_sdl2_raise_error(mrb);
   }
-  int i;
-  mrb_value array = mrb_ary_new_capa(mrb, n);
+  array = mrb_ary_new_capa(mrb, n);
   for (i = 0; i < n; ++i) {
     mrb_value const str = mrb_str_new_cstr(mrb, SDL_GetVideoDriver(i));
     mrb_ary_push(mrb, array, str);
@@ -206,13 +208,15 @@ static mrb_value
 mrb_sdl2_video_get_display_modes(mrb_state *mrb, mrb_value self)
 {
   mrb_int index;
+  int i;
+  mrb_value array;
+  int n;
   mrb_get_args(mrb, "i", &index);
-  int const n = SDL_GetNumDisplayModes(index);
+  n = SDL_GetNumDisplayModes(index);
   if (0 > n) {
     mruby_sdl2_raise_error(mrb);
   }
-  mrb_value array = mrb_ary_new_capa(mrb, n);
-  int i;
+  array = mrb_ary_new_capa(mrb, n);
   for (i = 0; i < n; ++i) {
     mrb_sdl2_video_displaymode_data_t *data =
       (mrb_sdl2_video_displaymode_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_video_displaymode_data_t));
@@ -320,11 +324,11 @@ mrb_sdl2_video_gl_swap_window(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_window_initialize(mrb_state *mrb, mrb_value self)
 {
-  mrb_sdl2_video_window_data_t *data =
-    (mrb_sdl2_video_window_data_t*)DATA_PTR(self);
   mrb_value title;
   mrb_int x, y, w, h;
   uint32_t flags;
+  mrb_sdl2_video_window_data_t *data =
+    (mrb_sdl2_video_window_data_t*)DATA_PTR(self);
   int const argc = mrb_get_args(mrb, "|Siiiii", &title, &x, &y, &w, &h, &flags);
   if ((0 != argc) && (6 != argc)) {
     mrb_raise(mrb, E_ARGUMENT_ERROR, "wrong number of arguments.");
@@ -356,14 +360,14 @@ mrb_sdl2_video_window_initialize(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_window_create(mrb_state *mrb, mrb_value self)
 {
+  mrb_value title;
+  mrb_int x, y, w, h;
+  uint32_t flags;
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
   if (NULL != data->window) {
     mrb_raise(mrb, class_SDL2Error, "window has already been created.");
   }
-  mrb_value title;
-  mrb_int x, y, w, h;
-  uint32_t flags;
   mrb_get_args(mrb, "Siiiii", &title, &x, &y, &w, &h, &flags);
   data->window = SDL_CreateWindow(RSTRING_PTR(title), x, y, w, h, flags);
   if (NULL == data->window) {
@@ -375,17 +379,18 @@ mrb_sdl2_video_window_create(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_window_create_with_renderer(mrb_state *mrb, mrb_value self)
 {
+  int ret;
+  SDL_Window *window = NULL;
+  SDL_Renderer *renderer = NULL;
+  mrb_int w, h;
+  uint32_t flags;
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
   if (NULL != data->window) {
     mrb_raise(mrb, class_SDL2Error, "window has already been created.");
   }
-  SDL_Window *window = NULL;
-  SDL_Renderer *renderer = NULL;
-  mrb_int w, h;
-  uint32_t flags;
   mrb_get_args(mrb, "iii", &w, &h, &flags);
-  int const ret = SDL_CreateWindowAndRenderer(w, h, flags, &window, &renderer);
+  ret = SDL_CreateWindowAndRenderer(w, h, flags, &window, &renderer);
   if (0 != ret) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -417,12 +422,12 @@ mrb_sdl2_video_window_destroy(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_window_get_size(mrb_state *mrb, mrb_value self)
 {
+  int w, h;
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
   if (NULL == data->window) {
     return mrb_nil_value();
   }
-  int w, h;
   SDL_GetWindowSize(data->window, &w, &h);
   return mrb_sdl2_size(mrb, w, h);
 }
@@ -430,11 +435,12 @@ mrb_sdl2_video_window_get_size(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_window_set_size(mrb_state *mrb, mrb_value self)
 {
+  size_data_t * s;
+  mrb_value arg;
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
-  mrb_value arg;
   mrb_get_args(mrb, "o", &arg);
-  size_data_t const * const s = mrb_sdl2_size_get_ptr(mrb, arg);
+  s = mrb_sdl2_size_get_ptr(mrb, arg);
   SDL_SetWindowSize(data->window, s->w, s->h);
   return self;
 
@@ -443,12 +449,12 @@ mrb_sdl2_video_window_set_size(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_window_get_position(mrb_state *mrb, mrb_value self)
 {
+  int x, y;
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
   if (NULL == data->window) {
     return mrb_nil_value();
   }
-  int x, y;
   SDL_GetWindowPosition(data->window, &x, &y);
   return mrb_sdl2_point(mrb, x, y);
 }
@@ -456,11 +462,12 @@ mrb_sdl2_video_window_get_position(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_window_set_position(mrb_state *mrb, mrb_value self)
 {
+  SDL_Point * p;
+  mrb_value arg;
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
-  mrb_value arg;
   mrb_get_args(mrb, "o", &arg);
-  SDL_Point const * const p = mrb_sdl2_point_get_ptr(mrb, arg);
+  p = mrb_sdl2_point_get_ptr(mrb, arg);
   SDL_SetWindowPosition(data->window, p->x, p->y);
   return self;
 }
@@ -468,12 +475,13 @@ mrb_sdl2_video_window_set_position(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_window_get_title(mrb_state *mrb, mrb_value self)
 {
+  const char *title;
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
   if (NULL == data->window) {
     return mrb_nil_value();
   }
-  char const *title = SDL_GetWindowTitle(data->window);
+  title = SDL_GetWindowTitle(data->window);
   if (NULL == title) {
     return mrb_nil_value();
   }
@@ -483,12 +491,12 @@ mrb_sdl2_video_window_get_title(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_window_set_title(mrb_state *mrb, mrb_value self)
 {
+  mrb_value title;
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
   if (NULL == data->window) {
     return mrb_nil_value();
   }
-  mrb_value title;
   mrb_get_args(mrb, "S", &title);
   SDL_SetWindowTitle(data->window, RSTRING_PTR(title));
   return self;
@@ -569,14 +577,14 @@ mrb_sdl2_video_window_raise(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_window_make_current(mrb_state *mrb, mrb_value self)
 {
+  SDL_GLContext *context = NULL;
+  mrb_value arg;
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
   if (NULL == data->window) {
     return mrb_nil_value();
   }
-  mrb_value arg;
   mrb_get_args(mrb, "o", &arg);
-  SDL_GLContext *context = NULL;
   if (!mrb_nil_p(arg)) {
     context =
       ((mrb_sdl2_video_glcontext_data_t*)mrb_data_get_ptr(mrb, arg, &mrb_sdl2_video_glcontext_data_type))->context;
@@ -702,12 +710,13 @@ mrb_sdl2_video_window_set_minimum_size(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_window_get_surface(mrb_state *mrb, mrb_value self)
 {
+  SDL_Surface *s;
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
   if (NULL == data->window) {
     return mrb_nil_value();
   }
-  SDL_Surface *s = SDL_GetWindowSurface(data->window);
+  s = SDL_GetWindowSurface(data->window);
   if (NULL == s) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -738,12 +747,13 @@ mrb_sdl2_video_window_update_surface_rects(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_window_get_renderer(mrb_state *mrb, mrb_value self)
 {
+  SDL_Renderer *renderer;
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
   if (NULL == data->window) {
     return mrb_nil_value();
   }
-  SDL_Renderer *renderer = SDL_GetRenderer(data->window);
+  renderer = SDL_GetRenderer(data->window);
   if (NULL == renderer) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -774,9 +784,10 @@ mrb_sdl2_video_window_swap(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_glcontext_initialize(mrb_state *mrb, mrb_value self)
 {
+  mrb_value window;
+  SDL_GLContext context = NULL;
   mrb_sdl2_video_glcontext_data_t *data =
     (mrb_sdl2_video_glcontext_data_t*)DATA_PTR(self);
-  mrb_value window;
   int const argc = mrb_get_args(mrb, "|o", &window);
   if (NULL == data) {
     data = (mrb_sdl2_video_glcontext_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_video_glcontext_data_t));
@@ -784,7 +795,6 @@ mrb_sdl2_video_glcontext_initialize(mrb_state *mrb, mrb_value self)
       mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
     }
   }
-  SDL_GLContext context = NULL;
   if (0 != argc) {
     mrb_sdl2_video_window_data_t *window_data =
       (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, window, &mrb_sdl2_video_window_data_type);
@@ -806,11 +816,11 @@ mrb_sdl2_video_glcontext_initialize(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_glcontext_create(mrb_state *mrb, mrb_value self)
 {
+  SDL_GLContext context = NULL;
+  mrb_value window;
   mrb_sdl2_video_glcontext_data_t *data =
     (mrb_sdl2_video_glcontext_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_glcontext_data_type);
-  mrb_value window;
   mrb_get_args(mrb, "o", &window);
-  SDL_GLContext context = NULL;
   if (mrb_nil_p(window)) {
     context = SDL_GL_CreateContext(NULL);
   } else {
@@ -842,6 +852,7 @@ mrb_sdl2_video_glcontext_delete(mrb_state *mrb, mrb_value self)
 void
 mruby_sdl2_video_init(mrb_state *mrb)
 {
+  int arena_size;
   mod_Video = mrb_define_module_under(mrb, mod_SDL2,  "Video");
   mod_GL    = mrb_define_module_under(mrb, mod_Video, "GL");
   class_DisplayMode = mrb_define_class_under(mrb, mod_Video, "DisplayMode", mrb->object_class);
@@ -911,7 +922,7 @@ mruby_sdl2_video_init(mrb_state *mrb)
   mrb_define_method(mrb, class_GLContext, "delete",     mrb_sdl2_video_glcontext_delete,     ARGS_NONE());
   mrb_define_method(mrb, class_GLContext, "destroy",    mrb_sdl2_video_glcontext_delete,     ARGS_NONE());
 
-  int arena_size = mrb_gc_arena_save(mrb);
+  arena_size = mrb_gc_arena_save(mrb);
 
   /* SDL_BlendMode */
   mrb_define_const(mrb, mod_Video, "SDL_BLENDMODE_NONE",  mrb_fixnum_value(SDL_BLENDMODE_NONE));

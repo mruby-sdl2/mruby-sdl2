@@ -36,17 +36,18 @@ struct mrb_data_type const mrb_sdl2_haptic_haptic_data_type = {
 SDL_Haptic *
 mrb_sdl2_haptic_get_ptr(mrb_state *mrb, mrb_value value)
 {
+  mrb_sdl2_haptic_haptic_data_t *data;
   if (mrb_nil_p(value)) {
     return NULL;
   }
 
-  mrb_sdl2_haptic_haptic_data_t *data =
+  data =
     (mrb_sdl2_haptic_haptic_data_t*)mrb_data_get_ptr(mrb, value, &mrb_sdl2_haptic_haptic_data_type);
   return data->haptic;
 }
 
 mrb_value
-mrb_sdl2_haptic(mrb_state *mrb, SDL_Haptic const *value)
+mrb_sdl2_haptic(mrb_state *mrb, SDL_Haptic *value)
 {
   mrb_sdl2_haptic_haptic_data_t *data =
     (mrb_sdl2_haptic_haptic_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_haptic_haptic_data_t));
@@ -70,6 +71,7 @@ mrb_sdl2_haptic_num(mrb_state *mrb, mrb_value mod)
 static mrb_value
 mrb_sdl2_haptic_haptic_initialize(mrb_state *mrb, mrb_value self)
 {
+  SDL_Haptic *haptic = NULL;
   mrb_sdl2_haptic_haptic_data_t *data =
     (mrb_sdl2_haptic_haptic_data_t*)DATA_PTR(self);
 
@@ -81,7 +83,6 @@ mrb_sdl2_haptic_haptic_initialize(mrb_state *mrb, mrb_value self)
     data->haptic = NULL;
   }
 
-  SDL_Haptic *haptic = NULL;
   if (1 == mrb->c->ci->argc) {
     mrb_int device_index;
     mrb_get_args(mrb, "i", &device_index);
@@ -120,8 +121,9 @@ mrb_sdl2_haptic_name(mrb_state *mrb, mrb_value self)
 {
 
   mrb_int device_index;
+  const char * result;
   mrb_get_args(mrb, "i", &device_index);
-  const char * result = SDL_HapticName(device_index);
+  result = SDL_HapticName(device_index);
   return mrb_str_new_cstr(mrb, result);
 }
 
@@ -129,8 +131,9 @@ static mrb_value
 mrb_sdl2_haptic_devic_open(mrb_state *mrb, mrb_value self)
 {
   mrb_int device_index;
+  int result;
   mrb_get_args(mrb, "i", &device_index);
-  int result = SDL_HapticOpened(device_index);
+  result = SDL_HapticOpened(device_index);
   return (result == 0) ? mrb_false_value() : mrb_true_value();
 }
 
@@ -155,12 +158,13 @@ mrb_sdl2_haptic_mouse_haptic(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_haptic_mouse_open(mrb_state *mrb, mrb_value self)
 {
+  mrb_sdl2_haptic_haptic_data_t *data;
   SDL_Haptic * haptic_p = SDL_HapticOpenFromMouse();
   if (haptic_p == NULL) {
       mruby_sdl2_raise_error(mrb);
   }
 
-  mrb_sdl2_haptic_haptic_data_t *data =
+  data =
     (mrb_sdl2_haptic_haptic_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_haptic_haptic_data_t));
   if (NULL == data) {
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
@@ -178,13 +182,14 @@ mrb_sdl2_haptic_joystick_haptic(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_haptic_joystick_open(mrb_state *mrb, mrb_value self)
 {
+  mrb_sdl2_haptic_haptic_data_t *data;
   SDL_Joystick * joystick_p = mrb_sdl2_joystick_joystick_get_ptr(mrb, self);
   SDL_Haptic * haptic_p = SDL_HapticOpenFromJoystick(joystick_p);
   if (haptic_p == NULL) {
       mruby_sdl2_raise_error(mrb);
   }
 
-  mrb_sdl2_haptic_haptic_data_t *data =
+  data =
     (mrb_sdl2_haptic_haptic_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_haptic_haptic_data_t));
   if (NULL == data) {
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
@@ -238,9 +243,11 @@ static mrb_value
 mrb_sdl2_haptic_haptic_run_effect(mrb_state *mrb, mrb_value self)
 {
   mrb_int effect, iterations;
+  int result;
+  SDL_Haptic * haptic_p;
   mrb_get_args(mrb, "ii", &effect, &iterations);
-  SDL_Haptic * haptic_p = mrb_sdl2_haptic_get_ptr(mrb, self);
-  int result = SDL_HapticRunEffect(haptic_p, effect, (Uint32) iterations);
+  haptic_p = mrb_sdl2_haptic_get_ptr(mrb, self);
+  result = SDL_HapticRunEffect(haptic_p, effect, (Uint32) iterations);
   if (-1 == result) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -251,9 +258,11 @@ static mrb_value
 mrb_sdl2_haptic_haptic_stop_effect(mrb_state *mrb, mrb_value self)
 {
   mrb_int effect;
+  SDL_Haptic * haptic_p;
+  int result;
   mrb_get_args(mrb, "i", &effect);
-  SDL_Haptic * haptic_p = mrb_sdl2_haptic_get_ptr(mrb, self);
-  int result = SDL_HapticStopEffect(haptic_p, effect);
+  haptic_p = mrb_sdl2_haptic_get_ptr(mrb, self);
+  result = SDL_HapticStopEffect(haptic_p, effect);
   if (-1 == result) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -264,8 +273,8 @@ static mrb_value
 mrb_sdl2_haptic_haptic_destroy_effect(mrb_state *mrb, mrb_value self)
 {
   mrb_int effect;
-  mrb_get_args(mrb, "i", &effect);
   SDL_Haptic * haptic_p = mrb_sdl2_haptic_get_ptr(mrb, self);
+  mrb_get_args(mrb, "i", &effect);
   SDL_HapticDestroyEffect(haptic_p, effect);
 
   return mrb_true_value();
@@ -275,9 +284,11 @@ static mrb_value
 mrb_sdl2_haptic_haptic_effect_playing(mrb_state *mrb, mrb_value self)
 {
   mrb_int effect;
+  SDL_Haptic * haptic_p;
+  int result;
   mrb_get_args(mrb, "i", &effect);
-  SDL_Haptic * haptic_p = mrb_sdl2_haptic_get_ptr(mrb, self);
-  int result = SDL_HapticGetEffectStatus(haptic_p, effect);
+  haptic_p = mrb_sdl2_haptic_get_ptr(mrb, self);
+  result = SDL_HapticGetEffectStatus(haptic_p, effect);
   if (-1 == result) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -288,13 +299,15 @@ static mrb_value
 mrb_sdl2_haptic_haptic_set_gain(mrb_state *mrb, mrb_value self)
 {
   mrb_int gain;
+  SDL_Haptic * haptic_p;
+  int result;
   mrb_get_args(mrb, "i", &gain);
   if (gain < 0 || gain > 100) {
     mrb_raise(mrb, E_ARGUMENT_ERROR, "gain must be between 0 and 100.");
     return self;
   }
-  SDL_Haptic * haptic_p = mrb_sdl2_haptic_get_ptr(mrb, self);
-  int result = SDL_HapticSetGain(haptic_p, gain);
+  haptic_p = mrb_sdl2_haptic_get_ptr(mrb, self);
+  result = SDL_HapticSetGain(haptic_p, gain);
   if (-1 == result) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -306,13 +319,15 @@ static mrb_value
 mrb_sdl2_haptic_haptic_set_autocenter(mrb_state *mrb, mrb_value self)
 {
   mrb_int autocenter;
+  SDL_Haptic * haptic_p;
+  int result;
   mrb_get_args(mrb, "i", &autocenter);
   if (autocenter < 0 || autocenter > 100) {
     mrb_raise(mrb, E_ARGUMENT_ERROR, "autocenter must be between 0 and 100.");
     return self;
   }
-  SDL_Haptic * haptic_p = mrb_sdl2_haptic_get_ptr(mrb, self);
-  int result = SDL_HapticSetAutocenter(haptic_p, autocenter);
+  haptic_p = mrb_sdl2_haptic_get_ptr(mrb, self);
+  result = SDL_HapticSetAutocenter(haptic_p, autocenter);
   if (-1 == result) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -382,10 +397,12 @@ mrb_sdl2_haptic_haptic_rumble_play(mrb_state *mrb, mrb_value self)
 {
   mrb_float strength;
   mrb_int length;
+  SDL_Haptic * haptic_p;
+  int result;
   mrb_get_args(mrb, "fi", &strength, &length);
 
-  SDL_Haptic * haptic_p = mrb_sdl2_haptic_get_ptr(mrb, self);
-  int result = SDL_HapticRumblePlay(haptic_p, strength, (Uint32) length);
+  haptic_p = mrb_sdl2_haptic_get_ptr(mrb, self);
+  result = SDL_HapticRumblePlay(haptic_p, strength, (Uint32) length);
   if (result == -1) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -422,6 +439,8 @@ mruby_sdl2_haptic_init(mrb_state *mrb)
   //mrb_define_module_function(mrb, mod_Haptic, "open_Mouse")
 
   mrb_define_method(mrb, class_Haptic, "initialize",  mrb_sdl2_haptic_haptic_initialize,  ARGS_REQ(1));
+  mrb_define_method(mrb, class_Haptic, "destroy", mrb_sdl2_haptic_haptic_free, ARGS_NONE());
+  mrb_define_method(mrb, class_Haptic, "free", mrb_sdl2_haptic_haptic_free, ARGS_NONE());
   mrb_define_method(mrb, class_Haptic, "get_index",  mrb_sdl2_haptic_haptic_get_index,  ARGS_NONE());
   mrb_define_method(mrb, class_Haptic, "num_effects",  mrb_sdl2_haptic_haptic_num_effects,  ARGS_NONE());
   mrb_define_method(mrb, class_Haptic, "num_effects_playing",  mrb_sdl2_haptic_haptic_num_effects_playing,  ARGS_NONE());
@@ -462,8 +481,6 @@ mruby_sdl2_haptic_init(mrb_state *mrb)
   mrb_define_const(mrb, mod_Haptic, "SDL_HAPTIC_CARTESIAN",  mrb_fixnum_value(SDL_HAPTIC_CARTESIAN));
   mrb_define_const(mrb, mod_Haptic, "SDL_HAPTIC_SPHERICAL",  mrb_fixnum_value(SDL_HAPTIC_SPHERICAL));
   mrb_define_const(mrb, mod_Haptic, "SDL_HAPTIC_INFINITY",  mrb_fixnum_value(SDL_HAPTIC_INFINITY));
-
-
 }
 
 void

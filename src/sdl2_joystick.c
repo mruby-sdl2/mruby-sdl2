@@ -33,11 +33,12 @@ static struct mrb_data_type const mrb_sdl2_joystick_joystick_data_type = {
 SDL_Joystick *
 mrb_sdl2_joystick_joystick_get_ptr(mrb_state *mrb, mrb_value joystick)
 {
+  mrb_sdl2_joystick_joystick_data_t *data;
   if (mrb_nil_p(joystick)) {
     return NULL;
   }
 
-  mrb_sdl2_joystick_joystick_data_t *data =
+  data =
     (mrb_sdl2_joystick_joystick_data_t*)mrb_data_get_ptr(mrb, joystick, &mrb_sdl2_joystick_joystick_data_type);
   return data->joystick;
 }
@@ -45,11 +46,12 @@ mrb_sdl2_joystick_joystick_get_ptr(mrb_state *mrb, mrb_value joystick)
 mrb_value
 mrb_sdl2_joystick_joystick(mrb_state *mrb, SDL_Joystick *joystick)
 {
+  mrb_sdl2_joystick_joystick_data_t *data;
   if (NULL == joystick) {
     return mrb_nil_value();
   }
 
-  mrb_sdl2_joystick_joystick_data_t *data =
+  data =
     (mrb_sdl2_joystick_joystick_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_joystick_joystick_data_t));
   if (NULL == data) {
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
@@ -62,11 +64,12 @@ mrb_sdl2_joystick_joystick(mrb_state *mrb, SDL_Joystick *joystick)
 mrb_value
 mrb_sdl2_joystick_associated_joystick(mrb_state *mrb, SDL_Joystick *joystick)
 {
+  mrb_sdl2_joystick_joystick_data_t *data;
   if (NULL == joystick) {
     return mrb_nil_value();
   }
 
-  mrb_sdl2_joystick_joystick_data_t *data =
+  data =
     (mrb_sdl2_joystick_joystick_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_joystick_joystick_data_t));
   if (NULL == data) {
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
@@ -88,6 +91,7 @@ mrb_sdl2_joystick_associated_joystick(mrb_state *mrb, SDL_Joystick *joystick)
 static mrb_value
 mrb_sdl2_joystick_joystick_initialize(mrb_state *mrb, mrb_value self)
 {
+  SDL_Joystick *joystick = NULL;
   mrb_sdl2_joystick_joystick_data_t *data =
     (mrb_sdl2_joystick_joystick_data_t*)DATA_PTR(self);
 
@@ -100,7 +104,6 @@ mrb_sdl2_joystick_joystick_initialize(mrb_state *mrb, mrb_value self)
     data->joystick = NULL;
   }
 
-  SDL_Joystick *joystick = NULL;
   if (1 == mrb->c->ci->argc) {
     mrb_int device_index;
     mrb_get_args(mrb, "i", &device_index);
@@ -144,28 +147,30 @@ mrb_sdl2_joystick_num(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_joystick_get_name(mrb_state *mrb, mrb_value self)
 {
+  const char * result;
   mrb_int index;
   mrb_get_args(mrb, "i", &index);
-  char * result = SDL_JoystickNameForIndex((int) index);
+  result = SDL_JoystickNameForIndex((int) index);
 
-  return mrb_fixnum_value(result);
+  return mrb_str_new_cstr(mrb, result);
 }
 
 static mrb_value
 mrb_sdl2_joystick_joystick_get_name(mrb_state *mrb, mrb_value self)
 {
   SDL_Joystick * joystick_p = mrb_sdl2_joystick_joystick_get_ptr(mrb, self);
-  char * result = SDL_JoystickName(joystick_p);
+  const char * result = SDL_JoystickName(joystick_p);
   return mrb_str_new_cstr(mrb, result);
 }
 
 static mrb_value
 mrb_sdl2_joystick_get_guid(mrb_state *mrb, mrb_value self)
 {
+  SDL_JoystickGUID result;
   mrb_int index;
   mrb_get_args(mrb, "i", &index);
-  SDL_JoystickGUID result = SDL_JoystickGetDeviceGUID(index);
-  return mrb_fixnum_value(result.data);
+  result = SDL_JoystickGetDeviceGUID(index);
+  return mrb_fixnum_value(*result.data);
 }
 
 static mrb_value
@@ -173,15 +178,15 @@ mrb_sdl2_joystick_joystick_get_guid(mrb_state *mrb, mrb_value self)
 {
   SDL_Joystick * joystick_p = mrb_sdl2_joystick_joystick_get_ptr(mrb, self);
   SDL_JoystickGUID result = SDL_JoystickGetGUID(joystick_p);
-  return mrb_fixnum_value(result.data);
+  return mrb_fixnum_value(*result.data);
 }
 
 static mrb_value
 mrb_sdl2_joystick_joystick_get_guid_as_string(mrb_state *mrb, mrb_value self)
 {
+  char result[33];
   SDL_Joystick * joystick_p = mrb_sdl2_joystick_joystick_get_ptr(mrb, self);
   SDL_JoystickGUID joystick_guid = SDL_JoystickGetGUID(joystick_p);
-  char * result;
   SDL_JoystickGetGUIDString(joystick_guid, result, 33);
 
   return mrb_str_new_cstr(mrb, result);
@@ -201,10 +206,11 @@ static mrb_value
 mrb_sdl2_joystick_get_guid_from_string(mrb_state *mrb, mrb_value self)
 {
   mrb_value name;
+  SDL_JoystickGUID result;
   mrb_get_args(mrb, "S", &name);
-  SDL_JoystickGUID result = SDL_JoystickGetGUIDFromString(RSTRING_PTR(name));
+  result = SDL_JoystickGetGUIDFromString(RSTRING_PTR(name));
 
-  return mrb_fixnum_value(result.data);
+  return mrb_fixnum_value(*result.data);
 }
 
 static mrb_value
@@ -279,26 +285,31 @@ static mrb_value
 mrb_sdl2_joystick_joystick_update(mrb_state *mrb, mrb_value self)
 {
   SDL_JoystickUpdate();
+  return self;
 }
 
 static mrb_value
 mrb_sdl2_joystick_joystick_event_state(mrb_state *mrb, mrb_value self)
 {
+  int result;
   mrb_int state;
   mrb_get_args(mrb, "i", &state);
-  int result = SDL_JoystickEventState((int) state);
+  result = SDL_JoystickEventState((int) state);
 
-  return mrb_fixnum_value(state);
+  if (0 > result) {
+    mruby_sdl2_raise_error(mrb);
+  }
+  return (0 == result) ? mrb_false_value() : mrb_true_value();
 }
 
 static mrb_value
 mrb_sdl2_joystick_joystick_get_axis(mrb_state *mrb, mrb_value self)
 {
-  SDL_Joystick * joystick_p = mrb_sdl2_joystick_joystick_get_ptr(mrb, self);
+  Sint16 result;
   mrb_int axis;
+  SDL_Joystick * joystick_p = mrb_sdl2_joystick_joystick_get_ptr(mrb, self);
   mrb_get_args(mrb, "i", &axis);
-  printf("%d", axis);
-  Sint16 result = SDL_JoystickGetAxis(joystick_p, (int) axis);
+  result = SDL_JoystickGetAxis(joystick_p, (int) axis);
   if (result == 0) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -333,10 +344,11 @@ mrb_sdl2_joystick_joystick_get_axis_y(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_joystick_joystick_get_hat(mrb_state *mrb, mrb_value self)
 {
+  Uint8 result;
   mrb_int hat;
-  mrb_get_args(mrb, "i", &hat);
   SDL_Joystick * joystick_p = mrb_sdl2_joystick_joystick_get_ptr(mrb, self);
-  Uint8 result = SDL_JoystickGetHat(joystick_p, hat);
+  mrb_get_args(mrb, "i", &hat);
+  result = SDL_JoystickGetHat(joystick_p, hat);
 
   return mrb_fixnum_value(result);
 }
@@ -344,16 +356,18 @@ mrb_sdl2_joystick_joystick_get_hat(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_joystick_joystick_get_ball(mrb_state *mrb, mrb_value self)
 {
+  mrb_value array;
+  int dx;
+  int dy;
+  int result;
   mrb_int ball;
-  mrb_get_args(mrb, "i", &ball);
   SDL_Joystick * joystick_p = mrb_sdl2_joystick_joystick_get_ptr(mrb, self);
-  int *dx;
-  int *dy;
-  int result = SDL_JoystickGetBall(joystick_p, ball, dx, dy);
+  mrb_get_args(mrb, "i", &ball);
+  result = SDL_JoystickGetBall(joystick_p, ball, &dx, &dy);
   if (0 > result) {
     mruby_sdl2_raise_error(mrb);
   }
-  mrb_value array = mrb_ary_new_capa(mrb, 2);
+  array = mrb_ary_new_capa(mrb, 2);
   mrb_ary_push(mrb, array, mrb_fixnum_value(dx));
   mrb_ary_push(mrb, array, mrb_fixnum_value(dy));
   return array;
@@ -362,10 +376,11 @@ mrb_sdl2_joystick_joystick_get_ball(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_joystick_joystick_get_button(mrb_state *mrb, mrb_value self)
 {
+  Uint8 result;
   mrb_int button;
-  mrb_get_args(mrb, "i", &button);
   SDL_Joystick * joystick_p = mrb_sdl2_joystick_joystick_get_ptr(mrb, self);
-  Uint8 result = SDL_JoystickGetButton(joystick_p, button);
+  mrb_get_args(mrb, "i", &button);
+  result = SDL_JoystickGetButton(joystick_p, button);
 
   return (0 == result) ? mrb_false_value() : mrb_true_value();
 }
@@ -374,6 +389,7 @@ mrb_sdl2_joystick_joystick_get_button(mrb_state *mrb, mrb_value self)
 void
 mruby_sdl2_joystick_init(mrb_state *mrb)
 {
+  int arena_size;
   struct RClass *mod_Joystick = mrb_define_module_under(mrb, mod_SDL2, "Joysticks");
   class_Joystick = mrb_define_class_under(mrb, mod_Joystick, "Joystick", mrb->object_class);
 
@@ -407,7 +423,7 @@ mruby_sdl2_joystick_init(mrb_state *mrb)
   mrb_define_method(mrb, class_Joystick, "get_button",         mrb_sdl2_joystick_joystick_get_button, ARGS_REQ(1));
 
 
-  int arena_size = mrb_gc_arena_save(mrb);
+  arena_size = mrb_gc_arena_save(mrb);
   mrb_define_const(mrb, mod_Joystick, "SDL_HAT_CENTERED",  mrb_fixnum_value(SDL_HAT_CENTERED));
   mrb_define_const(mrb, mod_Joystick, "SDL_HAT_UP",        mrb_fixnum_value(SDL_HAT_UP));
   mrb_define_const(mrb, mod_Joystick, "SDL_HAT_RIGHT",     mrb_fixnum_value(SDL_HAT_RIGHT));

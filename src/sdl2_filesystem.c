@@ -12,9 +12,10 @@ mrb_sdl2_filesystem_get_base_path(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_filesystem_get_pref_path(mrb_state *mrb, mrb_value self)
 {
+  char * result;
   mrb_value org, path;
   mrb_get_args(mrb, "SS", &org, &path);
-  char * result = SDL_GetPrefPath(RSTRING_PTR(org), RSTRING_PTR(path));
+  result = SDL_GetPrefPath(RSTRING_PTR(org), RSTRING_PTR(path));
   return mrb_str_new_cstr(mrb, result);
 }
 

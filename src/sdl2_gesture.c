@@ -6,19 +6,22 @@
 static mrb_value
 mrb_sdl2_gesture_record(mrb_state *mrb, mrb_value self)
 {
+  int result;
   mrb_int touchid;
   mrb_get_args(mrb, "i", &touchid);
-  int result = SDL_RecordGesture((SDL_TouchID) index);
+  result = SDL_RecordGesture(touchid);
   return mrb_fixnum_value(result);
 }
 
 static mrb_value
 mrb_sdl2_gesture_save_dollar_templates(mrb_state *mrb, mrb_value self)
 {
+  int result;
+  SDL_RWops * rwops_src;
   mrb_value src;
   mrb_get_args(mrb, "o", &src);
-  SDL_RWops * rwops_src = mrb_sdl2_rwops_get_ptr(mrb, src);
-  int result = SDL_SaveAllDollarTemplates(rwops_src);
+  rwops_src = mrb_sdl2_rwops_get_ptr(mrb, src);
+  result = SDL_SaveAllDollarTemplates(rwops_src);
   return mrb_fixnum_value(result);
 }
 
@@ -27,9 +30,11 @@ mrb_sdl2_gesture_save_dollar_template(mrb_state *mrb, mrb_value self)
 {
   mrb_int gestureid;
   mrb_value src;
+  int result;
+  SDL_RWops * rwops_src;
   mrb_get_args(mrb, "io", &gestureid, &src);
-  SDL_RWops * rwops_src = mrb_sdl2_rwops_get_ptr(mrb, src);
-  int result = SDL_SaveDollarTemplate((SDL_GestureID) gestureid, rwops_src);
+  rwops_src = mrb_sdl2_rwops_get_ptr(mrb, src);
+  result = SDL_SaveDollarTemplate((SDL_GestureID) gestureid, rwops_src);
   return mrb_fixnum_value(result);
 }
 
@@ -37,10 +42,12 @@ static mrb_value
 mrb_sdl2_gesture_load_dollar_template(mrb_state *mrb, mrb_value self)
 {
   mrb_int gestureid;
+  int result;
   mrb_value src;
+  SDL_RWops * rwops_src;
   mrb_get_args(mrb, "io", &gestureid, &src);
-  SDL_RWops * rwops_src = mrb_sdl2_rwops_get_ptr(mrb, src);
-  int result = SDL_LoadDollarTemplates((SDL_GestureID) gestureid, rwops_src);
+  rwops_src = mrb_sdl2_rwops_get_ptr(mrb, src);
+  result = SDL_LoadDollarTemplates((SDL_GestureID) gestureid, rwops_src);
   return mrb_fixnum_value(result);
 }
 

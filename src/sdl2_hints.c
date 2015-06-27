@@ -11,12 +11,13 @@ mrb_sdl2_hints_clear(mrb_state *mrb, mrb_value mod)
 static mrb_value
 mrb_sdl2_hints_get(mrb_state *mrb, mrb_value mod)
 {
+  const char *value;
   mrb_value name;
   mrb_get_args(mrb, "S", &name);
   if (mrb_nil_p(name)) {
     return mrb_nil_value();
   }
-  char const *value = SDL_GetHint(RSTRING_PTR(name));
+  value = SDL_GetHint(RSTRING_PTR(name));
   if (NULL == value) {
     return mrb_nil_value();
   }
@@ -26,6 +27,7 @@ mrb_sdl2_hints_get(mrb_state *mrb, mrb_value mod)
 static mrb_value
 mrb_sdl2_hints_set(mrb_state *mrb, mrb_value mod)
 {
+  SDL_bool ret;
   mrb_value name, value;
   mrb_get_args(mrb, "So", &name, &value);
   if (mrb_nil_p(name) || mrb_nil_p(value)) {
@@ -41,7 +43,7 @@ mrb_sdl2_hints_set(mrb_state *mrb, mrb_value mod)
       mrb_raise(mrb, E_TYPE_ERROR, "expect String");
     }
   }
-  SDL_bool const ret = SDL_SetHint(RSTRING_PTR(name), RSTRING_PTR(value));
+  ret = SDL_SetHint(RSTRING_PTR(name), RSTRING_PTR(value));
   return (SDL_FALSE == ret) ? mrb_false_value() : mrb_true_value();
 }
 
@@ -50,6 +52,7 @@ mrb_sdl2_hints_set_with_priority(mrb_state *mrb, mrb_value mod)
 {
   mrb_value name, value;
   mrb_int priority;
+  SDL_bool ret;
   mrb_get_args(mrb, "Soi", &name, &value, &priority);
   if (mrb_nil_p(name) || mrb_nil_p(value)) {
     return mrb_false_value();
@@ -64,13 +67,14 @@ mrb_sdl2_hints_set_with_priority(mrb_state *mrb, mrb_value mod)
       mrb_raise(mrb, E_TYPE_ERROR, "expect String");
     }
   }
-  SDL_bool const ret = SDL_SetHintWithPriority(RSTRING_PTR(name), RSTRING_PTR(value), (SDL_HintPriority)priority);
+  ret = SDL_SetHintWithPriority(RSTRING_PTR(name), RSTRING_PTR(value), (SDL_HintPriority)priority);
   return (SDL_FALSE == ret) ? mrb_false_value() : mrb_true_value();
 }
 
 void
 mruby_sdl2_hints_init(mrb_state *mrb)
 {
+  int arena_size;
   struct RClass *mod_Hints = mrb_define_module_under(mrb, mod_SDL2, "Hints");
 
   mrb_define_module_function(mrb, mod_Hints, "clear",             mrb_sdl2_hints_clear,             ARGS_NONE());
@@ -79,7 +83,7 @@ mruby_sdl2_hints_init(mrb_state *mrb)
   mrb_define_module_function(mrb, mod_Hints, "set_with_priority", mrb_sdl2_hints_set_with_priority, ARGS_REQ(3));
 
   /* SDL_HintPriority */
-  int arena_size = mrb_gc_arena_save(mrb);
+  arena_size = mrb_gc_arena_save(mrb);
   mrb_define_const(mrb, mod_Hints, "SDL_HINT_DEFAULT",  mrb_fixnum_value(SDL_HINT_DEFAULT));
   mrb_define_const(mrb, mod_Hints, "SDL_HINT_NORMAL",   mrb_fixnum_value(SDL_HINT_NORMAL));
   mrb_define_const(mrb, mod_Hints, "SDL_HINT_OVERRIDE", mrb_fixnum_value(SDL_HINT_OVERRIDE));

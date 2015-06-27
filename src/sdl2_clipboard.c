@@ -5,12 +5,13 @@ static mrb_value
 mrb_sdl2_clipboard_text(mrb_state *mrb, mrb_value self)
 {
   if (SDL_HasClipboardText()) {
+    mrb_value s;
     char * text = SDL_GetClipboardText();
 
     if (!text)
       return mrb_nil_value();
 
-    mrb_value s = mrb_str_new_cstr(mrb, text);
+    s = mrb_str_new_cstr(mrb, text);
     free(text);
     return s;
   }

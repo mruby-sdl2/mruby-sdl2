@@ -414,11 +414,36 @@ mrb_sdl2_video_surface_save_bmp(mrb_state *mrb, mrb_value self)
   return mrb_nil_value();
 }
 
+static mrb_value
+mrb_sdl2_video_surface_map_rgba(mrb_state *mrb, mrb_value self)
+{
+  SDL_Surface * s;
+  Uint32 result;
+  mrb_value surface;
+  mrb_int r,g,b,a;
+  mrb_get_args(mrb, "oiiii", &surface, &r, &g, &b, &a);
+  s = mrb_sdl2_video_surface_get_ptr(mrb, surface);
+  result = SDL_MapRGBA(s->format, r, g, b, a);
+  return mrb_fixnum_value(result);
+}
+
+static mrb_value
+mrb_sdl2_video_surface_map_rgb(mrb_state *mrb, mrb_value self)
+{
+  SDL_Surface * s;
+  Uint32 result;
+  mrb_value surface;
+  mrb_int r,g,b;
+  mrb_get_args(mrb, "oiii", &surface, &r, &g, &b);
+  s = mrb_sdl2_video_surface_get_ptr(mrb, surface);
+  result = SDL_MapRGB(s->format, r, g, b);
+  return mrb_fixnum_value(result);
+}
 
 void
 mruby_sdl2_video_surface_init(mrb_state *mrb, struct RClass *mod_Video)
 {
-  class_Surface = mrb_define_class_under(mrb, mod_Video, "Surface", mrb->object_class);
+  class_Surface = mrb_class_get_under(mrb, mod_Video, "Surface");
 
   MRB_SET_INSTANCE_TT(class_Surface, MRB_TT_DATA);
 
@@ -450,6 +475,8 @@ mruby_sdl2_video_surface_init(mrb_state *mrb, struct RClass *mod_Video)
 
   mrb_define_class_method(mrb, class_Surface, "load_bmp", mrb_sdl2_video_surface_load_bmp, ARGS_REQ(1));
   mrb_define_class_method(mrb, class_Surface, "save_bmp", mrb_sdl2_video_surface_save_bmp, ARGS_REQ(2));
+  mrb_define_class_method(mrb, class_Surface, "map_rgba", mrb_sdl2_video_surface_map_rgba, ARGS_REQ(4));
+  mrb_define_class_method(mrb, class_Surface, "map_rgb",  mrb_sdl2_video_surface_map_rgb,  ARGS_REQ(4));
 }
 
 void

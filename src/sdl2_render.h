@@ -14,6 +14,7 @@ typedef struct pixelbuf_data_t {
 extern SDL_Renderer *mrb_sdl2_video_renderer_get_ptr(mrb_state *mrb, mrb_value renderer);
 
 extern mrb_value mrb_sdl2_video_renderer(mrb_state *mrb, SDL_Renderer *renderer);
+extern mrb_value mrb_sdl2_video_texture(mrb_state *mrb, SDL_Texture *texture);
 
 extern void mruby_sdl2_video_renderer_init(mrb_state *mrb, struct RClass *mod_Video);
 extern void mruby_sdl2_video_renderer_final(mrb_state *mrb, struct RClass *mod_Video);

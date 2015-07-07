@@ -377,6 +377,7 @@ mruby_sdl2_keyboard_init(mrb_state *mrb)
   mrb_define_const(mrb, mod_Keyboard, "SDLK_BACKSPACE",   mrb_fixnum_value(SDLK_BACKSPACE));
   mrb_define_const(mrb, mod_Keyboard, "SDLK_CAPSLOCK",    mrb_fixnum_value(SDLK_CAPSLOCK));
   mrb_define_const(mrb, mod_Keyboard, "SDLK_DELETE",      mrb_fixnum_value(SDLK_DELETE));
+  mrb_define_const(mrb, mod_Keyboard, "SDLK_DOWN",        mrb_fixnum_value(SDLK_DOWN));
   mrb_define_const(mrb, mod_Keyboard, "SDLK_ESCAPE",      mrb_fixnum_value(SDLK_ESCAPE));
   mrb_define_const(mrb, mod_Keyboard, "SDLK_END",         mrb_fixnum_value(SDLK_END));
   mrb_define_const(mrb, mod_Keyboard, "SDLK_HOME",        mrb_fixnum_value(SDLK_HOME));
@@ -409,6 +410,7 @@ mruby_sdl2_keyboard_init(mrb_state *mrb)
   mrb_define_const(mrb, mod_Keyboard, "SDLK_QUESTION",    mrb_fixnum_value(SDLK_QUESTION));
   mrb_define_const(mrb, mod_Keyboard, "SDLK_QUOTEDBL",    mrb_fixnum_value(SDLK_QUOTEDBL));
   mrb_define_const(mrb, mod_Keyboard, "SDLK_RIGHTPAREN",  mrb_fixnum_value(SDLK_RIGHTPAREN));
+  mrb_define_const(mrb, mod_Keyboard, "SDLK_UP",          mrb_fixnum_value(SDLK_UP));
   mrb_define_const(mrb, mod_Keyboard, "SDLK_UNDERSCORE",  mrb_fixnum_value(SDLK_UNDERSCORE));
   mrb_define_const(mrb, mod_Keyboard, "SDLK_UNKNOWN",     mrb_fixnum_value(SDLK_UNKNOWN));
 

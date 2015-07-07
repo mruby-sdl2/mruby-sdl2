@@ -189,7 +189,7 @@ mruby_sdl2_messagebox_init(mrb_state *mrb)
   mod_Video = mrb_module_get_under(mrb, mod_SDL2, "Video");
   class_Window = mrb_class_get_under(mrb, mod_Video, "Window");
 
-  mrb_define_module_function(mrb, class_Window, "show_simple_message_box", mrb_sdl2_window_show_simple_message_box,  ARGS_REQ(3));
+  mrb_define_method(mrb, class_Window, "show_simple_message_box", mrb_sdl2_window_show_simple_message_box,  ARGS_REQ(3));
 
   mrb_define_method(mrb, class_MessageBoxData, "initialize",       mrb_sdl2_message_boxdata_initialize,       ARGS_REQ(1) | ARGS_NONE());
   mrb_define_method(mrb, class_MessageBoxData, "destroy",          mrb_sdl2_message_boxdata_destroy,          ARGS_NONE());

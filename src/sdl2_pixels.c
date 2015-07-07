@@ -441,6 +441,107 @@ mrb_sdl2_pixels_palette_free(mrb_state *mrb, mrb_value self)
   return self;
 }
 
+static mrb_value 
+mrb_sdl2_pixels_pixelformat_get_format(mrb_state *mrb, mrb_value self) { 
+  return mrb_fixnum_value(mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self)->format); 
+}
+
+static mrb_value 
+mrb_sdl2_pixels_pixelformat_get_palette(mrb_state *mrb, mrb_value self) { 
+  return mrb_sdl2_pixels_palette(mrb, (mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self)->palette)); 
+}
+
+static mrb_value 
+mrb_sdl2_pixels_pixelformat_get_BitsPerPixel(mrb_state *mrb, mrb_value self) { 
+  return mrb_fixnum_value(mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self)->BitsPerPixel); 
+}
+
+static mrb_value 
+mrb_sdl2_pixels_pixelformat_get_BytesPerPixel(mrb_state *mrb, mrb_value self) { 
+  return mrb_fixnum_value(mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self)->BytesPerPixel); 
+}
+
+static mrb_value 
+mrb_sdl2_pixels_pixelformat_get_padding(mrb_state *mrb, mrb_value self) { 
+
+  Uint8 *r = mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self)->padding;
+  mrb_value array = mrb_ary_new_capa(mrb, 2);
+  mrb_ary_push(mrb, array, mrb_fixnum_value(r[0]));
+  mrb_ary_push(mrb, array, mrb_fixnum_value(r[1]));
+
+  return array; 
+}
+
+static mrb_value 
+mrb_sdl2_pixels_pixelformat_get_Rmask(mrb_state *mrb, mrb_value self) { 
+  return mrb_fixnum_value(mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self)->Rmask); 
+}
+
+static mrb_value 
+mrb_sdl2_pixels_pixelformat_get_Gmask(mrb_state *mrb, mrb_value self) { 
+  return mrb_fixnum_value(mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self)->Gmask); 
+}
+
+static mrb_value 
+mrb_sdl2_pixels_pixelformat_get_Bmask(mrb_state *mrb, mrb_value self) { 
+  return mrb_fixnum_value(mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self)->Bmask); 
+}
+
+static mrb_value 
+mrb_sdl2_pixels_pixelformat_get_Amask(mrb_state *mrb, mrb_value self) { 
+  return mrb_fixnum_value(mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self)->Amask); 
+}
+
+static mrb_value 
+mrb_sdl2_pixels_pixelformat_get_Rloss(mrb_state *mrb, mrb_value self) { 
+  return mrb_fixnum_value(mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self)->Rloss); 
+}
+
+static mrb_value 
+mrb_sdl2_pixels_pixelformat_get_Gloss(mrb_state *mrb, mrb_value self) { 
+  return mrb_fixnum_value(mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self)->Gloss); 
+}
+
+static mrb_value 
+mrb_sdl2_pixels_pixelformat_get_Bloss(mrb_state *mrb, mrb_value self) { 
+  return mrb_fixnum_value(mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self)->Bloss); 
+}
+
+static mrb_value 
+mrb_sdl2_pixels_pixelformat_get_Aloss(mrb_state *mrb, mrb_value self) { 
+  return mrb_fixnum_value(mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self)->Aloss); 
+}
+
+static mrb_value 
+mrb_sdl2_pixels_pixelformat_get_Rshift(mrb_state *mrb, mrb_value self) { 
+  return mrb_fixnum_value(mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self)->Rshift); 
+}
+
+static mrb_value 
+mrb_sdl2_pixels_pixelformat_get_Gshift(mrb_state *mrb, mrb_value self) { 
+  return mrb_fixnum_value(mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self)->Gshift); 
+}
+
+static mrb_value 
+mrb_sdl2_pixels_pixelformat_get_Bshift(mrb_state *mrb, mrb_value self) { 
+  return mrb_fixnum_value(mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self)->Bshift); 
+}
+
+static mrb_value 
+mrb_sdl2_pixels_pixelformat_get_Ashift(mrb_state *mrb, mrb_value self) { 
+  return mrb_fixnum_value(mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self)->Ashift); 
+}
+
+static mrb_value 
+mrb_sdl2_pixels_pixelformat_get_refcount(mrb_state *mrb, mrb_value self) { 
+  return mrb_fixnum_value(mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self)->refcount); 
+}
+
+static mrb_value 
+mrb_sdl2_pixels_pixelformat_get_next(mrb_state *mrb, mrb_value self) { 
+  return mrb_sdl2_pixels_associated_pixelformat(mrb, (mrb_sdl2_pixels_pixelformat_get_ptr(mrb, self)->next)); 
+}
+
 
 void
 mruby_sdl2_pixels_init(mrb_state *mrb)
@@ -459,14 +560,33 @@ mruby_sdl2_pixels_init(mrb_state *mrb)
   mrb_define_module_function(mrb, mod_Pixels, "masks_to_format",      mrb_sdl2_pixels_masks_to_format,       ARGS_REQ(5));
   mrb_define_module_function(mrb, mod_Pixels, "calculate_gamma_ramp", mrb_sdl2_pixels_calculate_gamma_ramp,  ARGS_REQ(1));
 
-  mrb_define_method(mrb, class_PixelFormat, "initialize",  mrb_sdl2_pixels_pixelformat_initialize,  ARGS_REQ(1));
-  mrb_define_method(mrb, class_PixelFormat, "set_palette", mrb_sdl2_pixels_pixelformat_set_palette, ARGS_REQ(1));
-  mrb_define_method(mrb, class_PixelFormat, "destroy",     mrb_sdl2_pixels_pixelformat_free,        ARGS_NONE());
-  mrb_define_method(mrb, class_PixelFormat, "free",        mrb_sdl2_pixels_pixelformat_free,        ARGS_NONE());
-  mrb_define_method(mrb, class_PixelFormat, "mapRGB",      mrb_sdl2_pixels_pixelformat_map_rgb,     ARGS_REQ(3));
-  mrb_define_method(mrb, class_PixelFormat, "mapRGBA",     mrb_sdl2_pixels_pixelformat_map_rgba,    ARGS_REQ(4));
-  mrb_define_method(mrb, class_PixelFormat, "get_rgb",     mrb_sdl2_pixels_pixelformat_get_rgb,     ARGS_REQ(1));
-  mrb_define_method(mrb, class_PixelFormat, "get_rgba",    mrb_sdl2_pixels_pixelformat_get_rgba,    ARGS_REQ(1));
+  mrb_define_method(mrb, class_PixelFormat, "initialize",     mrb_sdl2_pixels_pixelformat_initialize,         ARGS_REQ(1));
+  mrb_define_method(mrb, class_PixelFormat, "destroy",        mrb_sdl2_pixels_pixelformat_free,               ARGS_NONE());
+  mrb_define_method(mrb, class_PixelFormat, "free",           mrb_sdl2_pixels_pixelformat_free,               ARGS_NONE());
+  mrb_define_method(mrb, class_PixelFormat, "format",         mrb_sdl2_pixels_pixelformat_get_format,         ARGS_NONE());
+  mrb_define_method(mrb, class_PixelFormat, "palette",        mrb_sdl2_pixels_pixelformat_get_palette,        ARGS_NONE());
+  mrb_define_method(mrb, class_PixelFormat, "BitsPerPixel",   mrb_sdl2_pixels_pixelformat_get_BitsPerPixel,   ARGS_NONE());
+  mrb_define_method(mrb, class_PixelFormat, "BytesPerPixel",  mrb_sdl2_pixels_pixelformat_get_BytesPerPixel,  ARGS_NONE());
+  mrb_define_method(mrb, class_PixelFormat, "padding",        mrb_sdl2_pixels_pixelformat_get_padding,        ARGS_NONE());
+  mrb_define_method(mrb, class_PixelFormat, "Rmask",          mrb_sdl2_pixels_pixelformat_get_Rmask,          ARGS_NONE());
+  mrb_define_method(mrb, class_PixelFormat, "Gmask",          mrb_sdl2_pixels_pixelformat_get_Gmask,          ARGS_NONE());
+  mrb_define_method(mrb, class_PixelFormat, "Bmask",          mrb_sdl2_pixels_pixelformat_get_Bmask,          ARGS_NONE());
+  mrb_define_method(mrb, class_PixelFormat, "Amask",          mrb_sdl2_pixels_pixelformat_get_Amask,          ARGS_NONE());
+  mrb_define_method(mrb, class_PixelFormat, "Rloss",          mrb_sdl2_pixels_pixelformat_get_Rloss,          ARGS_NONE());
+  mrb_define_method(mrb, class_PixelFormat, "Gloss",          mrb_sdl2_pixels_pixelformat_get_Gloss,          ARGS_NONE());
+  mrb_define_method(mrb, class_PixelFormat, "Bloss",          mrb_sdl2_pixels_pixelformat_get_Bloss,          ARGS_NONE());
+  mrb_define_method(mrb, class_PixelFormat, "Aloss",          mrb_sdl2_pixels_pixelformat_get_Aloss,          ARGS_NONE());
+  mrb_define_method(mrb, class_PixelFormat, "Rshift",         mrb_sdl2_pixels_pixelformat_get_Rshift,         ARGS_NONE());
+  mrb_define_method(mrb, class_PixelFormat, "Gshift",         mrb_sdl2_pixels_pixelformat_get_Gshift,         ARGS_NONE());
+  mrb_define_method(mrb, class_PixelFormat, "Bshift",         mrb_sdl2_pixels_pixelformat_get_Bshift,         ARGS_NONE());
+  mrb_define_method(mrb, class_PixelFormat, "Ashift",         mrb_sdl2_pixels_pixelformat_get_Ashift,         ARGS_NONE());
+  mrb_define_method(mrb, class_PixelFormat, "refcount",       mrb_sdl2_pixels_pixelformat_get_refcount,       ARGS_NONE());
+  mrb_define_method(mrb, class_PixelFormat, "next",           mrb_sdl2_pixels_pixelformat_get_next,           ARGS_NONE());
+  mrb_define_method(mrb, class_PixelFormat, "set_palette",    mrb_sdl2_pixels_pixelformat_set_palette,        ARGS_REQ(1));
+  mrb_define_method(mrb, class_PixelFormat, "mapRGB",         mrb_sdl2_pixels_pixelformat_map_rgb,            ARGS_REQ(3));
+  mrb_define_method(mrb, class_PixelFormat, "mapRGBA",        mrb_sdl2_pixels_pixelformat_map_rgba,           ARGS_REQ(4));
+  mrb_define_method(mrb, class_PixelFormat, "get_rgb",        mrb_sdl2_pixels_pixelformat_get_rgb,            ARGS_REQ(1));
+  mrb_define_method(mrb, class_PixelFormat, "get_rgba",       mrb_sdl2_pixels_pixelformat_get_rgba,           ARGS_REQ(1));
   // SDL_MapRGB
 
   mrb_define_method(mrb, class_Palette, "initialize", mrb_sdl2_pixels_palette_initialize, ARGS_REQ(1));

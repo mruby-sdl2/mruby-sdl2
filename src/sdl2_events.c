@@ -775,7 +775,6 @@ mrb_sdl2_input_windowevent_get_data2(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(data->event.window.data2);
 }
 
-
 void
 mruby_sdl2_events_init(mrb_state *mrb)
 {

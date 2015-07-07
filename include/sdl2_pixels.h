@@ -10,7 +10,7 @@ extern "C" {
 #endif
   
 extern mrb_value mrb_sdl2_pixels_pixelformat_new(mrb_state *mrb, SDL_PixelFormat *format);
-
+extern SDL_PixelFormat * mrb_sdl2_pixels_pixelformat_get_ptr(mrb_state *mrb, mrb_value pixelformat);
 extern void mruby_sdl2_pixels_init(mrb_state *mrb);
 extern void mruby_sdl2_pixels_final(mrb_state *mrb);
 

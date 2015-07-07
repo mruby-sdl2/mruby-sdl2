@@ -435,13 +435,11 @@ mrb_sdl2_video_window_get_size(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_window_set_size(mrb_state *mrb, mrb_value self)
 {
-  size_data_t * s;
-  mrb_value arg;
+  mrb_int w,h;
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
-  mrb_get_args(mrb, "o", &arg);
-  s = mrb_sdl2_size_get_ptr(mrb, arg);
-  SDL_SetWindowSize(data->window, s->w, s->h);
+  mrb_get_args(mrb, "ii", &w, &h);
+  SDL_SetWindowSize(data->window, w, h);
   return self;
 
 }
@@ -883,7 +881,7 @@ mruby_sdl2_video_init(mrb_state *mrb)
   mrb_define_method(mrb, class_Window, "create_with_renderer", mrb_sdl2_video_window_create_with_renderer, ARGS_REQ(3));
   mrb_define_method(mrb, class_Window, "destroy",              mrb_sdl2_video_window_destroy,              ARGS_NONE());
   mrb_define_method(mrb, class_Window, "size",                 mrb_sdl2_video_window_get_size,             ARGS_NONE());
-  mrb_define_method(mrb, class_Window, "size=",                mrb_sdl2_video_window_set_size,             ARGS_REQ(1));
+  mrb_define_method(mrb, class_Window, "set_size",             mrb_sdl2_video_window_set_size,             ARGS_REQ(2));
   mrb_define_method(mrb, class_Window, "position",             mrb_sdl2_video_window_get_position,         ARGS_NONE());
   mrb_define_method(mrb, class_Window, "position=",            mrb_sdl2_video_window_set_position,         ARGS_REQ(1));
   mrb_define_method(mrb, class_Window, "title",                mrb_sdl2_video_window_get_title,            ARGS_NONE());

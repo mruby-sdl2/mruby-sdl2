@@ -151,8 +151,16 @@ mrb_sdl2_video_surface_blit_surface(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_surface_convert_format(mrb_state *mrb, mrb_value self)
 {
-  mrb_raise(mrb, E_NOTIMP_ERROR, "not implemented.");
-  return self;
+  SDL_Surface *s, *new_s;
+  mrb_int pixel_format;
+  mrb_get_args(mrb, "i", &pixel_format);
+  s = mrb_sdl2_video_surface_get_ptr(mrb, self);
+
+  new_s = SDL_ConvertSurfaceFormat(s, (Uint32) pixel_format, 0);
+  if (NULL == new_s) {
+    mruby_sdl2_raise_error(mrb);
+  }
+  return mrb_sdl2_video_surface(mrb, new_s, true);
 }
 
 static mrb_value
@@ -440,22 +448,59 @@ mrb_sdl2_video_surface_map_rgb(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(result);
 }
 
+static mrb_value
+mrb_sdl2_video_surface_width(mrb_state *mrb, mrb_value self)
+{
+  return mrb_fixnum_value(mrb_sdl2_video_surface_get_ptr(mrb, self)->w);
+}
+
+static mrb_value
+mrb_sdl2_video_surface_height(mrb_state *mrb, mrb_value self)
+{
+  return mrb_fixnum_value(mrb_sdl2_video_surface_get_ptr(mrb, self)->h);
+}
+
+static mrb_value
+mrb_sdl2_video_surface_pitch(mrb_state *mrb, mrb_value self)
+{
+  return mrb_fixnum_value(mrb_sdl2_video_surface_get_ptr(mrb, self)->pitch);
+}
+
+static mrb_value
+mrb_sdl2_video_surface_convert(mrb_state *mrb, mrb_value self)
+{
+  SDL_Surface *s, *new_s;
+  SDL_PixelFormat *p;
+  mrb_value pixel_format;
+  mrb_get_args(mrb, "o", &pixel_format);
+  p = mrb_sdl2_pixels_pixelformat_get_ptr(mrb, pixel_format);
+  s = mrb_sdl2_video_surface_get_ptr(mrb, self);
+
+  new_s = SDL_ConvertSurface(s, p, 0);
+  if (NULL == new_s) {
+    mruby_sdl2_raise_error(mrb);
+  }
+  return mrb_sdl2_video_surface(mrb, new_s, true);
+}
+
 void
 mruby_sdl2_video_surface_init(mrb_state *mrb, struct RClass *mod_Video)
 {
-  class_Surface = mrb_class_get_under(mrb, mod_Video, "Surface");
+  int arena_size;
+  class_Surface = mrb_define_class_under(mrb, mod_Video, "Surface", mrb->object_class);
 
   MRB_SET_INSTANCE_TT(class_Surface, MRB_TT_DATA);
 
   mrb_define_method(mrb, class_Surface, "initialize",     mrb_sdl2_video_surface_initialize,     ARGS_REQ(8));
   mrb_define_method(mrb, class_Surface, "free",           mrb_sdl2_video_surface_free,           ARGS_NONE());
   mrb_define_method(mrb, class_Surface, "destroy",        mrb_sdl2_video_surface_free,           ARGS_NONE());
-  mrb_define_method(mrb, class_Surface, "blit_scaled",    mrb_sdl2_video_surface_blit_scaled,    ARGS_REQ(2) | ARGS_OPT(1));
+  mrb_define_method(mrb, class_Surface, "blit_scaled",    mrb_sdl2_video_surface_blit_scaled,    ARGS_REQ(3));
   mrb_define_method(mrb, class_Surface, "blit_surface",   mrb_sdl2_video_surface_blit_surface,   ARGS_REQ(3));
   mrb_define_method(mrb, class_Surface, "convert_format", mrb_sdl2_video_surface_convert_format, ARGS_REQ(2));
-
+  mrb_define_method(mrb, class_Surface, "width",          mrb_sdl2_video_surface_width,          ARGS_NONE());
+  mrb_define_method(mrb, class_Surface, "height",         mrb_sdl2_video_surface_height,         ARGS_NONE());
+  mrb_define_method(mrb, class_Surface, "pitch",          mrb_sdl2_video_surface_pitch,          ARGS_NONE());
   mrb_define_method(mrb, class_Surface, "format",         mrb_sdl2_video_surface_format,         ARGS_NONE());
-
   mrb_define_method(mrb, class_Surface, "fill_rect",      mrb_sdl2_video_surface_fill_rect,      ARGS_REQ(1) | ARGS_OPT(1));
   mrb_define_method(mrb, class_Surface, "fill_rects",     mrb_sdl2_video_surface_fill_rects,     ARGS_REQ(2));
   mrb_define_method(mrb, class_Surface, "clip_rect",      mrb_sdl2_video_surface_get_clip_rect,  ARGS_NONE());
@@ -472,6 +517,14 @@ mruby_sdl2_video_surface_init(mrb_state *mrb, struct RClass *mod_Video)
   mrb_define_method(mrb, class_Surface, "rle",            mrb_sdl2_video_surface_set_rle,        ARGS_REQ(1));
   mrb_define_method(mrb, class_Surface, "lock",           mrb_sdl2_video_surface_lock,           ARGS_NONE());
   mrb_define_method(mrb, class_Surface, "unlock",         mrb_sdl2_video_surface_unlock,         ARGS_NONE());
+  mrb_define_method(mrb, class_Surface, "convert",        mrb_sdl2_video_surface_convert,        ARGS_REQ(1));
+
+  arena_size = mrb_gc_arena_save(mrb);
+  mrb_define_const(mrb, class_Surface, "SDL_BLENDMODE_NONE",  mrb_fixnum_value(SDL_BLENDMODE_NONE));
+  mrb_define_const(mrb, class_Surface, "SDL_BLENDMODE_BLEND", mrb_fixnum_value(SDL_BLENDMODE_BLEND));
+  mrb_define_const(mrb, class_Surface, "SDL_BLENDMODE_ADD",   mrb_fixnum_value(SDL_BLENDMODE_ADD));
+  mrb_define_const(mrb, class_Surface, "SDL_BLENDMODE_MOD",   mrb_fixnum_value(SDL_BLENDMODE_MOD));
+  mrb_gc_arena_restore(mrb, arena_size);
 
   mrb_define_class_method(mrb, class_Surface, "load_bmp", mrb_sdl2_video_surface_load_bmp, ARGS_REQ(1));
   mrb_define_class_method(mrb, class_Surface, "save_bmp", mrb_sdl2_video_surface_save_bmp, ARGS_REQ(2));

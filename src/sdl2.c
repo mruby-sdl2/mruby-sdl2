@@ -23,7 +23,6 @@
 #include "sdl2_filesystem.h"
 #include "sdl2_messagebox.h"
 #include "sdl2_clipboard.h"
-#include "sdl2_image.h"
 #include "misc.h"
 #include "mruby/string.h"
 #include <SDL2/SDL.h>
@@ -256,10 +255,6 @@ mrb_mruby_sdl2_gem_init(mrb_state *mrb)
   arena_size = mrb_gc_arena_save(mrb);
   mruby_sdl2_clipboard_init(mrb);
   mrb_gc_arena_restore(mrb, arena_size);
-
-  arena_size = mrb_gc_arena_save(mrb);
-  mruby_sdl2_image_init(mrb);
-  mrb_gc_arena_restore(mrb, arena_size);
 }
 
 void
@@ -291,5 +286,4 @@ mrb_mruby_sdl2_gem_final(mrb_state *mrb)
   mruby_sdl2_filesystem_final(mrb);
   mruby_sdl2_messagebox_final(mrb);
   mruby_sdl2_clipboard_final(mrb);
-  mruby_sdl2_image_final(mrb);
 }

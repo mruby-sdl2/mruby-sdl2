@@ -827,8 +827,19 @@ mrb_sdl2_video_texture_get_height(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_texture_update(mrb_state *mrb, mrb_value self)
 {
-  mrb_raise(mrb, E_NOTIMP_ERROR, "not implemented.");
-  return mrb_nil_value();
+  int result;
+  mrb_value surface, rect;
+  SDL_Texture *t = mrb_sdl2_video_texture_get_ptr(mrb, self);
+  int argc = mrb_get_args(mrb, "o|o", &surface, &rect);
+  SDL_Surface *s = mrb_sdl2_video_surface_get_ptr(mrb, surface);
+  if (argc == 1) {
+    result = SDL_UpdateTexture(t, NULL, s->pixels, s->pitch);
+  } else {
+    SDL_Rect *r = mrb_sdl2_rect_get_ptr(mrb, rect);
+    result = SDL_UpdateTexture(t, r, s->pixels, s->pitch);
+  }
+  
+  return (result == 1) ? mrb_false_value() : mrb_true_value();
 }
 
 /***************************************************************************
@@ -973,7 +984,7 @@ mruby_sdl2_video_renderer_init(mrb_state *mrb, struct RClass *mod_Video)
   mrb_define_method(mrb, class_Texture, "access",      mrb_sdl2_video_texture_get_access,     ARGS_NONE());
   mrb_define_method(mrb, class_Texture, "width",       mrb_sdl2_video_texture_get_width,      ARGS_NONE());
   mrb_define_method(mrb, class_Texture, "height",      mrb_sdl2_video_texture_get_height,     ARGS_NONE());
-  mrb_define_method(mrb, class_Texture, "update",      mrb_sdl2_video_texture_update,         ARGS_REQ(1));
+  mrb_define_method(mrb, class_Texture, "update",      mrb_sdl2_video_texture_update,         ARGS_REQ(1) | ARGS_REQ(2));
 
   mrb_gc_arena_restore(mrb, arena_size);
   arena_size = mrb_gc_arena_save(mrb);

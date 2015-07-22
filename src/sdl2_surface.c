@@ -1,6 +1,7 @@
 #include "sdl2_surface.h"
 #include "sdl2_rect.h"
 #include "sdl2_pixels.h"
+#include <SDL2/SDL_endian.h>
 #include "mruby/data.h"
 #include "mruby/class.h"
 #include "mruby/string.h"
@@ -483,6 +484,82 @@ mrb_sdl2_video_surface_convert(mrb_state *mrb, mrb_value self)
   return mrb_sdl2_video_surface(mrb, new_s, true);
 }
 
+static mrb_value
+mrb_sdl2_video_surface_get_pixel(mrb_state *mrb, mrb_value self)
+{
+  SDL_Surface *surface;
+  mrb_int x, y;
+  int bpp;
+  Uint8 *p;
+  mrb_get_args(mrb, "ii", &x, &y);
+  surface = mrb_sdl2_video_surface_get_ptr(mrb, self);
+  bpp = surface->format->BytesPerPixel;
+  /* Here p is the address to the pixel we want to retrieve */
+  p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
+
+  switch(bpp) {
+  case 1:
+      return mrb_fixnum_value(*p);  break;
+  case 2:
+      return mrb_fixnum_value(*(Uint16 *)p);  break;
+  case 3:
+      if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
+          return mrb_fixnum_value(p[0] << 16 | p[1] << 8 | p[2]);
+      else
+          return mrb_fixnum_value(p[0] | p[1] << 8 | p[2] << 16);
+      break;
+
+  case 4:
+      return mrb_fixnum_value(*(Uint32 *)p);  break;
+
+  default:
+      return mrb_fixnum_value(0);       /* shouldn't happen, but avoids warnings */
+  }
+
+  return mrb_fixnum_value(0);
+}
+static mrb_value
+mrb_sdl2_video_surface_set_pixel(mrb_state *mrb, mrb_value self)
+{
+  SDL_Surface *surface;
+  mrb_int x, y, pixel;
+  int bpp;
+  Uint8 *p;
+  mrb_get_args(mrb, "iii", &x, &y, &pixel);
+  surface = mrb_sdl2_video_surface_get_ptr(mrb, self);
+  bpp = surface->format->BytesPerPixel;
+  /* Here p is the address to the pixel we want to set */
+  p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
+
+  switch(bpp) {
+  case 1:
+      *p = pixel;
+      break;
+
+  case 2:
+      *(Uint16 *)p = pixel;
+      break;
+
+  case 3:
+      if(SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+          p[0] = (pixel >> 16) & 0xff;
+          p[1] = (pixel >> 8) & 0xff;
+          p[2] = pixel & 0xff;
+      } else {
+          p[0] = pixel & 0xff;
+          p[1] = (pixel >> 8) & 0xff;
+          p[2] = (pixel >> 16) & 0xff;
+      }
+      break;
+
+  case 4:
+      *(Uint32 *)p = pixel;
+      break;
+  }
+
+  return mrb_true_value();
+}
+
 void
 mruby_sdl2_video_surface_init(mrb_state *mrb, struct RClass *mod_Video)
 {
@@ -518,6 +595,8 @@ mruby_sdl2_video_surface_init(mrb_state *mrb, struct RClass *mod_Video)
   mrb_define_method(mrb, class_Surface, "lock",           mrb_sdl2_video_surface_lock,           ARGS_NONE());
   mrb_define_method(mrb, class_Surface, "unlock",         mrb_sdl2_video_surface_unlock,         ARGS_NONE());
   mrb_define_method(mrb, class_Surface, "convert",        mrb_sdl2_video_surface_convert,        ARGS_REQ(1));
+  mrb_define_method(mrb, class_Surface, "get_pixel",      mrb_sdl2_video_surface_get_pixel,      ARGS_REQ(2));
+  mrb_define_method(mrb, class_Surface, "set_pixel",      mrb_sdl2_video_surface_set_pixel,      ARGS_REQ(3));
 
   arena_size = mrb_gc_arena_save(mrb);
   mrb_define_const(mrb, class_Surface, "SDL_BLENDMODE_NONE",  mrb_fixnum_value(SDL_BLENDMODE_NONE));

@@ -54,10 +54,10 @@ mruby_sdl2_touch_init(mrb_state *mrb)
 {
   struct RClass * mod_Touch = mrb_define_module_under(mrb, mod_SDL2, "Touch");
 
-  mrb_define_module_function(mrb, mod_Touch, "num_touch_devices", mrb_sdl2_touch_num_devices,  ARGS_NONE());
-  mrb_define_module_function(mrb, mod_Touch, "get_touch_device", mrb_sdl2_touch_get_device,  ARGS_REQ(1));
-  mrb_define_module_function(mrb, mod_Touch, "get_num_touch_fingers", mrb_sdl2_touch_num_fingers,  ARGS_REQ(1));
-  mrb_define_module_function(mrb, mod_Touch, "get_touch_finger", mrb_sdl2_touch_get_touch_finger,  ARGS_REQ(2));
+  mrb_define_module_function(mrb, mod_Touch, "num_touch_devices", mrb_sdl2_touch_num_devices,  MRB_ARGS_NONE());
+  mrb_define_module_function(mrb, mod_Touch, "get_touch_device", mrb_sdl2_touch_get_device,  MRB_ARGS_REQ(1));
+  mrb_define_module_function(mrb, mod_Touch, "get_num_touch_fingers", mrb_sdl2_touch_num_fingers,  MRB_ARGS_REQ(1));
+  mrb_define_module_function(mrb, mod_Touch, "get_touch_finger", mrb_sdl2_touch_get_touch_finger,  MRB_ARGS_REQ(2));
 
 
 }

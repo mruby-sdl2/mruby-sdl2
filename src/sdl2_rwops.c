@@ -90,10 +90,10 @@ mrb_sdl2_rwops_associated_rwops(mrb_state *mrb, SDL_RWops *rwops)
 static mrb_value
 mrb_sdl2_rwops_initialize(mrb_state *mrb, mrb_value self)
 {
+  printf("in the rwops");
   SDL_RWops *rwops = NULL;
   mrb_sdl2_rwops_data_t *data =
     (mrb_sdl2_rwops_data_t*)DATA_PTR(self);
-
   if (NULL == data) {
     data = (mrb_sdl2_rwops_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_rwops_data_t));
     if (NULL == data) {
@@ -103,9 +103,11 @@ mrb_sdl2_rwops_initialize(mrb_state *mrb, mrb_value self)
     data->rwops = NULL;
   }
 
+  printf("in the rwops");
   if (2 == mrb->c->ci->argc) {
     mrb_value file, mode;
-    mrb_get_args(mrb, "SS", &file, &mode);
+    mrb_get_args(mrb, "ss", &file, &mode);
+    printf("%s %s", RSTRING_PTR(file), RSTRING_PTR(mode));
     rwops = SDL_RWFromFile(RSTRING_PTR(file), RSTRING_PTR(mode));
   } else {
     mrb_free(mrb, data);
@@ -166,7 +168,6 @@ static mrb_value
 mrb_sdl2_rwops_read(mrb_state *mrb, mrb_value self)
 {
     // TODO ?
-    // mrb_class_ptr - gets the class ptr. Maybe can be used to find the size of object
     mrb_int size, maxnum;
     Uint8 buf[30];
     mrb_value read;
@@ -226,15 +227,15 @@ mruby_sdl2_rwops_init(mrb_state *mrb)
 
   MRB_SET_INSTANCE_TT(class_RWops, MRB_TT_DATA);
 
-  mrb_define_method(mrb, class_RWops, "initialize", mrb_sdl2_rwops_initialize, ARGS_REQ(2));
-  mrb_define_method(mrb, class_RWops, "destroy",    mrb_sdl2_rwops_free,       ARGS_NONE());
-  mrb_define_method(mrb, class_RWops, "free",       mrb_sdl2_rwops_free,       ARGS_NONE());
-  mrb_define_method(mrb, class_RWops, "size",       mrb_sdl2_rwops_size,       ARGS_NONE());
-  mrb_define_method(mrb, class_RWops, "seek",       mrb_sdl2_rwops_seek,       ARGS_REQ(2));
-  mrb_define_method(mrb, class_RWops, "tell",       mrb_sdl2_rwops_tell,       ARGS_NONE());
-  mrb_define_method(mrb, class_RWops, "read",       mrb_sdl2_rwops_read,       ARGS_REQ(2));
-  mrb_define_method(mrb, class_RWops, "write",      mrb_sdl2_rwops_write,      ARGS_REQ(1));
-  mrb_define_method(mrb, class_RWops, "close",      mrb_sdl2_rwops_close,      ARGS_NONE());
+  mrb_define_method(mrb, class_RWops, "initialize", mrb_sdl2_rwops_initialize, MRB_ARGS_REQ(2));
+  mrb_define_method(mrb, class_RWops, "destroy",    mrb_sdl2_rwops_free,       MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_RWops, "free",       mrb_sdl2_rwops_free,       MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_RWops, "size",       mrb_sdl2_rwops_size,       MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_RWops, "seek",       mrb_sdl2_rwops_seek,       MRB_ARGS_REQ(2));
+  mrb_define_method(mrb, class_RWops, "tell",       mrb_sdl2_rwops_tell,       MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_RWops, "read",       mrb_sdl2_rwops_read,       MRB_ARGS_REQ(2));
+  mrb_define_method(mrb, class_RWops, "write",      mrb_sdl2_rwops_write,      MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_RWops, "close",      mrb_sdl2_rwops_close,      MRB_ARGS_NONE());
 
 
   arena_size = mrb_gc_arena_save(mrb);

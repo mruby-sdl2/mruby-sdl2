@@ -395,32 +395,32 @@ mruby_sdl2_joystick_init(mrb_state *mrb)
 
   MRB_SET_INSTANCE_TT(class_Joystick, MRB_TT_DATA);
 
-  mrb_define_module_function(mrb, mod_Joystick, "num",      mrb_sdl2_joystick_num, ARGS_NONE());
-  mrb_define_module_function(mrb, mod_Joystick, "name_from_index", mrb_sdl2_joystick_get_name, ARGS_REQ(1));
-  mrb_define_module_function(mrb, mod_Joystick, "get_guid_from_index",       mrb_sdl2_joystick_get_guid, ARGS_REQ(1));
-  mrb_define_module_function(mrb, mod_Joystick, "get_guid_as_string",        mrb_sdl2_joystick_get_guid_as_string, ARGS_REQ(1));
-  mrb_define_module_function(mrb, mod_Joystick, "get_guid_from_string",        mrb_sdl2_joystick_get_guid_from_string, ARGS_REQ(1));
+  mrb_define_module_function(mrb, mod_Joystick, "num",      mrb_sdl2_joystick_num, MRB_ARGS_NONE());
+  mrb_define_module_function(mrb, mod_Joystick, "name_from_index", mrb_sdl2_joystick_get_name, MRB_ARGS_REQ(1));
+  mrb_define_module_function(mrb, mod_Joystick, "get_guid_from_index",       mrb_sdl2_joystick_get_guid, MRB_ARGS_REQ(1));
+  mrb_define_module_function(mrb, mod_Joystick, "get_guid_as_string",        mrb_sdl2_joystick_get_guid_as_string, MRB_ARGS_REQ(1));
+  mrb_define_module_function(mrb, mod_Joystick, "get_guid_from_string",        mrb_sdl2_joystick_get_guid_from_string, MRB_ARGS_REQ(1));
 
-  mrb_define_method(mrb, class_Joystick, "initialize",  mrb_sdl2_joystick_joystick_initialize,  ARGS_REQ(1));
-  mrb_define_method(mrb, class_Joystick, "destroy",     mrb_sdl2_joystick_joystick_free,        ARGS_NONE());
-  mrb_define_method(mrb, class_Joystick, "free",        mrb_sdl2_joystick_joystick_free,        ARGS_NONE());
-  mrb_define_method(mrb, class_Joystick, "get_name",        mrb_sdl2_joystick_joystick_get_name, ARGS_NONE());
-  mrb_define_method(mrb, class_Joystick, "get_guid",        mrb_sdl2_joystick_joystick_get_guid, ARGS_NONE());
-  mrb_define_method(mrb, class_Joystick, "get_guid_as_string",        mrb_sdl2_joystick_joystick_get_guid_as_string, ARGS_NONE());
-  mrb_define_method(mrb, class_Joystick, "is_attached?",        mrb_sdl2_joystick_joystick_is_attached, ARGS_NONE());
-  mrb_define_method(mrb, class_Joystick, "get_id",         mrb_sdl2_joystick_joystick_get_id, ARGS_NONE());
-  mrb_define_method(mrb, class_Joystick, "get_general_num_axes",         mrb_sdl2_joystick_joystick_get_num_axes, ARGS_NONE());
-  mrb_define_method(mrb, class_Joystick, "get_general_num_balls",         mrb_sdl2_joystick_joystick_get_num_balls, ARGS_NONE());
-  mrb_define_method(mrb, class_Joystick, "get_general_num_hats",         mrb_sdl2_joystick_joystick_get_num_hats, ARGS_NONE());
-  mrb_define_method(mrb, class_Joystick, "get_general_num_buttons",         mrb_sdl2_joystick_joystick_get_num_buttons, ARGS_NONE());
-  mrb_define_method(mrb, class_Joystick, "update",         mrb_sdl2_joystick_joystick_update, ARGS_NONE());
-  mrb_define_method(mrb, class_Joystick, "event_state",         mrb_sdl2_joystick_joystick_event_state, ARGS_REQ(1));
-  mrb_define_method(mrb, class_Joystick, "get_axis",         mrb_sdl2_joystick_joystick_get_axis, ARGS_REQ(1));
-  mrb_define_method(mrb, class_Joystick, "get_axis_x", mrb_sdl2_joystick_joystick_get_axis_x, ARGS_NONE());
-  mrb_define_method(mrb, class_Joystick, "get_axis_y", mrb_sdl2_joystick_joystick_get_axis_y, ARGS_NONE());
-  mrb_define_method(mrb, class_Joystick, "get_hat",         mrb_sdl2_joystick_joystick_get_hat, ARGS_REQ(1));
-  mrb_define_method(mrb, class_Joystick, "get_ball",         mrb_sdl2_joystick_joystick_get_ball, ARGS_REQ(1));
-  mrb_define_method(mrb, class_Joystick, "get_button",         mrb_sdl2_joystick_joystick_get_button, ARGS_REQ(1));
+  mrb_define_method(mrb, class_Joystick, "initialize",  mrb_sdl2_joystick_joystick_initialize,  MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_Joystick, "destroy",     mrb_sdl2_joystick_joystick_free,        MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Joystick, "free",        mrb_sdl2_joystick_joystick_free,        MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Joystick, "get_name",        mrb_sdl2_joystick_joystick_get_name, MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Joystick, "get_guid",        mrb_sdl2_joystick_joystick_get_guid, MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Joystick, "get_guid_as_string",        mrb_sdl2_joystick_joystick_get_guid_as_string, MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Joystick, "is_attached?",        mrb_sdl2_joystick_joystick_is_attached, MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Joystick, "get_id",         mrb_sdl2_joystick_joystick_get_id, MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Joystick, "get_general_num_axes",         mrb_sdl2_joystick_joystick_get_num_axes, MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Joystick, "get_general_num_balls",         mrb_sdl2_joystick_joystick_get_num_balls, MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Joystick, "get_general_num_hats",         mrb_sdl2_joystick_joystick_get_num_hats, MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Joystick, "get_general_num_buttons",         mrb_sdl2_joystick_joystick_get_num_buttons, MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Joystick, "update",         mrb_sdl2_joystick_joystick_update, MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Joystick, "event_state",         mrb_sdl2_joystick_joystick_event_state, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_Joystick, "get_axis",         mrb_sdl2_joystick_joystick_get_axis, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_Joystick, "get_axis_x", mrb_sdl2_joystick_joystick_get_axis_x, MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Joystick, "get_axis_y", mrb_sdl2_joystick_joystick_get_axis_y, MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Joystick, "get_hat",         mrb_sdl2_joystick_joystick_get_hat, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_Joystick, "get_ball",         mrb_sdl2_joystick_joystick_get_ball, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_Joystick, "get_button",         mrb_sdl2_joystick_joystick_get_button, MRB_ARGS_REQ(1));
 
 
   arena_size = mrb_gc_arena_save(mrb);

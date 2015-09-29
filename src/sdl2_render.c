@@ -24,7 +24,7 @@ typedef struct mrb_sdl2_video_pixelbuf_data_t {
 } mrb_sdl2_video_pixelbuf_data_t;
 
 typedef struct mrb_sdl2_video_rendererinfo_data_t {
-  SDL_RendererInfo info;
+  SDL_RendererInfo *info;
 } mrb_sdl2_video_rendererinfo_data_t;
 
 static void
@@ -122,7 +122,7 @@ mrb_sdl2_video_rendererinfo_get_ptr(mrb_state *mrb, mrb_value info)
   }
   data =
     (mrb_sdl2_video_rendererinfo_data_t*)mrb_data_get_ptr(mrb, info, &mrb_sdl2_video_rendererinfo_data_type);
-  return &data->info;
+  return data->info;
 }
 
 pixelbuf_data_t *
@@ -170,7 +170,7 @@ mrb_sdl2_video_rendererinfo(mrb_state *mrb, SDL_RendererInfo *info)
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
   }
   if (NULL != info) {
-    data->info = *info;
+    data->info = info;
   }
   return mrb_obj_value(Data_Wrap_Struct(mrb, class_RendererInfo, &mrb_sdl2_video_rendererinfo_data_type, data));
 }
@@ -281,19 +281,10 @@ mrb_sdl2_video_renderer_get_draw_color(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_renderer_set_draw_color(mrb_state *mrb, mrb_value self)
 {
-  uint8_t r, g, b, a;
-  mrb_value rgba;
+  mrb_int r, g, b, a;
   SDL_Renderer *renderer = mrb_sdl2_video_renderer_get_ptr(mrb, self);
-  mrb_get_args(mrb, "o", &rgba);
-  if (!mrb_obj_is_kind_of(mrb, rgba, mrb_class_get_under(mrb, mod_SDL2, "RGB"))) {
-    mrb_raise(mrb, E_TYPE_ERROR, "given argument is unexpected type (expected RGB).");
-  }
-  r = mrb_fixnum(mrb_funcall(mrb, rgba, "r", 0));
-  g = mrb_fixnum(mrb_funcall(mrb, rgba, "g", 0));
-  b = mrb_fixnum(mrb_funcall(mrb, rgba, "b", 0));
-  if (mrb_respond_to(mrb, rgba, mrb_intern(mrb, "a", 1))) {
-    a = mrb_fixnum(mrb_funcall(mrb, rgba, "a", 0));
-  } else {
+  int argc = mrb_get_args(mrb, "iii|i", &r, &g, &b, &a);
+  if (argc != 4) {
     a = SDL_ALPHA_OPAQUE;
   }
   if (0 != SDL_SetRenderDrawColor(renderer, r, g, b, a)) {
@@ -611,8 +602,58 @@ mrb_sdl2_video_renderer_present(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_renderer_read_pixels(mrb_state *mrb, mrb_value self)
 {
-  mrb_raise(mrb, E_NOTIMP_ERROR, "not implemented.");
-  return mrb_nil_value();
+  SDL_Renderer *render;
+  SDL_Rect * rect;
+  Uint32 *pixels;
+  int i, j, bpp;
+  Uint32 *p;
+  mrb_value rrect;
+  mrb_int format, pitch;
+  mrb_value array;
+  SDL_Rect viewport;
+  SDL_Surface *surface;
+  int argc = mrb_get_args(mrb, "o|i", &rrect, &format);
+  render = mrb_sdl2_video_renderer_get_ptr(mrb, self);
+  SDL_RenderGetViewport(render, &viewport);
+  rect = mrb_sdl2_rect_get_ptr(mrb, rrect);
+  surface = SDL_CreateRGBSurface(0, viewport.w, viewport.h, 32,
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+				 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF
+#else
+				 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000
+#endif
+);
+  if (format != 0) {
+    if ((surface = SDL_ConvertSurfaceFormat(surface, format, 0)) == NULL)
+      mruby_sdl2_raise_error(mrb);
+  }
+
+  if (!surface) {
+    mruby_sdl2_raise_error(mrb);
+    return;
+  }
+  
+  if (SDL_RenderReadPixels(render, NULL, surface->format->format,
+			   surface->pixels, surface->pitch) < 0) {
+    SDL_free(surface);
+    mruby_sdl2_raise_error(mrb);
+    return self;
+  }
+  
+  return mrb_sdl2_video_surface(mrb, surface, false);
+  array = mrb_ary_new_capa(mrb, rect->w);
+  bpp = surface->format->BytesPerPixel;
+  for (i = 0; i < rect->x+rect->w; i++) {
+    mrb_value temp_array = mrb_ary_new_capa(mrb, rect->h);
+    for (j = 0; j < rect->h; j++) {
+      p = (Uint32 *)surface->pixels + j * surface->pitch + i * bpp;
+      mrb_ary_push(mrb, temp_array, mrb_fixnum_value(p[0]));
+      break;
+    }
+    mrb_ary_push(mrb, array, temp_array);
+  }
+
+  return array;
 }
 
 /***************************************************************************
@@ -752,14 +793,9 @@ static mrb_value
 mrb_sdl2_video_texture_set_color_mod(mrb_state *mrb, mrb_value self)
 {
   uint8_t r, g, b;
-  SDL_Texture *texture = mrb_sdl2_video_texture_get_ptr(mrb, self);  mrb_value rgb;
-  mrb_get_args(mrb, "o", &rgb);
-  if (!mrb_obj_is_kind_of(mrb, rgb, mrb_class_get_under(mrb, mod_SDL2, "RGB"))) {
-    mrb_raise(mrb, E_TYPE_ERROR, "given argument is unexpected type (expected RGB).");
-  }
-  r = mrb_fixnum(mrb_funcall(mrb, rgb, "r", 0));
-  g = mrb_fixnum(mrb_funcall(mrb, rgb, "g", 0));
-  b = mrb_fixnum(mrb_funcall(mrb, rgb, "b", 0));
+  SDL_Texture *texture;
+  mrb_get_args(mrb, "iii", &r, &g, &b);
+  texture = mrb_sdl2_video_texture_get_ptr(mrb, self);
   if (0 != SDL_SetTextureColorMod(texture, r, g, b)) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -838,8 +874,39 @@ mrb_sdl2_video_texture_update(mrb_state *mrb, mrb_value self)
     SDL_Rect *r = mrb_sdl2_rect_get_ptr(mrb, rect);
     result = SDL_UpdateTexture(t, r, s->pixels, s->pitch);
   }
+  if (result < 0)
+    mruby_sdl2_raise_error(mrb);
+    
+  return mrb_true_value();
+}
+
+
+
+static mrb_value
+mrb_sdl2_video_texture_update_loc(mrb_state *mrb, mrb_value self)
+{
+  mrb_value surface, src_rect;
+  SDL_Surface *s;
+  void *mPixels;
+  int mPitch;
+  SDL_Rect *r = NULL;
+  SDL_Texture *t;
+  int argc = mrb_get_args(mrb, "o|o", &surface, &src_rect);//, &dest_rect);
+  s = mrb_sdl2_video_surface_get_ptr(mrb, surface);
+  t = mrb_sdl2_video_texture_get_ptr(mrb, self);
   
-  return (result == 1) ? mrb_false_value() : mrb_true_value();
+  if (SDL_LockTexture(t, NULL, &mPixels, &mPitch) < 0) {
+    mruby_sdl2_raise_error(mrb);
+  }
+  void *stp = s->pixels;
+  if (argc == 2) {
+    r = mrb_sdl2_rect_get_ptr(mrb, src_rect);
+    stp += r->h * mPitch;
+  }
+  memcpy(mPixels, stp, s->h * mPitch);
+  SDL_UnlockTexture(t);
+  
+  return self;
 }
 
 /***************************************************************************
@@ -909,7 +976,76 @@ mrb_sdl2_video_rendererinfo_get_max_texture_height(mrb_state *mrb, mrb_value sel
   return mrb_fixnum_value(info->max_texture_height);
 }
 
+static mrb_value
+mrb_sdl2_video_rendererinfo_get_name_for(mrb_state *mrb, mrb_value self)
+{
+  mrb_int index;
+  SDL_RendererInfo info;
+  mrb_get_args(mrb, "i", &index);
+  if(SDL_GetRenderDriverInfo(index, &info) < 0) {
+    mrb_raise(mrb, E_RUNTIME_ERROR, "Couldn't get Renderer Driver Info.");
+  }
 
+  return mrb_str_new_cstr(mrb, info.name);
+}
+
+static mrb_value
+mrb_sdl2_video_rendererinfo_get_flags_for(mrb_state *mrb, mrb_value self)
+{
+  mrb_int index;
+  SDL_RendererInfo info;
+  mrb_get_args(mrb, "i", &index);
+  if(SDL_GetRenderDriverInfo(index, &info) < 0) {
+    mrb_raise(mrb, E_RUNTIME_ERROR, "Couldn't get Renderer Driver Info.");
+  }
+
+  return mrb_fixnum_value(info.flags);
+}
+
+static mrb_value
+mrb_sdl2_video_rendererinfo_get_formats_for(mrb_state *mrb, mrb_value self)
+{
+  mrb_int index;
+  int i;
+  SDL_RendererInfo info;
+  mrb_get_args(mrb, "i", &index);
+  if(SDL_GetRenderDriverInfo(index, &info) < 0) {
+    mrb_raise(mrb, E_RUNTIME_ERROR, "Couldn't get Renderer Driver Info.");
+  }
+  uint32_t const n = info.num_texture_formats;
+  mrb_value array = mrb_ary_new_capa(mrb, n);
+  for (i = 0; i < n; ++i) {
+    mrb_ary_push(mrb, array, mrb_fixnum_value(info.texture_formats[i]));
+  }
+
+  return array;
+}
+
+static mrb_value
+mrb_sdl2_video_rendererinfo_get_width_for(mrb_state *mrb, mrb_value self)
+{
+  mrb_int index;
+  SDL_RendererInfo info;
+  mrb_get_args(mrb, "i", &index);
+  if(SDL_GetRenderDriverInfo(index, &info) < 0) {
+    mrb_raise(mrb, E_RUNTIME_ERROR, "Couldn't get Renderer Driver Info.");
+  }
+
+  return mrb_fixnum_value(info.max_texture_width);
+}
+
+static mrb_value
+mrb_sdl2_video_rendererinfo_get_height_for(mrb_state *mrb, mrb_value self)
+{
+  mrb_int index;
+  SDL_RendererInfo info;
+  mrb_get_args(mrb, "i", &index);
+  if(SDL_GetRenderDriverInfo(index, &info) < 0) {
+    mrb_raise(mrb, E_RUNTIME_ERROR, "Couldn't get Renderer Driver Info.");
+  }
+
+  return mrb_fixnum_value(info.max_texture_height);
+}
 
 void
 mruby_sdl2_video_renderer_init(mrb_state *mrb, struct RClass *mod_Video)
@@ -925,31 +1061,31 @@ mruby_sdl2_video_renderer_init(mrb_state *mrb, struct RClass *mod_Video)
   MRB_SET_INSTANCE_TT(class_PixelBuffer,  MRB_TT_DATA);
   MRB_SET_INSTANCE_TT(class_RendererInfo, MRB_TT_DATA);
 
-  mrb_define_method(mrb, class_Renderer, "initialize",       mrb_sdl2_video_renderer_initialize,          ARGS_REQ(1) | ARGS_OPT(2));
-  mrb_define_method(mrb, class_Renderer, "destroy",          mrb_sdl2_video_renderer_destroy,             ARGS_NONE());
-  mrb_define_method(mrb, class_Renderer, "draw_blend_mode",  mrb_sdl2_video_renderer_get_draw_blend_mode, ARGS_NONE());
-  mrb_define_method(mrb, class_Renderer, "draw_blend_mode=", mrb_sdl2_video_renderer_set_draw_blend_mode, ARGS_REQ(1));
-  mrb_define_method(mrb, class_Renderer, "draw_color",       mrb_sdl2_video_renderer_get_draw_color,      ARGS_NONE());
-  mrb_define_method(mrb, class_Renderer, "draw_color=",      mrb_sdl2_video_renderer_set_draw_color,      ARGS_REQ(1));
-  mrb_define_method(mrb, class_Renderer, "target=",          mrb_sdl2_video_renderer_set_target,          ARGS_REQ(1));
-  mrb_define_method(mrb, class_Renderer, "info",             mrb_sdl2_video_renderer_get_info,            ARGS_NONE());
-  mrb_define_method(mrb, class_Renderer, "clear",            mrb_sdl2_video_renderer_clear,               ARGS_NONE());
-  mrb_define_method(mrb, class_Renderer, "copy",             mrb_sdl2_video_renderer_copy,                ARGS_REQ(1) | ARGS_OPT(2));
-  mrb_define_method(mrb, class_Renderer, "copy_ex",          mrb_sdl2_video_renderer_copy_ex,             ARGS_REQ(1) | ARGS_OPT(5));
-  mrb_define_method(mrb, class_Renderer, "draw_line",        mrb_sdl2_video_renderer_draw_line,           ARGS_REQ(2));
-  mrb_define_method(mrb, class_Renderer, "draw_lines",       mrb_sdl2_video_renderer_draw_lines,          ARGS_ANY());
-  mrb_define_method(mrb, class_Renderer, "draw_point",       mrb_sdl2_video_renderer_draw_point,          ARGS_REQ(1));
-  mrb_define_method(mrb, class_Renderer, "draw_points",      mrb_sdl2_video_renderer_draw_points,         ARGS_ANY());
-  mrb_define_method(mrb, class_Renderer, "draw_rect",        mrb_sdl2_video_renderer_draw_rect,           ARGS_REQ(1));
-  mrb_define_method(mrb, class_Renderer, "draw_rects",       mrb_sdl2_video_renderer_draw_rects,          ARGS_ANY());
-  mrb_define_method(mrb, class_Renderer, "fill_rect",        mrb_sdl2_video_renderer_fill_rect,           ARGS_REQ(1));
-  mrb_define_method(mrb, class_Renderer, "fill_rects",       mrb_sdl2_video_renderer_fill_rects,          ARGS_ANY());
-  mrb_define_method(mrb, class_Renderer, "clip_rect",        mrb_sdl2_video_renderer_get_clip_rect,       ARGS_NONE());
-  mrb_define_method(mrb, class_Renderer, "clip_rect=",       mrb_sdl2_video_renderer_set_clip_rect,       ARGS_REQ(1));
-  mrb_define_method(mrb, class_Renderer, "view_port",        mrb_sdl2_video_renderer_get_view_port,       ARGS_NONE());
-  mrb_define_method(mrb, class_Renderer, "view_port=",       mrb_sdl2_video_renderer_set_view_port,       ARGS_REQ(1));
-  mrb_define_method(mrb, class_Renderer, "present",          mrb_sdl2_video_renderer_present,             ARGS_NONE());
-  mrb_define_method(mrb, class_Renderer, "read_pixels",      mrb_sdl2_video_renderer_read_pixels,         ARGS_REQ(1));
+  mrb_define_method(mrb, class_Renderer, "initialize",       mrb_sdl2_video_renderer_initialize,          MRB_ARGS_REQ(1) | MRB_ARGS_OPT(2));
+  mrb_define_method(mrb, class_Renderer, "destroy",          mrb_sdl2_video_renderer_destroy,             MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Renderer, "draw_blend_mode",  mrb_sdl2_video_renderer_get_draw_blend_mode, MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Renderer, "draw_blend_mode=", mrb_sdl2_video_renderer_set_draw_blend_mode, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_Renderer, "get_draw_color",   mrb_sdl2_video_renderer_get_draw_color,      MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Renderer, "set_draw_color",   mrb_sdl2_video_renderer_set_draw_color,      MRB_ARGS_REQ(3) | MRB_ARGS_OPT(1));
+  mrb_define_method(mrb, class_Renderer, "target=",          mrb_sdl2_video_renderer_set_target,          MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_Renderer, "info",             mrb_sdl2_video_renderer_get_info,            MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Renderer, "clear",            mrb_sdl2_video_renderer_clear,               MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Renderer, "copy",             mrb_sdl2_video_renderer_copy,                MRB_ARGS_REQ(1) | MRB_ARGS_OPT(2));
+  mrb_define_method(mrb, class_Renderer, "copy_ex",          mrb_sdl2_video_renderer_copy_ex,             MRB_ARGS_REQ(1) | MRB_ARGS_OPT(5));
+  mrb_define_method(mrb, class_Renderer, "draw_line",        mrb_sdl2_video_renderer_draw_line,           MRB_ARGS_REQ(2));
+  mrb_define_method(mrb, class_Renderer, "draw_lines",       mrb_sdl2_video_renderer_draw_lines,          MRB_ARGS_ANY());
+  mrb_define_method(mrb, class_Renderer, "draw_point",       mrb_sdl2_video_renderer_draw_point,          MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_Renderer, "draw_points",      mrb_sdl2_video_renderer_draw_points,         MRB_ARGS_ANY());
+  mrb_define_method(mrb, class_Renderer, "draw_rect",        mrb_sdl2_video_renderer_draw_rect,           MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_Renderer, "draw_rects",       mrb_sdl2_video_renderer_draw_rects,          MRB_ARGS_ANY());
+  mrb_define_method(mrb, class_Renderer, "fill_rect",        mrb_sdl2_video_renderer_fill_rect,           MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_Renderer, "fill_rects",       mrb_sdl2_video_renderer_fill_rects,          MRB_ARGS_ANY());
+  mrb_define_method(mrb, class_Renderer, "clip_rect",        mrb_sdl2_video_renderer_get_clip_rect,       MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Renderer, "clip_rect=",       mrb_sdl2_video_renderer_set_clip_rect,       MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_Renderer, "view_port",        mrb_sdl2_video_renderer_get_view_port,       MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Renderer, "view_port=",       mrb_sdl2_video_renderer_set_view_port,       MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_Renderer, "present",          mrb_sdl2_video_renderer_present,             MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Renderer, "read_pixels",      mrb_sdl2_video_renderer_read_pixels,         MRB_ARGS_REQ(1) | MRB_ARGS_OPT(1));
 
   arena_size = mrb_gc_arena_save(mrb);
 
@@ -970,21 +1106,23 @@ mruby_sdl2_video_renderer_init(mrb_state *mrb, struct RClass *mod_Video)
   mrb_gc_arena_restore(mrb, arena_size);
   arena_size = mrb_gc_arena_save(mrb);
 
-  mrb_define_method(mrb, class_Texture, "initialize",  mrb_sdl2_video_texture_initialize,     ARGS_REQ(2));
-  mrb_define_method(mrb, class_Texture, "destroy",     mrb_sdl2_video_texture_destroy,        ARGS_NONE());
-  mrb_define_method(mrb, class_Texture, "alpha_mod",   mrb_sdl2_video_texture_get_alpha_mod,  ARGS_NONE());
-  mrb_define_method(mrb, class_Texture, "alpha_mod=",  mrb_sdl2_video_texture_set_alpha_mod,  ARGS_REQ(1));
-  mrb_define_method(mrb, class_Texture, "blend_mode",  mrb_sdl2_video_texture_get_blend_mode, ARGS_NONE());
-  mrb_define_method(mrb, class_Texture, "blend_mode=", mrb_sdl2_video_texture_set_blend_mode, ARGS_REQ(1));
-  mrb_define_method(mrb, class_Texture, "color_mod",   mrb_sdl2_video_texture_get_color_mod,  ARGS_NONE());
-  mrb_define_method(mrb, class_Texture, "color_mod=",  mrb_sdl2_video_texture_set_color_mod,  ARGS_REQ(1));
-  mrb_define_method(mrb, class_Texture, "lock",        mrb_sdl2_video_texture_lock,           ARGS_OPT(1));
-  mrb_define_method(mrb, class_Texture, "unlock",      mrb_sdl2_video_texture_unlock,         ARGS_NONE());
-  mrb_define_method(mrb, class_Texture, "format",      mrb_sdl2_video_texture_get_format,     ARGS_NONE());
-  mrb_define_method(mrb, class_Texture, "access",      mrb_sdl2_video_texture_get_access,     ARGS_NONE());
-  mrb_define_method(mrb, class_Texture, "width",       mrb_sdl2_video_texture_get_width,      ARGS_NONE());
-  mrb_define_method(mrb, class_Texture, "height",      mrb_sdl2_video_texture_get_height,     ARGS_NONE());
-  mrb_define_method(mrb, class_Texture, "update",      mrb_sdl2_video_texture_update,         ARGS_REQ(1) | ARGS_REQ(2));
+  mrb_define_method(mrb, class_Texture, "initialize",    mrb_sdl2_video_texture_initialize,     MRB_ARGS_REQ(2));
+  mrb_define_method(mrb, class_Texture, "free",          mrb_sdl2_video_texture_destroy,        MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Texture, "destroy",       mrb_sdl2_video_texture_destroy,        MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Texture, "alpha_mod",     mrb_sdl2_video_texture_get_alpha_mod,  MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Texture, "alpha_mod=",    mrb_sdl2_video_texture_set_alpha_mod,  MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_Texture, "blend_mode",    mrb_sdl2_video_texture_get_blend_mode, MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Texture, "blend_mode=",   mrb_sdl2_video_texture_set_blend_mode, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_Texture, "get_color_mod", mrb_sdl2_video_texture_get_color_mod,  MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Texture, "set_color_mod", mrb_sdl2_video_texture_set_color_mod,  MRB_ARGS_REQ(3));
+  mrb_define_method(mrb, class_Texture, "lock",          mrb_sdl2_video_texture_lock,           MRB_ARGS_OPT(1));
+  mrb_define_method(mrb, class_Texture, "unlock",        mrb_sdl2_video_texture_unlock,         MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Texture, "format",        mrb_sdl2_video_texture_get_format,     MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Texture, "access",        mrb_sdl2_video_texture_get_access,     MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Texture, "width",         mrb_sdl2_video_texture_get_width,      MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Texture, "height",        mrb_sdl2_video_texture_get_height,     MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Texture, "update_locked", mrb_sdl2_video_texture_update_loc,     MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_Texture, "update",        mrb_sdl2_video_texture_update,         MRB_ARGS_REQ(1) | MRB_ARGS_REQ(2));
 
   mrb_gc_arena_restore(mrb, arena_size);
   arena_size = mrb_gc_arena_save(mrb);
@@ -992,6 +1130,7 @@ mruby_sdl2_video_renderer_init(mrb_state *mrb, struct RClass *mod_Video)
   /* SDL_TextureAccess */
   mrb_define_const(mrb, class_Texture, "SDL_TEXTUREACCESS_STATIC",    mrb_fixnum_value(SDL_TEXTUREACCESS_STATIC));
   mrb_define_const(mrb, class_Texture, "SDL_TEXTUREACCESS_STREAMING", mrb_fixnum_value(SDL_TEXTUREACCESS_STREAMING));
+  mrb_define_const(mrb, class_Texture, "SDL_TEXTUREACCESS_TARGET",    mrb_fixnum_value(SDL_TEXTUREACCESS_TARGET));
 
   /* SDL_TextureModulate */
   mrb_define_const(mrb, class_Texture, "SDL_TEXTUREMODULATE_NONE",  mrb_fixnum_value(SDL_TEXTUREMODULATE_NONE));
@@ -1001,14 +1140,20 @@ mruby_sdl2_video_renderer_init(mrb_state *mrb, struct RClass *mod_Video)
   mrb_gc_arena_restore(mrb, arena_size);
   arena_size = mrb_gc_arena_save(mrb);
 
-  mrb_define_method(mrb, class_PixelBuffer, "pitch", mrb_sdl2_video_pixelbuf_get_pitch, ARGS_NONE());
-  mrb_define_method(mrb, class_PixelBuffer, "rect",  mrb_sdl2_video_pixelbuf_get_rect,  ARGS_NONE());
+  mrb_define_method(mrb, class_PixelBuffer, "pitch", mrb_sdl2_video_pixelbuf_get_pitch, MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_PixelBuffer, "rect",  mrb_sdl2_video_pixelbuf_get_rect,  MRB_ARGS_NONE());
 
-  mrb_define_method(mrb, class_RendererInfo, "name",               mrb_sdl2_video_rendererinfo_get_name,               ARGS_NONE());
-  mrb_define_method(mrb, class_RendererInfo, "flags",              mrb_sdl2_video_rendererinfo_get_flags,              ARGS_NONE());
-  mrb_define_method(mrb, class_RendererInfo, "texture_formats",    mrb_sdl2_video_rendererinfo_get_texture_formats,    ARGS_NONE());
-  mrb_define_method(mrb, class_RendererInfo, "max_texture_width",  mrb_sdl2_video_rendererinfo_get_max_texture_width,  ARGS_NONE());
-  mrb_define_method(mrb, class_RendererInfo, "max_texture_height", mrb_sdl2_video_rendererinfo_get_max_texture_height, ARGS_NONE());
+  mrb_define_method(mrb, class_RendererInfo, "name",               mrb_sdl2_video_rendererinfo_get_name,               MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_RendererInfo, "flags",              mrb_sdl2_video_rendererinfo_get_flags,              MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_RendererInfo, "texture_formats",    mrb_sdl2_video_rendererinfo_get_texture_formats,    MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_RendererInfo, "max_texture_width",  mrb_sdl2_video_rendererinfo_get_max_texture_width,  MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_RendererInfo, "max_texture_height", mrb_sdl2_video_rendererinfo_get_max_texture_height, MRB_ARGS_NONE());
+
+  mrb_define_class_method(mrb, class_RendererInfo, "get_name_for",                mrb_sdl2_video_rendererinfo_get_name_for,    MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb, class_RendererInfo, "get_flags_for",               mrb_sdl2_video_rendererinfo_get_flags_for,   MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb, class_RendererInfo, "get_texture_formats_for",     mrb_sdl2_video_rendererinfo_get_formats_for, MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb, class_RendererInfo, "get_max_texture_width_for",   mrb_sdl2_video_rendererinfo_get_width_for,   MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb, class_RendererInfo, "get_max_texture_height_for",  mrb_sdl2_video_rendererinfo_get_height_for,  MRB_ARGS_REQ(1));
 
   mrb_gc_arena_restore(mrb, arena_size);
 }

@@ -56,10 +56,10 @@ mruby_sdl2_gesture_init(mrb_state *mrb)
 {
   struct RClass * mod_Gesture = mrb_define_module_under(mrb, mod_SDL2, "Gesture");
 
-  mrb_define_module_function(mrb, mod_Gesture, "record_gesture", mrb_sdl2_gesture_record,  ARGS_REQ(1));
-  mrb_define_module_function(mrb, mod_Gesture, "save_all_dollar_templates", mrb_sdl2_gesture_save_dollar_templates,  ARGS_REQ(1));
-  mrb_define_module_function(mrb, mod_Gesture, "save_dollar_template", mrb_sdl2_gesture_save_dollar_template,  ARGS_REQ(2));
-  mrb_define_module_function(mrb, mod_Gesture, "load_dollar_template", mrb_sdl2_gesture_load_dollar_template,  ARGS_REQ(1));
+  mrb_define_module_function(mrb, mod_Gesture, "record_gesture",            mrb_sdl2_gesture_record,                MRB_ARGS_REQ(1));
+  mrb_define_module_function(mrb, mod_Gesture, "save_all_dollar_templates", mrb_sdl2_gesture_save_dollar_templates, MRB_ARGS_REQ(1));
+  mrb_define_module_function(mrb, mod_Gesture, "save_dollar_template",      mrb_sdl2_gesture_save_dollar_template,  MRB_ARGS_REQ(2));
+  mrb_define_module_function(mrb, mod_Gesture, "load_dollar_template",      mrb_sdl2_gesture_load_dollar_template,  MRB_ARGS_REQ(1));
 }
 
 

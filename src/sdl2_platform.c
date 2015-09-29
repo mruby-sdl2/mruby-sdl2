@@ -12,7 +12,7 @@ void
 mruby_sdl2_platform_init(mrb_state *mrb)
 {
   struct RClass * mod_Platform = mrb_define_module_under(mrb, mod_SDL2, "Platform");
-  mrb_define_module_function(mrb, mod_Platform, "get_platform", mrb_sdl2_platform_get_platform,  ARGS_NONE());
+  mrb_define_module_function(mrb, mod_Platform, "get_platform", mrb_sdl2_platform_get_platform,  MRB_ARGS_NONE());
 }
 
 

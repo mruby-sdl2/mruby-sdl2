@@ -293,27 +293,27 @@ mruby_sdl2_gamecontroller_init(mrb_state *mrb)
   class_GameController = mrb_define_class_under(mrb, mod_GameController, "GameController", mrb->object_class);
   MRB_SET_INSTANCE_TT(class_GameController, MRB_TT_DATA);
 
-  mrb_define_module_function(mrb, mod_GameController, "add_mapping", mrb_sdl2_gamecontrollers_add_mapping,  ARGS_REQ(1));
-  mrb_define_module_function(mrb, mod_GameController, "get_mapping_from_guid", mrb_sdl2_gamecontrollers_get_mapping_from_guid,  ARGS_REQ(1));
-  mrb_define_module_function(mrb, mod_GameController, "is_gamecontroller_supported?", mrb_sdl2_gamecontrollers_is_gamecontroller_supported,  ARGS_REQ(1));
-  mrb_define_module_function(mrb, mod_GameController, "get_name_from_index", mrb_sdl2_gamecontrollers_get_name_from_index,  ARGS_REQ(1));
-  mrb_define_module_function(mrb, mod_GameController, "get_axis_from_string", mrb_sdl2_gamecontrollers_get_axis_from_string,  ARGS_REQ(1));
-  mrb_define_module_function(mrb, mod_GameController, "get_string_from_axis", mrb_sdl2_gamecontrollers_get_string_from_axis,  ARGS_REQ(1));
-  mrb_define_module_function(mrb, mod_GameController, "get_button_from_string", mrb_sdl2_gamecontrollers_get_button_from_string,  ARGS_REQ(1));
-  mrb_define_module_function(mrb, mod_GameController, "get_string_from_button", mrb_sdl2_gamecontrollers_get_string_from_button,  ARGS_REQ(1));
-  mrb_define_module_function(mrb, mod_GameController, "update", mrb_sdl2_gamecontrollers_update,  ARGS_NONE());
+  mrb_define_module_function(mrb, mod_GameController, "add_mapping",                  mrb_sdl2_gamecontrollers_add_mapping,                 MRB_ARGS_REQ(1));
+  mrb_define_module_function(mrb, mod_GameController, "get_mapping_from_guid",        mrb_sdl2_gamecontrollers_get_mapping_from_guid,       MRB_ARGS_REQ(1));
+  mrb_define_module_function(mrb, mod_GameController, "is_gamecontroller_supported?", mrb_sdl2_gamecontrollers_is_gamecontroller_supported, MRB_ARGS_REQ(1));
+  mrb_define_module_function(mrb, mod_GameController, "get_name_from_index",          mrb_sdl2_gamecontrollers_get_name_from_index,         MRB_ARGS_REQ(1));
+  mrb_define_module_function(mrb, mod_GameController, "get_axis_from_string",         mrb_sdl2_gamecontrollers_get_axis_from_string,        MRB_ARGS_REQ(1));
+  mrb_define_module_function(mrb, mod_GameController, "get_string_from_axis",         mrb_sdl2_gamecontrollers_get_string_from_axis,        MRB_ARGS_REQ(1));
+  mrb_define_module_function(mrb, mod_GameController, "get_button_from_string",       mrb_sdl2_gamecontrollers_get_button_from_string,      MRB_ARGS_REQ(1));
+  mrb_define_module_function(mrb, mod_GameController, "get_string_from_button",       mrb_sdl2_gamecontrollers_get_string_from_button,      MRB_ARGS_REQ(1));
+  mrb_define_module_function(mrb, mod_GameController, "update",                       mrb_sdl2_gamecontrollers_update,                      MRB_ARGS_NONE());
 
 
-  mrb_define_method(mrb, class_GameController, "initialize", mrb_sdl2_gamecontrollers_gamecontroller_initialize, ARGS_NONE());
-  mrb_define_method(mrb, class_GameController, "destroy", mrb_sdl2_gamecontrollers_gamecontroller_free, ARGS_NONE());
-  mrb_define_method(mrb, class_GameController, "free", mrb_sdl2_gamecontrollers_gamecontroller_free, ARGS_NONE());
-  mrb_define_method(mrb, class_GameController, "get_mapping", mrb_sdl2_gamecontrollers_gamecontroler_get_mapping, ARGS_NONE());
-  mrb_define_method(mrb, class_GameController, "get_name", mrb_sdl2_gamecontrollers_gamecontroler_get_name, ARGS_NONE());
-  mrb_define_method(mrb, class_GameController, "is_attached?", mrb_sdl2_gamecontrollers_gamecontroler_is_attached, ARGS_NONE());
-  mrb_define_method(mrb, class_GameController, "get_joystick", mrb_sdl2_gamecontrollers_gamecontroler_get_joystick, ARGS_NONE());
-  mrb_define_method(mrb, class_GameController, "get_event_state", mrb_sdl2_gamecontrollers_gamecontroler_get_event_state, ARGS_REQ(1));
-  mrb_define_method(mrb, class_GameController, "get_axis", mrb_sdl2_gamecontrollers_gamecontroler_get_axis, ARGS_REQ(1));
-  mrb_define_method(mrb, class_GameController, "get_button_state", mrb_sdl2_gamecontrollers_gamecontroler_get_button_state, ARGS_REQ(1));
+  mrb_define_method(mrb, class_GameController, "initialize",       mrb_sdl2_gamecontrollers_gamecontroller_initialize,      MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_GameController, "destroy",          mrb_sdl2_gamecontrollers_gamecontroller_free,            MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_GameController, "free",             mrb_sdl2_gamecontrollers_gamecontroller_free,            MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_GameController, "get_mapping",      mrb_sdl2_gamecontrollers_gamecontroler_get_mapping,      MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_GameController, "get_name",         mrb_sdl2_gamecontrollers_gamecontroler_get_name,         MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_GameController, "is_attached?",     mrb_sdl2_gamecontrollers_gamecontroler_is_attached,      MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_GameController, "get_joystick",     mrb_sdl2_gamecontrollers_gamecontroler_get_joystick,     MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_GameController, "get_event_state",  mrb_sdl2_gamecontrollers_gamecontroler_get_event_state,  MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_GameController, "get_axis",         mrb_sdl2_gamecontrollers_gamecontroler_get_axis,         MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_GameController, "get_button_state", mrb_sdl2_gamecontrollers_gamecontroler_get_button_state, MRB_ARGS_REQ(1));
 
 
   arena_size = mrb_gc_arena_save(mrb);

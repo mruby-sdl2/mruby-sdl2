@@ -189,17 +189,17 @@ mruby_sdl2_messagebox_init(mrb_state *mrb)
   mod_Video = mrb_module_get_under(mrb, mod_SDL2, "Video");
   class_Window = mrb_class_get_under(mrb, mod_Video, "Window");
 
-  mrb_define_method(mrb, class_Window, "show_simple_message_box", mrb_sdl2_window_show_simple_message_box,  ARGS_REQ(3));
+  mrb_define_method(mrb, class_Window, "show_simple_message_box", mrb_sdl2_window_show_simple_message_box,  MRB_ARGS_REQ(3));
 
-  mrb_define_method(mrb, class_MessageBoxData, "initialize",       mrb_sdl2_message_boxdata_initialize,       ARGS_REQ(1) | ARGS_NONE());
-  mrb_define_method(mrb, class_MessageBoxData, "destroy",          mrb_sdl2_message_boxdata_destroy,          ARGS_NONE());
-  mrb_define_method(mrb, class_MessageBoxData, "set_flags",        mrb_sdl2_message_boxdata_set_fags,         ARGS_REQ(1));
-  mrb_define_method(mrb, class_MessageBoxData, "set_window",       mrb_sdl2_message_boxdata_set_window,       ARGS_REQ(1));
-  mrb_define_method(mrb, class_MessageBoxData, "set_title",        mrb_sdl2_message_boxdata_set_title,        ARGS_REQ(1));
-  mrb_define_method(mrb, class_MessageBoxData, "set_message",      mrb_sdl2_message_boxdata_set_message,      ARGS_REQ(1));
-  mrb_define_method(mrb, class_MessageBoxData, "set_buttons",      mrb_sdl2_message_boxdata_set_buttons,      ARGS_REQ(1));
-  mrb_define_method(mrb, class_MessageBoxData, "set_color_scheme", mrb_sdl2_message_boxdata_set_color_scheme, ARGS_REQ(1));
-  mrb_define_method(mrb, class_MessageBoxData, "show",             mrb_sdl2_message_boxdata_show,             ARGS_NONE());
+  mrb_define_method(mrb, class_MessageBoxData, "initialize",       mrb_sdl2_message_boxdata_initialize,       MRB_ARGS_REQ(1) | MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_MessageBoxData, "destroy",          mrb_sdl2_message_boxdata_destroy,          MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_MessageBoxData, "set_flags",        mrb_sdl2_message_boxdata_set_fags,         MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_MessageBoxData, "set_window",       mrb_sdl2_message_boxdata_set_window,       MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_MessageBoxData, "set_title",        mrb_sdl2_message_boxdata_set_title,        MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_MessageBoxData, "set_message",      mrb_sdl2_message_boxdata_set_message,      MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_MessageBoxData, "set_buttons",      mrb_sdl2_message_boxdata_set_buttons,      MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_MessageBoxData, "set_color_scheme", mrb_sdl2_message_boxdata_set_color_scheme, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_MessageBoxData, "show",             mrb_sdl2_message_boxdata_show,             MRB_ARGS_NONE());
 }
 
 void

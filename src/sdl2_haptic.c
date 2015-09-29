@@ -7,7 +7,7 @@
 #include "mruby/string.h"
 
 
-static struct RClass *mod_Haptic = NULL;
+static struct RClass *mod_Haptic      = NULL;
 static struct RClass *class_Haptic    = NULL;
 
 
@@ -27,7 +27,6 @@ mrb_sdl2_haptic_haptic_data_free(mrb_state *mrb, void *p)
     mrb_free(mrb, p);
   }
 }
-
 
 struct mrb_data_type const mrb_sdl2_haptic_haptic_data_type = {
   "Haptic", mrb_sdl2_haptic_haptic_data_free
@@ -428,37 +427,37 @@ mruby_sdl2_haptic_init(mrb_state *mrb)
   mod_Haptic = mrb_define_module_under(mrb, mod_SDL2, "Haptics");
   class_Haptic = mrb_define_class_under(mrb, mod_Haptic, "Haptic", mrb->object_class);
 
-  mrb_define_module_function(mrb, mod_Haptic, "num",             mrb_sdl2_haptic_num,             ARGS_NONE());
-  mrb_define_module_function(mrb, mod_Haptic, "get_name",             mrb_sdl2_haptic_name,             ARGS_REQ(1));
-  mrb_define_module_function(mrb, mod_Haptic, "device_open?", mrb_sdl2_haptic_devic_open, ARGS_REQ(1));
-  mrb_define_module_function(mrb, mod_Mouse, "is_haptic?", mrb_sdl2_haptic_mouse_haptic, ARGS_NONE());
-  mrb_define_module_function(mrb, mod_Mouse, "open_haptic", mrb_sdl2_haptic_mouse_open, ARGS_NONE());
+  mrb_define_module_function(mrb, mod_Haptic, "num",             mrb_sdl2_haptic_num,             MRB_ARGS_NONE());
+  mrb_define_module_function(mrb, mod_Haptic, "get_name",             mrb_sdl2_haptic_name,             MRB_ARGS_REQ(1));
+  mrb_define_module_function(mrb, mod_Haptic, "device_open?", mrb_sdl2_haptic_devic_open, MRB_ARGS_REQ(1));
+  mrb_define_module_function(mrb, mod_Mouse, "is_haptic?", mrb_sdl2_haptic_mouse_haptic, MRB_ARGS_NONE());
+  mrb_define_module_function(mrb, mod_Mouse, "open_haptic", mrb_sdl2_haptic_mouse_open, MRB_ARGS_NONE());
 
-  mrb_define_method(mrb, class_Joystick, "is_haptic?", mrb_sdl2_haptic_joystick_haptic, ARGS_NONE());
-  mrb_define_method(mrb, class_Joystick, "open_haptic", mrb_sdl2_haptic_joystick_open, ARGS_NONE());
+  mrb_define_method(mrb, class_Joystick, "is_haptic?", mrb_sdl2_haptic_joystick_haptic, MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Joystick, "open_haptic", mrb_sdl2_haptic_joystick_open, MRB_ARGS_NONE());
   //mrb_define_module_function(mrb, mod_Haptic, "open_Mouse")
 
-  mrb_define_method(mrb, class_Haptic, "initialize",  mrb_sdl2_haptic_haptic_initialize,  ARGS_REQ(1));
-  mrb_define_method(mrb, class_Haptic, "destroy", mrb_sdl2_haptic_haptic_free, ARGS_NONE());
-  mrb_define_method(mrb, class_Haptic, "free", mrb_sdl2_haptic_haptic_free, ARGS_NONE());
-  mrb_define_method(mrb, class_Haptic, "get_index",  mrb_sdl2_haptic_haptic_get_index,  ARGS_NONE());
-  mrb_define_method(mrb, class_Haptic, "num_effects",  mrb_sdl2_haptic_haptic_num_effects,  ARGS_NONE());
-  mrb_define_method(mrb, class_Haptic, "num_effects_playing",  mrb_sdl2_haptic_haptic_num_effects_playing,  ARGS_NONE());
-  mrb_define_method(mrb, class_Haptic, "query",  mrb_sdl2_haptic_haptic_query,  ARGS_NONE());
-  mrb_define_method(mrb, class_Haptic, "num_axes",  mrb_sdl2_haptic_haptic_num_axes,  ARGS_NONE());
-  mrb_define_method(mrb, class_Haptic, "run_effect",  mrb_sdl2_haptic_haptic_run_effect,  ARGS_REQ(2));
-  mrb_define_method(mrb, class_Haptic, "stop_effect",  mrb_sdl2_haptic_haptic_stop_effect,  ARGS_REQ(1));
-  mrb_define_method(mrb, class_Haptic, "destroy_effect",  mrb_sdl2_haptic_haptic_destroy_effect,  ARGS_REQ(1));
-  mrb_define_method(mrb, class_Haptic, "is_effect_playing?",  mrb_sdl2_haptic_haptic_effect_playing,  ARGS_REQ(1));
-  mrb_define_method(mrb, class_Haptic, "set_gain",  mrb_sdl2_haptic_haptic_set_gain,  ARGS_REQ(1));
-  mrb_define_method(mrb, class_Haptic, "set_autocenter",  mrb_sdl2_haptic_haptic_set_autocenter,  ARGS_REQ(1));
-  mrb_define_method(mrb, class_Haptic, "pause",  mrb_sdl2_haptic_haptic_pause,  ARGS_NONE());
-  mrb_define_method(mrb, class_Haptic, "unpause",  mrb_sdl2_haptic_haptic_unpause,  ARGS_NONE());
-  mrb_define_method(mrb, class_Haptic, "stop_all",  mrb_sdl2_haptic_haptic_stop_all,  ARGS_NONE());
-  mrb_define_method(mrb, class_Haptic, "is_rumble_supported?",  mrb_sdl2_haptic_haptic_rumble_support,  ARGS_NONE());
-  mrb_define_method(mrb, class_Haptic, "init_rumble",  mrb_sdl2_haptic_haptic_rumble_init,  ARGS_NONE());
-  mrb_define_method(mrb, class_Haptic, "play_rumble",  mrb_sdl2_haptic_haptic_rumble_play,  ARGS_REQ(2));
-  mrb_define_method(mrb, class_Haptic, "stop_rumble",  mrb_sdl2_haptic_haptic_rumble_stop,  ARGS_NONE());
+  mrb_define_method(mrb, class_Haptic, "initialize",  mrb_sdl2_haptic_haptic_initialize,  MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_Haptic, "destroy", mrb_sdl2_haptic_haptic_free, MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Haptic, "free", mrb_sdl2_haptic_haptic_free, MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Haptic, "get_index",  mrb_sdl2_haptic_haptic_get_index,  MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Haptic, "num_effects",  mrb_sdl2_haptic_haptic_num_effects,  MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Haptic, "num_effects_playing",  mrb_sdl2_haptic_haptic_num_effects_playing,  MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Haptic, "query",  mrb_sdl2_haptic_haptic_query,  MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Haptic, "num_axes",  mrb_sdl2_haptic_haptic_num_axes,  MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Haptic, "run_effect",  mrb_sdl2_haptic_haptic_run_effect,  MRB_ARGS_REQ(2));
+  mrb_define_method(mrb, class_Haptic, "stop_effect",  mrb_sdl2_haptic_haptic_stop_effect,  MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_Haptic, "destroy_effect",  mrb_sdl2_haptic_haptic_destroy_effect,  MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_Haptic, "is_effect_playing?",  mrb_sdl2_haptic_haptic_effect_playing,  MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_Haptic, "set_gain",  mrb_sdl2_haptic_haptic_set_gain,  MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_Haptic, "set_autocenter",  mrb_sdl2_haptic_haptic_set_autocenter,  MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, class_Haptic, "pause",  mrb_sdl2_haptic_haptic_pause,  MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Haptic, "unpause",  mrb_sdl2_haptic_haptic_unpause,  MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Haptic, "stop_all",  mrb_sdl2_haptic_haptic_stop_all,  MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Haptic, "is_rumble_supported?",  mrb_sdl2_haptic_haptic_rumble_support,  MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Haptic, "init_rumble",  mrb_sdl2_haptic_haptic_rumble_init,  MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Haptic, "play_rumble",  mrb_sdl2_haptic_haptic_rumble_play,  MRB_ARGS_REQ(2));
+  mrb_define_method(mrb, class_Haptic, "stop_rumble",  mrb_sdl2_haptic_haptic_rumble_stop,  MRB_ARGS_NONE());
 
 
   mrb_define_const(mrb, mod_Haptic, "SDL_HAPTIC_CONSTANT",  mrb_fixnum_value(SDL_HAPTIC_CONSTANT));

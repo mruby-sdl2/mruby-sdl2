@@ -24,7 +24,7 @@ mruby_sdl2_power_init(mrb_state *mrb)
 {
   int arena_size;
   struct RClass * mod_Power = mrb_define_module_under(mrb, mod_SDL2, "Power");
-  mrb_define_module_function(mrb, mod_Power, "get_info", mruby_sdl2_power_info,  ARGS_NONE());
+  mrb_define_module_function(mrb, mod_Power, "get_info", mruby_sdl2_power_info,  MRB_ARGS_NONE());
 
   arena_size = mrb_gc_arena_save(mrb);
   mrb_define_const(mrb, mod_Power, "SDL_POWERSTATE_UNKNOWN",    mrb_fixnum_value(SDL_POWERSTATE_UNKNOWN));

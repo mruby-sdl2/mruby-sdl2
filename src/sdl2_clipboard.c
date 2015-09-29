@@ -40,9 +40,9 @@ mruby_sdl2_clipboard_init(mrb_state *mrb)
 {
   struct RClass *mod_Clipboard = mrb_define_module_under(mrb, mod_SDL2, "Clipboard");
 
-  mrb_define_module_function(mrb, mod_Clipboard, "text",      mrb_sdl2_clipboard_text,     ARGS_NONE()); // SDL_GetClipboardText
-  mrb_define_module_function(mrb, mod_Clipboard, "text=",     mrb_sdl2_clipboard_set_text, ARGS_REQ(1)); // SDL_SetClipboardText
-  mrb_define_module_function(mrb, mod_Clipboard, "has_text?", mrb_sdl2_clipboard_has_text, ARGS_NONE()); // SDL_HasClipboardText
+  mrb_define_module_function(mrb, mod_Clipboard, "text",      mrb_sdl2_clipboard_text,     MRB_ARGS_NONE()); // SDL_GetClipboardText
+  mrb_define_module_function(mrb, mod_Clipboard, "text=",     mrb_sdl2_clipboard_set_text, MRB_ARGS_REQ(1)); // SDL_SetClipboardText
+  mrb_define_module_function(mrb, mod_Clipboard, "has_text?", mrb_sdl2_clipboard_has_text, MRB_ARGS_NONE()); // SDL_HasClipboardText
 }
 
 void

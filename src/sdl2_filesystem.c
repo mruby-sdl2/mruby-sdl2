@@ -24,8 +24,8 @@ mruby_sdl2_filesystem_init(mrb_state *mrb)
 {
   struct RClass *mod_FileSystem = mrb_define_module_under(mrb, mod_SDL2, "FileSystem");
 
-  mrb_define_method(mrb, mod_FileSystem, "get_base_path", mrb_sdl2_filesystem_get_base_path, ARGS_NONE());
-  mrb_define_method(mrb, mod_FileSystem, "get_pref_path", mrb_sdl2_filesystem_get_pref_path, ARGS_REQ(2));
+  mrb_define_method(mrb, mod_FileSystem, "get_base_path", mrb_sdl2_filesystem_get_base_path, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mod_FileSystem, "get_pref_path", mrb_sdl2_filesystem_get_pref_path, MRB_ARGS_REQ(2));
 }
 
 void

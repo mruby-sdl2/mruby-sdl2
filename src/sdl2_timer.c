@@ -4,6 +4,7 @@
 #include "mruby/class.h"
 #include "mruby/proc.h"
 #include "threading.h"
+#include <time.h>
 
 static struct RClass *mod_Timer = NULL;
 
@@ -156,18 +157,28 @@ mrb_sdl2_timer_remove(mrb_state *mrb, mrb_value mod)
   }
   return (SDL_FALSE == ret) ? mrb_false_value() : mrb_true_value();
 }
-
+static mrb_value
+mrb_sdl2_timer_get_clock(mrb_state *mrb, mrb_value mod)
+{
+  return mrb_fixnum_value(clock());
+}
 void
 mruby_sdl2_timer_init(mrb_state *mrb)
 {
+  int arena_size;
   mod_Timer = mrb_define_module_under(mrb, mod_SDL2, "Timer");
 
-  mrb_define_module_function(mrb, mod_Timer, "ticks",        mrb_sdl2_timer_get_ticks,                 ARGS_NONE());
-  mrb_define_module_function(mrb, mod_Timer, "delay",        mrb_sdl2_timer_delay,                     ARGS_NONE());
-  mrb_define_module_function(mrb, mod_Timer, "perf_freq",    mrb_sdl2_timer_get_performance_frequency, ARGS_NONE());
-  mrb_define_module_function(mrb, mod_Timer, "perf_counter", mrb_sdl2_timer_get_performance_counter,   ARGS_NONE());
-  mrb_define_module_function(mrb, mod_Timer, "add",          mrb_sdl2_timer_add,                       ARGS_REQ(1) | ARGS_BLOCK());
-  mrb_define_module_function(mrb, mod_Timer, "remove",       mrb_sdl2_timer_remove,                    ARGS_REQ(1));
+  mrb_define_module_function(mrb, mod_Timer, "ticks",        mrb_sdl2_timer_get_ticks,                 MRB_ARGS_NONE());
+  mrb_define_module_function(mrb, mod_Timer, "clock",        mrb_sdl2_timer_get_clock,                 MRB_ARGS_NONE());
+  mrb_define_module_function(mrb, mod_Timer, "delay",        mrb_sdl2_timer_delay,                     MRB_ARGS_NONE());
+  mrb_define_module_function(mrb, mod_Timer, "perf_freq",    mrb_sdl2_timer_get_performance_frequency, MRB_ARGS_NONE());
+  mrb_define_module_function(mrb, mod_Timer, "perf_counter", mrb_sdl2_timer_get_performance_counter,   MRB_ARGS_NONE());
+  mrb_define_module_function(mrb, mod_Timer, "add",          mrb_sdl2_timer_add,                       MRB_ARGS_REQ(1) | MRB_ARGS_BLOCK());
+  mrb_define_module_function(mrb, mod_Timer, "remove",       mrb_sdl2_timer_remove,                    MRB_ARGS_REQ(1));
+
+  arena_size = mrb_gc_arena_save(mrb);
+  mrb_define_const(mrb, mod_Timer, "CLOCKS_PER_SEC",  mrb_float_value(mrb, CLOCKS_PER_SEC));
+  mrb_gc_arena_restore(mrb, arena_size);
 }
 
 void

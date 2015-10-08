@@ -9,7 +9,7 @@
 #include <SDL2/SDL_video.h>
 #include <SDL2/SDL_render.h>
 
-struct RClass *mod_Video         = NULL;
+struct RClass *mod_Video                = NULL;
 
 static struct RClass *mod_GL            = NULL;
 static struct RClass *class_DisplayMode = NULL;
@@ -668,13 +668,6 @@ mrb_sdl2_video_window_set_grab(mrb_state *mrb, mrb_value self)
 }
 
 static mrb_value
-mrb_sdl2_video_window_get_id(mrb_state *mrb, mrb_value self)
-{
-  mrb_raise(mrb, E_NOTIMP_ERROR, "not implemented.");
-  return self;
-}
-
-static mrb_value
 mrb_sdl2_video_window_get_maximum_size(mrb_state *mrb, mrb_value self)
 {
   mrb_raise(mrb, E_NOTIMP_ERROR, "not implemented.");
@@ -842,8 +835,13 @@ mrb_sdl2_video_glcontext_delete(mrb_state *mrb, mrb_value self)
   data->context = NULL;
   return self;
 }
-
-
+static mrb_value
+mrb_sdl2_video_window_get_id(mrb_state *mrb, mrb_value self) {
+  SDL_Window *w = mrb_sdl2_video_window_get_ptr(mrb, self);
+  if (NULL == w)
+    mrb_raise(mrb, E_RUNTIME_ERROR, "Couldn't find window");
+  return mrb_fixnum_value(SDL_GetWindowID(w));
+}
 void
 mruby_sdl2_video_init(mrb_state *mrb)
 {

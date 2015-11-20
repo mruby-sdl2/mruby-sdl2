@@ -593,105 +593,161 @@ mrb_sdl2_video_window_make_current(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_window_set_icon(mrb_state *mrb, mrb_value self)
 {
-  mrb_raise(mrb, E_NOTIMP_ERROR, "not implemented.");
+  mrb_value surface;
+  mrb_get_args(mrb, "o", &surface);
+  SDL_SetWindowIcon(mrb_sdl2_video_surface_get_ptr(mrb, surface),
+                    mrb_sdl2_video_window_get_ptr(mrb, self));
   return self;
 }
 
 static mrb_value
 mrb_sdl2_video_window_get_brightness(mrb_state *mrb, mrb_value self)
 {
-  mrb_raise(mrb, E_NOTIMP_ERROR, "not implemented.");
-  return self;
+  return mrb_float_value(mrb,
+                         SDL_GetWindowBrightness(
+                             mrb_sdl2_video_window_get_ptr(mrb, self)));
 }
 
 static mrb_value
 mrb_sdl2_video_window_set_brightness(mrb_state *mrb, mrb_value self)
 {
-  mrb_raise(mrb, E_NOTIMP_ERROR, "not implemented.");
+  mrb_float brightness;
+  mrb_get_args(mrb, "f", &brightness);
+  if (0 != SDL_SetWindowBrightness(mrb_sdl2_video_window_get_ptr(mrb, self))) {
+    mruby_sdl2_raise_error(mrb);
+  }
   return self;
 }
 
 static mrb_value
 mrb_sdl2_video_window_get_display_index(mrb_state *mrb, mrb_value self)
 {
-  mrb_raise(mrb, E_NOTIMP_ERROR, "not implemented.");
-  return self;
+  return mrb_fixnum_value(
+      SDL_GetWindowDisplayIndex(
+          mrb_sdl2_video_window_get_ptr(mrb, self)));
 }
 
 static mrb_value
 mrb_sdl2_video_window_get_display_mode(mrb_state *mrb, mrb_value self)
 {
-  mrb_raise(mrb, E_NOTIMP_ERROR, "not implemented.");
-  return self;
+  SDL_DisplayMode *dm;
+  SDL_GetWindowDisplayMode(mrb_sdl2_video_window_get_ptr(mrb, self), dm);
+
+  return mrb_sdl2_video_displaymode(mrb, dm);
 }
 
 static mrb_value
 mrb_sdl2_video_window_set_display_mode(mrb_state *mrb, mrb_value self)
 {
-  mrb_raise(mrb, E_NOTIMP_ERROR, "not implemented.");
+  mrb_value displaymode;
+  mrb_get_args(mrb, "o", &displaymode);
+  if (0 != SDL_SetWindowDisplayMode(
+          mrb_sdl2_video_window_get_ptr(mrb, self),
+          mrb_sdl2_video_displaymode_get_ptr(mrb, displaymode))) {
+    mruby_sdl2_raise_error(mrb);
+  }
   return self;
 }
 
 static mrb_value
 mrb_sdl2_video_window_get_flags(mrb_state *mrb, mrb_value self)
 {
-  mrb_raise(mrb, E_NOTIMP_ERROR, "not implemented.");
-  return self;
+  return mrb_fixnum_value(
+      SDL_GetWindowFlags(
+          mrb_sdl2_video_window_get_ptr(mrb, self)));
 }
 
 static mrb_value
 mrb_sdl2_video_window_get_gamma_ramp(mrb_state *mrb, mrb_value self)
 {
-  mrb_raise(mrb, E_NOTIMP_ERROR, "not implemented.");
+  mrb_value ary;
+  Uint16 red, green, blue;
+  ary = mrb_ary_new_capa(mrb, n);
+  SDL_GetWindowGammaRamp(mrb_sdl2_video_window_get_ptr(mrb, self),
+                         &red,
+                         &green,
+                         &blue);
+  mrb_ary_push(mrb, array, mrb_fixnum_value(red));
+  mrb_ary_push(mrb, array, mrb_fixnum_value(green));
+  mrb_ary_push(mrb, array, mrb_fixnum_value(blue));
   return self;
 }
 
 static mrb_value
 mrb_sdl2_video_window_set_gamma_ramp(mrb_state *mrb, mrb_value self)
 {
-  mrb_raise(mrb, E_NOTIMP_ERROR, "not implemented.");
+  mrb_int red, green, blue;
+  mrb_get_args(mrb, "iii", &red, &green, &blue);
+  if (0 != SDL_SetWindowGammaRamp(mrb_sdl2_video_window_get_ptr(mrb, self),
+                                  &red,
+                                  &green,
+                                  &blue)) {
+    mruby_sdl2_raise_error(mrb);
+  }
   return self;
 }
 
 static mrb_value
 mrb_sdl2_video_window_get_grab(mrb_state *mrb, mrb_value self)
 {
-  mrb_raise(mrb, E_NOTIMP_ERROR, "not implemented.");
-  return self;
+  return (SDL_FALSE == SDL_GetWindowGrab(
+      mrb_sdl2_video_window_get_ptr(mrb, self))) ?
+      mrb_true_value() : mrb_false_value();
 }
 
 static mrb_value
 mrb_sdl2_video_window_set_grab(mrb_state *mrb, mrb_value self)
 {
-  mrb_raise(mrb, E_NOTIMP_ERROR, "not implemented.");
+  mrb_bool grab;
+  mrb_get_args(mrb, "b", &grab);
+  SDL_SetWindowGrab(mrb_sdl2_video_window_get_ptr(mrb, self),
+                    mrb_bool(grab) ? SDL_TRUE : SDL_FALSE);
   return self;
 }
 
 static mrb_value
 mrb_sdl2_video_window_get_maximum_size(mrb_state *mrb, mrb_value self)
 {
-  mrb_raise(mrb, E_NOTIMP_ERROR, "not implemented.");
-  return self;
+  int w, h;
+  mrb_value ary;
+  SDL_GetWindowMaximumSize(mrb_sdl2_video_window_get_ptr(mrb, self),
+                           &w,
+                           &h);
+  ary = mrb_ary_new_capa(mrb, n);
+  mrb_ary_push(mrb, ary, mrb_fixnum_value(w));
+  mrb_ary_push(mrb, ary, mrb_fixnum_value(h));
+  return ary;
 }
 
 static mrb_value
 mrb_sdl2_video_window_set_maximum_size(mrb_state *mrb, mrb_value self)
 {
-  mrb_raise(mrb, E_NOTIMP_ERROR, "not implemented.");
+  mrb_int max_w, max_h;
+  mrb_get_args(mrb, "ii", &max_w, &max_h);
+  SDL_SetWindowMaximumSize(max_w, max_h);
   return self;
 }
 
 static mrb_value
 mrb_sdl2_video_window_get_minimum_size(mrb_state *mrb, mrb_value self)
 {
-  mrb_raise(mrb, E_NOTIMP_ERROR, "not implemented.");
+  int w, h;
+  mrb_value ary;
+  SDL_GetWindowMinimumSize(mrb_sdl2_video_window_get_ptr(mrb, self),
+                           &w,
+                           &h);
+  ary = mrb_ary_new_capa(mrb, n);
+  mrb_ary_push(mrb, ary, mrb_fixnum_value(w));
+  mrb_ary_push(mrb, ary, mrb_fixnum_value(h));
   return self;
 }
 
 static mrb_value
 mrb_sdl2_video_window_set_minimum_size(mrb_state *mrb, mrb_value self)
 {
-  mrb_raise(mrb, E_NOTIMP_ERROR, "not implemented.");
+  mrb_int min_w, min_h;
+  mrb_get_args(mrb, "ii", &min_w, &min_h);
+  SDL_SetWindowMaximumSize(min_w,  min_h);
   return self;
 }
 
@@ -728,7 +784,22 @@ mrb_sdl2_video_window_update_surface(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_window_update_surface_rects(mrb_state *mrb, mrb_value self)
 {
-  mrb_raise(mrb, E_NOTIMP_ERROR, "not implemented.");
+  mrb_value rects_ary;
+  int size, i;
+  SDL_Rect *rects;
+  mrb_get_args(mrb, "A", &rects_ary);
+  size = mrb_ary_len(mrb, rects_ary);
+  rects = (SDL_Rect *) SDL_malloc(size * sizeof(SDL_Rect));
+  for (i = 0; i < size; i++) {
+    rects[i] = mrb_sdl2_rect_get_ptr(mrb, mrb_ary_ref(mrb, rects_ary, i));
+  }
+  if (0 != SDL_UpdateWindowSurfaceRects(
+          mrb_sdl2_video_window_get_ptr(mrb, self),
+          rects,
+          size) {
+    mruby_sdl2_raise_error(mrb);
+  }
+  mrb_ary_ref;
   return self;
 }
 

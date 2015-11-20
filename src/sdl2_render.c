@@ -410,11 +410,11 @@ mrb_sdl2_video_renderer_draw_lines(mrb_state *mrb, mrb_value self)
   mrb_value *argv;
   mrb_int argc;
   mrb_int i;
-  SDL_Point * p;
   SDL_Renderer *renderer = mrb_sdl2_video_renderer_get_ptr(mrb, self);
   mrb_get_args(mrb, "*", &argv, &argc);
   points = (SDL_Point *) SDL_malloc(sizeof(SDL_Point) * argc);
   for (i = 0; i < argc; ++i) {
+    SDL_Point * p;
     p = mrb_sdl2_point_get_ptr(mrb, argv[i]);
     if (NULL != p) {
       points[i] = *p;
@@ -449,11 +449,11 @@ mrb_sdl2_video_renderer_draw_points(mrb_state *mrb, mrb_value self)
   mrb_int i;
   mrb_int argc;
   SDL_Point * points;
-  SDL_Point * p;
   SDL_Renderer *renderer = mrb_sdl2_video_renderer_get_ptr(mrb, self);
   mrb_get_args(mrb, "*", &argv, &argc);
   points = (SDL_Point *) SDL_malloc(sizeof(SDL_Point) * argc);
   for (i = 0; i < argc; ++i) {
+    SDL_Point * p;
     p = mrb_sdl2_point_get_ptr(mrb, argv[i]);
     if (NULL != p) {
       points[i] = *p;
@@ -488,11 +488,11 @@ mrb_sdl2_video_renderer_draw_rects(mrb_state *mrb, mrb_value self)
   mrb_int argc;
   SDL_Rect * rects;
   mrb_int i;
-  SDL_Rect * r;
   SDL_Renderer *renderer = mrb_sdl2_video_renderer_get_ptr(mrb, self);
   mrb_get_args(mrb, "*", &argv, &argc);
   rects = (SDL_Rect *) SDL_malloc(sizeof(SDL_Rect) * argc);
   for (i = 0; i < argc; ++i) {
+    SDL_Rect * r;
     r = mrb_sdl2_rect_get_ptr(mrb, argv[i]);
     if (NULL != r) {
       rects[i] = *r;
@@ -527,11 +527,11 @@ mrb_sdl2_video_renderer_fill_rects(mrb_state *mrb, mrb_value self)
   mrb_int argc;
   SDL_Rect * rects;
   mrb_int i;
-  SDL_Rect * r;
   SDL_Renderer *renderer = mrb_sdl2_video_renderer_get_ptr(mrb, self);
   mrb_get_args(mrb, "*", &argv, &argc);
   rects = (SDL_Rect *) SDL_malloc(sizeof(SDL_Rect) * argc);
   for (i = 0; i < argc; ++i) {
+    SDL_Rect * r;
     r = mrb_sdl2_rect_get_ptr(mrb, argv[i]);
     if (NULL != r) {
       rects[i] = *r;
@@ -604,15 +604,14 @@ mrb_sdl2_video_renderer_read_pixels(mrb_state *mrb, mrb_value self)
 {
   SDL_Renderer *render;
   SDL_Rect * rect;
-  Uint32 *pixels;
   int i, j, bpp;
   Uint32 *p;
   mrb_value rrect;
-  mrb_int format, pitch;
+  mrb_int format;
   mrb_value array;
   SDL_Rect viewport;
   SDL_Surface *surface;
-  int argc = mrb_get_args(mrb, "o|i", &rrect, &format);
+  mrb_get_args(mrb, "o|i", &rrect, &format);
   render = mrb_sdl2_video_renderer_get_ptr(mrb, self);
   SDL_RenderGetViewport(render, &viewport);
   rect = mrb_sdl2_rect_get_ptr(mrb, rrect);
@@ -889,7 +888,6 @@ mrb_sdl2_video_texture_update_loc(mrb_state *mrb, mrb_value self)
   SDL_Surface *s;
   void *mPixels;
   int mPitch;
-  SDL_Rect *r = NULL;
   SDL_Texture *t;
   int argc = mrb_get_args(mrb, "o|o", &surface, &src_rect);//, &dest_rect);
   s = mrb_sdl2_video_surface_get_ptr(mrb, surface);
@@ -900,6 +898,7 @@ mrb_sdl2_video_texture_update_loc(mrb_state *mrb, mrb_value self)
   }
   void *stp = s->pixels;
   if (argc == 2) {
+    SDL_Rect *r;
     r = mrb_sdl2_rect_get_ptr(mrb, src_rect);
     stp += r->h * mPitch;
   }

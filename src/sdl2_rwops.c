@@ -90,7 +90,6 @@ mrb_sdl2_rwops_associated_rwops(mrb_state *mrb, SDL_RWops *rwops)
 static mrb_value
 mrb_sdl2_rwops_initialize(mrb_state *mrb, mrb_value self)
 {
-  printf("in the rwops");
   SDL_RWops *rwops = NULL;
   mrb_sdl2_rwops_data_t *data =
     (mrb_sdl2_rwops_data_t*)DATA_PTR(self);
@@ -103,11 +102,9 @@ mrb_sdl2_rwops_initialize(mrb_state *mrb, mrb_value self)
     data->rwops = NULL;
   }
 
-  printf("in the rwops");
   if (2 == mrb->c->ci->argc) {
     mrb_value file, mode;
-    mrb_get_args(mrb, "ss", &file, &mode);
-    printf("%s %s", RSTRING_PTR(file), RSTRING_PTR(mode));
+    mrb_get_args(mrb, "SS", &file, &mode);
     rwops = SDL_RWFromFile(RSTRING_PTR(file), RSTRING_PTR(mode));
   } else {
     mrb_free(mrb, data);
@@ -142,6 +139,10 @@ mrb_sdl2_rwops_size(mrb_state *mrb, mrb_value self)
 {
   SDL_RWops * rwops = mrb_sdl2_rwops_get_ptr(mrb, self);
   Sint64 result = SDL_RWsize(rwops);
+
+  if (-1 > result)
+    mruby_sdl2_raise_error(mrb);
+
   return mrb_fixnum_value(result);
 }
 
@@ -167,20 +168,15 @@ mrb_sdl2_rwops_tell(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_rwops_read(mrb_state *mrb, mrb_value self)
 {
-    // TODO ?
-    mrb_int size, maxnum;
-    Uint8 buf[30];
-    mrb_value read;
-    size_t result;
-    SDL_RWops * rwops = mrb_sdl2_rwops_get_ptr(mrb, self);
-    mrb_get_args(mrb, "ii", &size, &maxnum);
-    SDL_RWread(rwops, buf, ((size_t) size), (size_t) maxnum);
-    read = mrb_str_resize(mrb, read, size);
-    result = SDL_RWread(rwops, RSTRING_PTR(read),(size_t) size,(size_t) maxnum);
-    if (0 == result) {
-      mruby_sdl2_raise_error(mrb);
-    }
-    return mrb_fixnum_value(*buf);
+    mrb_int size;
+    mrb_value result;
+    SDL_RWops * rw = mrb_sdl2_rwops_get_ptr(mrb, self);
+    mrb_get_args(mrb, "i", &size);
+
+    result = mrb_str_new(mrb, NULL, size);
+    SDL_RWread(rw, RSTRING_PTR(result), size, 1);
+
+    return result;
 }
 
 static mrb_value
@@ -219,6 +215,23 @@ mrb_sdl2_rwops_close(mrb_state *mrb, mrb_value self)
   return mrb_true_value();
 }
 
+static mrb_value
+mrb_sdl2_rwops_file_exists(mrb_state *mrb, mrb_value self)
+{
+  mrb_value path;
+  SDL_RWops* rwops;
+  Uint8 result = 0;
+  mrb_get_args(mrb, "S", &path);
+  rwops = SDL_RWFromFile(RSTRING_PTR(path), "r");
+  if (rwops != NULL) {
+    result = 1;
+    SDL_RWclose(rwops);
+  } else {
+    result = 0;
+  }
+  return result == 0 ? mrb_false_value() : mrb_true_value();
+}
+
 void
 mruby_sdl2_rwops_init(mrb_state *mrb)
 {
@@ -236,6 +249,8 @@ mruby_sdl2_rwops_init(mrb_state *mrb)
   mrb_define_method(mrb, class_RWops, "read",       mrb_sdl2_rwops_read,       MRB_ARGS_REQ(2));
   mrb_define_method(mrb, class_RWops, "write",      mrb_sdl2_rwops_write,      MRB_ARGS_REQ(1));
   mrb_define_method(mrb, class_RWops, "close",      mrb_sdl2_rwops_close,      MRB_ARGS_NONE());
+
+  mrb_define_module_function(mrb, class_RWops, "file_exists?", mrb_sdl2_rwops_file_exists, MRB_ARGS_REQ(1));
 
 
   arena_size = mrb_gc_arena_save(mrb);

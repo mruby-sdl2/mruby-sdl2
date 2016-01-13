@@ -129,17 +129,21 @@ mrb_sdl2_input_event(mrb_state *mrb, SDL_Event const *event)
     return mrb_obj_value(Data_Wrap_Struct(mrb, class_DollarGestureEvent, &mrb_sdl2_input_event_data_type, data));
   case SDL_MULTIGESTURE:
     return mrb_obj_value(Data_Wrap_Struct(mrb, class_MultiGestureEvent, &mrb_sdl2_input_event_data_type, data));
-  case SDL_CLIPBOARDUPDATE:
-    break; /* missing event */
   case SDL_DROPFILE:
     return mrb_obj_value(Data_Wrap_Struct(mrb, class_DropEvent, &mrb_sdl2_input_event_data_type, data));
   case SDL_USEREVENT:
     return mrb_obj_value(Data_Wrap_Struct(mrb, class_UserEvent, &mrb_sdl2_input_event_data_type, data));
+  case SDL_AUDIODEVICEADDED:
+  case SDL_AUDIODEVICEREMOVED:
+  case SDL_KEYMAPCHANGED:
+  case SDL_CLIPBOARDUPDATE:
+    break; /* missing event */
   default:
     if (event->type > SDL_USEREVENT) {
       return mrb_obj_value(Data_Wrap_Struct(mrb, class_UserEvent, &mrb_sdl2_input_event_data_type, data));
     } else {
       mrb_free(mrb, data);
+      printf("event type is %d, ", event->type);
       mrb_raise(mrb, E_RUNTIME_ERROR, "undefined event type.");
     }
     break;

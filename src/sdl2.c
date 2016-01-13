@@ -115,6 +115,17 @@ mrb_sdl2_delay(mrb_state *mrb, mrb_value self)
   return self;
 }
 
+
+static mrb_value
+mrb_sdl2_log(mrb_state *mrb, mrb_value self)
+{
+  mrb_value str;
+  mrb_get_args(mrb, "S", &str);
+  SDL_Log(RSTRING_PTR(str));
+  return self;
+}
+
+
 void
 mruby_sdl2_module_init(mrb_state *mrb)
 {
@@ -128,6 +139,7 @@ mruby_sdl2_module_init(mrb_state *mrb)
   mrb_define_module_function(mrb, mod_SDL2, "init?",          mrb_sdl2_was_init,       MRB_ARGS_REQ(1));
   mrb_define_module_function(mrb, mod_SDL2, "platform",       mrb_sdl2_get_platform,   MRB_ARGS_NONE());
   mrb_define_module_function(mrb, mod_SDL2, "delay",          mrb_sdl2_delay,          MRB_ARGS_REQ(1));
+  mrb_define_module_function(mrb, mod_SDL2, "log",            mrb_sdl2_log,            MRB_ARGS_REQ(1));
 
   mrb_define_const(mrb, mod_SDL2, "SDL_INIT_TIMER",          mrb_fixnum_value(SDL_INIT_TIMER));
   mrb_define_const(mrb, mod_SDL2, "SDL_INIT_AUDIO",          mrb_fixnum_value(SDL_INIT_AUDIO));

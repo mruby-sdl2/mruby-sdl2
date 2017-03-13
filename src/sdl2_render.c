@@ -629,16 +629,16 @@ mrb_sdl2_video_renderer_read_pixels(mrb_state *mrb, mrb_value self)
 
   if (!surface) {
     mruby_sdl2_raise_error(mrb);
-    return;
+    return self;
   }
-  
+
   if (SDL_RenderReadPixels(render, NULL, surface->format->format,
 			   surface->pixels, surface->pitch) < 0) {
     SDL_free(surface);
     mruby_sdl2_raise_error(mrb);
     return self;
   }
-  
+
   return mrb_sdl2_video_surface(mrb, surface, false);
   array = mrb_ary_new_capa(mrb, rect->w);
   bpp = surface->format->BytesPerPixel;
@@ -791,7 +791,7 @@ mrb_sdl2_video_texture_get_color_mod(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_texture_set_color_mod(mrb_state *mrb, mrb_value self)
 {
-  uint8_t r, g, b;
+  mrb_int r, g, b;
   SDL_Texture *texture;
   mrb_get_args(mrb, "iii", &r, &g, &b);
   texture = mrb_sdl2_video_texture_get_ptr(mrb, self);
@@ -875,7 +875,7 @@ mrb_sdl2_video_texture_update(mrb_state *mrb, mrb_value self)
   }
   if (result < 0)
     mruby_sdl2_raise_error(mrb);
-    
+
   return mrb_true_value();
 }
 
@@ -892,7 +892,7 @@ mrb_sdl2_video_texture_update_loc(mrb_state *mrb, mrb_value self)
   int argc = mrb_get_args(mrb, "o|o", &surface, &src_rect);//, &dest_rect);
   s = mrb_sdl2_video_surface_get_ptr(mrb, surface);
   t = mrb_sdl2_video_texture_get_ptr(mrb, self);
-  
+
   if (SDL_LockTexture(t, NULL, &mPixels, &mPitch) < 0) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -904,7 +904,7 @@ mrb_sdl2_video_texture_update_loc(mrb_state *mrb, mrb_value self)
   }
   memcpy(mPixels, stp, s->h * mPitch);
   SDL_UnlockTexture(t);
-  
+
   return self;
 }
 
@@ -1161,4 +1161,3 @@ void
 mruby_sdl2_video_renderer_final(mrb_state *mrb, struct RClass *mod_Video)
 {
 }
-

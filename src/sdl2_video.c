@@ -864,6 +864,21 @@ mrb_sdl2_video_window_swap(mrb_state *mrb, mrb_value self)
   return self;
 }
 
+static mrb_value
+mrb_sdl2_video_window_set_opacity(mrb_state *mrb, mrb_value self)
+{
+  mrb_float opacity;
+  mrb_get_args(mrb, "f", &opacity);
+  mrb_sdl2_video_window_data_t *data =
+    (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
+  if (NULL == data->window) {
+    return mrb_nil_value();
+  }
+  SDL_SetWindowOpacity(data->window,opacity);
+  return self;
+}
+
+
 /***************************************************************************
 *
 * class SDL2::Video::GLContext
@@ -1013,6 +1028,7 @@ mruby_sdl2_video_init(mrb_state *mrb)
   mrb_define_method(mrb, class_Window, "update_surface_rects", mrb_sdl2_video_window_update_surface_rects, MRB_ARGS_ANY());
   mrb_define_method(mrb, class_Window, "renderer",             mrb_sdl2_video_window_get_renderer,         MRB_ARGS_NONE());
   mrb_define_method(mrb, class_Window, "swap",                 mrb_sdl2_video_window_swap,                 MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Window, "set_opacity",          mrb_sdl2_video_window_set_opacity,          MRB_ARGS_REQ(1));
 
   mrb_define_method(mrb, class_GLContext, "initialize", mrb_sdl2_video_glcontext_initialize, MRB_ARGS_OPT(1));
   mrb_define_method(mrb, class_GLContext, "create",     mrb_sdl2_video_glcontext_create,     MRB_ARGS_REQ(1));
@@ -1104,4 +1120,3 @@ mruby_sdl2_video_final(mrb_state *mrb)
   mruby_sdl2_video_surface_final(mrb, mod_Video);
   mruby_sdl2_video_renderer_final(mrb, mod_Video);
 }
-

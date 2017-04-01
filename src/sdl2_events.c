@@ -491,6 +491,78 @@ mrb_sdl2_input_mousewheelevent_get_y(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(data->event.wheel.y);
 }
 
+/*
+ * Game Controller Axis Event
+ */
+
+static mrb_value
+mrb_sdl2_input_controlleraxisevent_get_timestamp(mrb_state *mrb, mrb_value self)
+{
+  mrb_sdl2_input_event_data_t *data =
+    (mrb_sdl2_input_event_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_input_event_data_type);
+  return mrb_fixnum_value(data->event.caxis.timestamp);
+}
+
+static mrb_value
+mrb_sdl2_input_controlleraxisevent_get_which(mrb_state *mrb, mrb_value self)
+{
+  mrb_sdl2_input_event_data_t *data =
+    (mrb_sdl2_input_event_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_input_event_data_type);
+  return mrb_fixnum_value(data->event.caxis.which);
+}
+
+static mrb_value
+mrb_sdl2_input_controlleraxis_get_axis(mrb_state *mrb, mrb_value self)
+{
+  mrb_sdl2_input_event_data_t *data =
+    (mrb_sdl2_input_event_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_input_event_data_type);
+  return mrb_fixnum_value(data->event.caxis.axis);
+}
+
+static mrb_value
+mrb_sdl2_input_controlleraxis_get_value(mrb_state *mrb, mrb_value self)
+{
+  mrb_sdl2_input_event_data_t *data =
+    (mrb_sdl2_input_event_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_input_event_data_type);
+  return mrb_fixnum_value(data->event.caxis.value);
+}
+
+//
+// Game Controller Button Event
+//
+
+static mrb_value
+mrb_sdl2_input_controllerbuttonevent_get_timestamp(mrb_state *mrb, mrb_value self)
+{
+  mrb_sdl2_input_event_data_t *data =
+    (mrb_sdl2_input_event_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_input_event_data_type);
+  return mrb_fixnum_value(data->event.cbutton.timestamp);
+}
+
+static mrb_value
+mrb_sdl2_input_controllerbuttonevent_get_which(mrb_state *mrb, mrb_value self)
+{
+  mrb_sdl2_input_event_data_t *data =
+    (mrb_sdl2_input_event_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_input_event_data_type);
+  return mrb_fixnum_value(data->event.cbutton.which);
+}
+
+static mrb_value
+mrb_sdl2_input_controllerbuttonevent_get_button(mrb_state *mrb, mrb_value self)
+{
+  mrb_sdl2_input_event_data_t *data =
+    (mrb_sdl2_input_event_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_input_event_data_type);
+  return mrb_fixnum_value(data->event.cbutton.button);
+}
+
+static mrb_value
+mrb_sdl2_input_controllerbuttonevent_get_state(mrb_state *mrb, mrb_value self)
+{
+  mrb_sdl2_input_event_data_t *data =
+    (mrb_sdl2_input_event_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_input_event_data_type);
+  return data->event.cbutton.state == SDL_PRESSED ? mrb_true_value() : mrb_false_value();
+}
+
 /***************************************************************************
 *
 * class SDL2::Input::QuitEvent
@@ -524,7 +596,7 @@ typedef struct mrb_sdl2_input_user_data_t {
 static void *
 mrb_sdl2_input_to_voidp(mrb_state *mrb, mrb_value data)
 {
-  mrb_sdl2_input_user_data_t *udata = 
+  mrb_sdl2_input_user_data_t *udata =
     (mrb_sdl2_input_user_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_input_user_data_t));
   if (NULL == udata) {
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
@@ -877,6 +949,18 @@ mruby_sdl2_events_init(mrb_state *mrb)
   mrb_define_method(mrb, class_MouseWheelEvent, "x",         mrb_sdl2_input_mousewheelevent_get_x,         MRB_ARGS_NONE());
   mrb_define_method(mrb, class_MouseWheelEvent, "y",         mrb_sdl2_input_mousewheelevent_get_y,         MRB_ARGS_NONE());
 
+  // ControllerAxisEvent
+  mrb_define_method(mrb, class_ControllerAxisEvent, "timestamp",mrb_sdl2_input_controlleraxisevent_get_timestamp, MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_ControllerAxisEvent, "which",    mrb_sdl2_input_controlleraxisevent_get_which,     MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_ControllerAxisEvent, "axis",     mrb_sdl2_input_controlleraxis_get_axis,           MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_ControllerAxisEvent, "value",    mrb_sdl2_input_controlleraxis_get_value,          MRB_ARGS_NONE());
+
+  // SDL_ControllerButtonEvent
+  mrb_define_method(mrb, class_ControllerButtonEvent, "timestamp",mrb_sdl2_input_controllerbuttonevent_get_timestamp, MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_ControllerButtonEvent, "which",    mrb_sdl2_input_controllerbuttonevent_get_which,     MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_ControllerButtonEvent, "button",   mrb_sdl2_input_controllerbuttonevent_get_button, MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_ControllerButtonEvent, "state",    mrb_sdl2_input_controllerbuttonevent_get_state,     MRB_ARGS_NONE());
+
   mrb_define_method(mrb, class_QuitEvent, "timestamp", mrb_sdl2_input_quitevent_timestamp, MRB_ARGS_NONE());
 
   mrb_define_method(mrb, class_UserEvent, "initialize",  mrb_sdl2_input_userevent_initialize,    MRB_ARGS_REQ(2) | MRB_ARGS_OPT(2));
@@ -976,4 +1060,3 @@ void
 mruby_sdl2_events_final(mrb_state *mrb)
 {
 }
-

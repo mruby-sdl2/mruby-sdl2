@@ -212,99 +212,6 @@ mruby_sdl2_keyboard_init(mrb_state *mrb)
 
   arena_size = mrb_gc_arena_save(mrb);
 
-  /* SDL_Scancode */
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_0", mrb_fixnum_value(SDL_SCANCODE_0));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_1", mrb_fixnum_value(SDL_SCANCODE_1));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_2", mrb_fixnum_value(SDL_SCANCODE_2));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_3", mrb_fixnum_value(SDL_SCANCODE_3));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_4", mrb_fixnum_value(SDL_SCANCODE_4));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_5", mrb_fixnum_value(SDL_SCANCODE_5));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_6", mrb_fixnum_value(SDL_SCANCODE_6));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_7", mrb_fixnum_value(SDL_SCANCODE_7));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_8", mrb_fixnum_value(SDL_SCANCODE_8));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_9", mrb_fixnum_value(SDL_SCANCODE_9));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_A", mrb_fixnum_value(SDL_SCANCODE_A));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_B", mrb_fixnum_value(SDL_SCANCODE_B));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_C", mrb_fixnum_value(SDL_SCANCODE_C));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_D", mrb_fixnum_value(SDL_SCANCODE_D));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_E", mrb_fixnum_value(SDL_SCANCODE_E));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F", mrb_fixnum_value(SDL_SCANCODE_F));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_G", mrb_fixnum_value(SDL_SCANCODE_G));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_H", mrb_fixnum_value(SDL_SCANCODE_H));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_I", mrb_fixnum_value(SDL_SCANCODE_I));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_J", mrb_fixnum_value(SDL_SCANCODE_J));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_K", mrb_fixnum_value(SDL_SCANCODE_K));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_L", mrb_fixnum_value(SDL_SCANCODE_L));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_M", mrb_fixnum_value(SDL_SCANCODE_M));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_N", mrb_fixnum_value(SDL_SCANCODE_N));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_O", mrb_fixnum_value(SDL_SCANCODE_O));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_P", mrb_fixnum_value(SDL_SCANCODE_P));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_Q", mrb_fixnum_value(SDL_SCANCODE_Q));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_R", mrb_fixnum_value(SDL_SCANCODE_R));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_S", mrb_fixnum_value(SDL_SCANCODE_S));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_T", mrb_fixnum_value(SDL_SCANCODE_T));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_U", mrb_fixnum_value(SDL_SCANCODE_U));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_V", mrb_fixnum_value(SDL_SCANCODE_V));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_W", mrb_fixnum_value(SDL_SCANCODE_W));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_X", mrb_fixnum_value(SDL_SCANCODE_X));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_Y", mrb_fixnum_value(SDL_SCANCODE_Y));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_Z", mrb_fixnum_value(SDL_SCANCODE_Z));
-
-  mrb_gc_arena_restore(mrb, arena_size);
-  arena_size = mrb_gc_arena_save(mrb);
-
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F1", mrb_fixnum_value(SDL_SCANCODE_F1));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F2", mrb_fixnum_value(SDL_SCANCODE_F2));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F3", mrb_fixnum_value(SDL_SCANCODE_F3));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F4", mrb_fixnum_value(SDL_SCANCODE_F4));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F5", mrb_fixnum_value(SDL_SCANCODE_F5));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F6", mrb_fixnum_value(SDL_SCANCODE_F6));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F7", mrb_fixnum_value(SDL_SCANCODE_F7));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F8", mrb_fixnum_value(SDL_SCANCODE_F8));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F9", mrb_fixnum_value(SDL_SCANCODE_F9));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F10", mrb_fixnum_value(SDL_SCANCODE_F10));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F11", mrb_fixnum_value(SDL_SCANCODE_F11));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F12", mrb_fixnum_value(SDL_SCANCODE_F12));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F13", mrb_fixnum_value(SDL_SCANCODE_F13));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F14", mrb_fixnum_value(SDL_SCANCODE_F14));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F15", mrb_fixnum_value(SDL_SCANCODE_F15));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F16", mrb_fixnum_value(SDL_SCANCODE_F16));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F17", mrb_fixnum_value(SDL_SCANCODE_F17));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F18", mrb_fixnum_value(SDL_SCANCODE_F18));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F19", mrb_fixnum_value(SDL_SCANCODE_F19));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F20", mrb_fixnum_value(SDL_SCANCODE_F20));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F21", mrb_fixnum_value(SDL_SCANCODE_F21));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F22", mrb_fixnum_value(SDL_SCANCODE_F22));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F23", mrb_fixnum_value(SDL_SCANCODE_F23));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_F24", mrb_fixnum_value(SDL_SCANCODE_F24));
-
-  mrb_gc_arena_restore(mrb, arena_size);
-  arena_size = mrb_gc_arena_save(mrb);
-
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_BACKSPACE",   mrb_fixnum_value(SDL_SCANCODE_BACKSPACE));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_CAPSLOCK",    mrb_fixnum_value(SDL_SCANCODE_CAPSLOCK));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_DELETE",      mrb_fixnum_value(SDL_SCANCODE_DELETE));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_ESCAPE",      mrb_fixnum_value(SDL_SCANCODE_ESCAPE));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_END",         mrb_fixnum_value(SDL_SCANCODE_END));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_HOME",        mrb_fixnum_value(SDL_SCANCODE_HOME));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_INSERT",      mrb_fixnum_value(SDL_SCANCODE_INSERT));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_LALT",        mrb_fixnum_value(SDL_SCANCODE_LALT));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_LCTRL",       mrb_fixnum_value(SDL_SCANCODE_LCTRL));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_LEFT",        mrb_fixnum_value(SDL_SCANCODE_LEFT));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_LSHIFT",      mrb_fixnum_value(SDL_SCANCODE_LSHIFT));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_PAGEDOWN",    mrb_fixnum_value(SDL_SCANCODE_PAGEDOWN));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_PAGEUP",      mrb_fixnum_value(SDL_SCANCODE_PAGEUP));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_PRINTSCREEN", mrb_fixnum_value(SDL_SCANCODE_PRINTSCREEN));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_RALT",        mrb_fixnum_value(SDL_SCANCODE_RALT));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_RCTRL",       mrb_fixnum_value(SDL_SCANCODE_RCTRL));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_RETURN",      mrb_fixnum_value(SDL_SCANCODE_RETURN));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_RIGHT",       mrb_fixnum_value(SDL_SCANCODE_RIGHT));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_RSHIFT",      mrb_fixnum_value(SDL_SCANCODE_RSHIFT));
-  mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_UNKNOWN",     mrb_fixnum_value(SDL_SCANCODE_UNKNOWN));
-
-  mrb_gc_arena_restore(mrb, arena_size);
-  arena_size = mrb_gc_arena_save(mrb);
-
   /* SDL_Keycode */
   mrb_define_const(mrb, mod_Keyboard, "SDLK_0", mrb_fixnum_value(SDLK_0));
   mrb_define_const(mrb, mod_Keyboard, "SDLK_1", mrb_fixnum_value(SDLK_1));
@@ -436,6 +343,9 @@ mruby_sdl2_keyboard_init(mrb_state *mrb)
   mrb_define_const(mrb, mod_Keyboard, "KMOD_GUI",    mrb_fixnum_value(KMOD_GUI));
   mrb_gc_arena_restore(mrb, arena_size);
 
+  //
+  // keycodes
+  //
 
   arena_size = mrb_gc_arena_save(mrb);
   mrb_define_const(mrb, mod_Keyboard, "SDL_SCANCODE_UNKNOWN", mrb_fixnum_value(SDL_SCANCODE_UNKNOWN));
@@ -687,4 +597,3 @@ void
 mruby_sdl2_keyboard_final(mrb_state *mrb)
 {
 }
-

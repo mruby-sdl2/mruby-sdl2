@@ -354,7 +354,7 @@ mrb_sdl2_input_mousebuttonevent_get_state(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_input_event_data_t *data =
     (mrb_sdl2_input_event_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_input_event_data_type);
-  return mrb_fixnum_value(data->event.button.state);
+  return data->event.button.state == SDL_PRESSED ? mrb_true_value() : mrb_false_value();
 }
 
 static mrb_value

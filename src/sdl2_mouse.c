@@ -302,6 +302,12 @@ mruby_sdl2_mouse_init(mrb_state *mrb)
   mrb_define_method(mrb, class_Cursor, "initialize", mrb_sdl2_input_mouse_cursor_initialize, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, class_Cursor, "free",       mrb_sdl2_input_mouse_cursor_free,       MRB_ARGS_NONE());
   mrb_define_method(mrb, class_Cursor, "destroy",    mrb_sdl2_input_mouse_cursor_free,       MRB_ARGS_NONE());
+
+  mrb_define_const(mrb, mod_Mouse, "SDL_BUTTON_LEFT", mrb_fixnum_value(SDL_BUTTON_LEFT));
+  mrb_define_const(mrb, mod_Mouse, "SDL_BUTTON_MIDDLE", mrb_fixnum_value(SDL_BUTTON_MIDDLE));
+  mrb_define_const(mrb, mod_Mouse, "SDL_BUTTON_RIGHT", mrb_fixnum_value(SDL_BUTTON_RIGHT));
+  mrb_define_const(mrb, mod_Mouse, "SDL_BUTTON_X1", mrb_fixnum_value(SDL_BUTTON_X1));
+  mrb_define_const(mrb, mod_Mouse, "SDL_BUTTON_X2", mrb_fixnum_value(SDL_BUTTON_X2));
 }
 
 void

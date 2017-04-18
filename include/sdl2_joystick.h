@@ -2,7 +2,7 @@
 #define MRUBY_SDL2_JOYSTICK_H
 
 #include "sdl2.h"
-#include <SDL2/SDL_joystick.h>
+#include <SDL_joystick.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -5,7 +5,7 @@
 #include "mruby/data.h"
 #include "mruby/class.h"
 #include "mruby/string.h"
-#include <SDL2/SDL_keycode.h>
+#include <SDL_keycode.h>
 
 static struct RClass *mod_Keyboard = NULL;
 static struct RClass *class_Keysym = NULL;

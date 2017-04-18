@@ -2,8 +2,8 @@
 #define MRUBY_SDL2_gl_H
 
 #include "sdl2.h"
-#include <SDL2/SDL_render.h>
-#include <SDL2/SDL_video.h>
+#include <SDL_render.h>
+#include <SDL_video.h>
 
 #ifdef __cplusplus
 extern "C" {

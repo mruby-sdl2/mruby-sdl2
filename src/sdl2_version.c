@@ -3,7 +3,7 @@
 #include "mruby/data.h"
 #include "mruby/class.h"
 #include "mruby/string.h"
-#include <SDL2/SDL_revision.h>
+#include <SDL_revision.h>
 
 static struct RClass *class_Version = NULL;
 

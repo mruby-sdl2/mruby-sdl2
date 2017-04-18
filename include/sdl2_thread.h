@@ -2,7 +2,7 @@
 #define MRUBY_SDL2_THREAD_H
 
 #include "sdl2.h"
-#include <SDL2/SDL_thread.h>
+#include <SDL_thread.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -2,7 +2,7 @@
 #define MRUBY_SDL2_HAPTIC_H
 
 #include "sdl2.h"
-#include <SDL2/SDL_haptic.h>
+#include <SDL_haptic.h>
 
 
 #ifdef __cplusplus

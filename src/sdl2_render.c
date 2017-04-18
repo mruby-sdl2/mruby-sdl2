@@ -5,6 +5,7 @@
 #include "mruby/data.h"
 #include "mruby/class.h"
 #include "mruby/array.h"
+#include <string.h>
 
 static struct RClass *class_Renderer     = NULL;
 static struct RClass *class_Texture      = NULL;

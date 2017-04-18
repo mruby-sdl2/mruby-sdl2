@@ -2,7 +2,7 @@
 #define MRUBY_SDL2_VIDEO_H
 
 #include "mruby.h"
-#include <SDL2/SDL_video.h>
+#include <SDL_video.h>
 
 #ifdef __cplusplus
 extern "C" {

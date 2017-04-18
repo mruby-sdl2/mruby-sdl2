@@ -2,7 +2,7 @@
 #define MRUBY_SDL2_TOUCH_H
 
 #include "sdl2.h"
-#include <SDL2/SDL_touch.h>
+#include <SDL_touch.h>
 
 #ifdef __cplusplus
 extern "C" {

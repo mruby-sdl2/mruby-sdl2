@@ -1,7 +1,7 @@
 #include "sdl2_surface.h"
 #include "sdl2_rect.h"
 #include "sdl2_pixels.h"
-#include <SDL2/SDL_endian.h>
+#include <SDL_endian.h>
 #include "mruby/data.h"
 #include "mruby/class.h"
 #include "mruby/string.h"

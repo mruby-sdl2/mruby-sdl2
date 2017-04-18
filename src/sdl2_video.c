@@ -6,8 +6,8 @@
 #include "mruby/data.h"
 #include "mruby/string.h"
 #include "mruby/array.h"
-#include <SDL2/SDL_video.h>
-#include <SDL2/SDL_render.h>
+#include <SDL_video.h>
+#include <SDL_render.h>
 
 struct RClass *mod_Video                = NULL;
 

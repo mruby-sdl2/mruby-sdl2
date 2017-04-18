@@ -2,7 +2,7 @@
 #define MRUBY_SDL2_FILESYSTEM_H
 
 #include "sdl2.h"
-#include <SDL2/SDL_filesystem.h>
+#include <SDL_filesystem.h>
 
 #ifdef __cplusplus
 extern "C" {

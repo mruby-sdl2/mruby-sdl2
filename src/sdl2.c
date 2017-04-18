@@ -25,8 +25,9 @@
 #include "sdl2_clipboard.h"
 #include "misc.h"
 #include "mruby/string.h"
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_platform.h>
+#include <SDL.h>
+#include <SDL_platform.h>
+#include <string.h>
 
 struct RClass *mod_SDL2        = NULL;
 struct RClass *class_SDL2Error = NULL;

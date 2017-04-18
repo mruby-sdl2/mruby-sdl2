@@ -2,7 +2,7 @@
 #define MRUBY_SDL2_AUDIO_H
 
 #include "sdl2.h"
-#include <SDL2/SDL_audio.h>
+#include <SDL_audio.h>
 
 #ifdef __cplusplus
 extern "C" {

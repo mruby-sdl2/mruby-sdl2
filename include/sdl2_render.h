@@ -2,8 +2,8 @@
 #define MRUBY_SDL2_RENDER_H
 
 #include "sdl2.h"
-#include <SDL2/SDL_render.h>
-#include <SDL2/SDL_rect.h>
+#include <SDL_render.h>
+#include <SDL_rect.h>
 
 typedef struct pixelbuf_data_t {
   SDL_Rect rect;

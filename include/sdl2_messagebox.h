@@ -2,8 +2,8 @@
 #define MRUBY_SDL2_MESSAGEBOX_H
 
 #include "sdl2.h"
-#include <SDL2/SDL_stdinc.h>
-#include <SDL2/SDL_messagebox.h>
+#include <SDL_stdinc.h>
+#include <SDL_messagebox.h>
 
 #ifdef __cplusplus
 extern "C" {

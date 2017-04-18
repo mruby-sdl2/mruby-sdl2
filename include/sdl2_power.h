@@ -2,7 +2,7 @@
 #define MRUBY_SDL2_POWER_H
 
 #include "sdl2.h"
-#include <SDL2/SDL_power.h>
+#include <SDL_power.h>
 
 #ifdef __cplusplus
 extern "C" {

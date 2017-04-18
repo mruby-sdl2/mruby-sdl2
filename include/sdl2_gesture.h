@@ -2,7 +2,7 @@
 #define MRUBY_SDL2_GESTURE_H
 
 #include "sdl2.h"
-#include <SDL2/SDL_gesture.h>
+#include <SDL_gesture.h>
 
 #ifdef __cplusplus
 extern "C" {

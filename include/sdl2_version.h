@@ -2,7 +2,7 @@
 #define MRUBY_SDL2_VERSION_H
 
 #include "sdl2.h"
-#include <SDL2/SDL_version.h>
+#include <SDL_version.h>
 
 #ifdef __cplusplus
 extern "C" {

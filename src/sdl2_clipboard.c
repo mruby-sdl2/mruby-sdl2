@@ -1,5 +1,6 @@
 #include "sdl2_clipboard.h"
 #include "mruby/string.h"
+#include <stdlib.h>
 
 static mrb_value
 mrb_sdl2_clipboard_text(mrb_state *mrb, mrb_value self)

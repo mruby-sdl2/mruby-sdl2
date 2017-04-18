@@ -2,7 +2,7 @@
 #define MRUBY_SDL2_SURFACE_H
 
 #include "sdl2.h"
-#include <SDL2/SDL_surface.h>
+#include <SDL_surface.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -4,7 +4,7 @@
 #include "mruby/data.h"
 #include "mruby/class.h"
 #include "mruby/string.h"
-#include <SDL2/SDL_keyboard.h>
+#include <SDL_keyboard.h>
 
 static struct RClass *mod_Input = NULL;
 static struct RClass *class_ControllerAxisEvent   = NULL;

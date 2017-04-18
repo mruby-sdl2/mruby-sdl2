@@ -2,7 +2,7 @@
 #define MRUBY_SDL2_EVENTS_H
 
 #include "sdl2.h"
-#include <SDL2/SDL_events.h>
+#include <SDL_events.h>
 
 #ifdef __cplusplus
 extern "C" {

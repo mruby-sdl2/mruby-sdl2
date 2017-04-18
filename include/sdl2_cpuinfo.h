@@ -2,7 +2,7 @@
 #define MRUBY_SDL2_CPUINFO_H
 
 #include "sdl2.h"
-#include <SDL2/SDL_cpuinfo.h>
+#include <SDL_cpuinfo.h>
 
 #ifdef __cplusplus
 extern "C" {

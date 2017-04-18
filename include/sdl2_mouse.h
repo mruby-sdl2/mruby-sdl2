@@ -2,7 +2,7 @@
 #define MRUBY_SDL2_MOUSE_H
 
 #include "sdl2.h"
-#include <SDL2/SDL_mouse.h>
+#include <SDL_mouse.h>
 
 #ifdef __cplusplus
 extern "C" {

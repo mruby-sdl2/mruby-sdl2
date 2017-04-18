@@ -2,7 +2,7 @@
 #define MRUBY_SDL2_CLIPBOARD_H
 
 #include "sdl2.h"
-#include <SDL2/SDL_clipboard.h>
+#include <SDL_clipboard.h>
 
 #ifdef __cplusplus
 extern "C" {

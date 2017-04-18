@@ -2,7 +2,7 @@
 #define MRUBY_SDL2_GAMECONTROLLER_H
 
 #include "sdl2.h"
-#include <SDL2/SDL_gamecontroller.h>
+#include <SDL_gamecontroller.h>
 
 #ifdef __cplusplus
 extern "C" {

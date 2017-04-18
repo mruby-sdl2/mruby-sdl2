@@ -2,7 +2,7 @@
 #define MRUBY_SDL2_MUTEX_H
 
 #include "sdl2.h"
-#include <SDL2/SDL_mutex.h>
+#include <SDL_mutex.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -1106,7 +1106,7 @@ mruby_sdl2_video_renderer_init(mrb_state *mrb, struct RClass *mod_Video)
   mrb_gc_arena_restore(mrb, arena_size);
   arena_size = mrb_gc_arena_save(mrb);
 
-  mrb_define_method(mrb, class_Texture, "initialize",    mrb_sdl2_video_texture_initialize,     MRB_ARGS_REQ(2));
+  mrb_define_method(mrb, class_Texture, "initialize",    mrb_sdl2_video_texture_initialize,     MRB_ARGS_REQ(2)|MRB_ARGS_REQ(5));
   mrb_define_method(mrb, class_Texture, "free",          mrb_sdl2_video_texture_destroy,        MRB_ARGS_NONE());
   mrb_define_method(mrb, class_Texture, "destroy",       mrb_sdl2_video_texture_destroy,        MRB_ARGS_NONE());
   mrb_define_method(mrb, class_Texture, "alpha_mod",     mrb_sdl2_video_texture_get_alpha_mod,  MRB_ARGS_NONE());

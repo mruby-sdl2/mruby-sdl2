@@ -261,6 +261,19 @@ mrb_sdl2_video_get_displays(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(n);
 }
 
+/*
+ * SDL2::Video::current_driver
+ */
+static mrb_value
+mrb_sdl2_video_get_current_video_driver(mrb_state *mrb, mrb_value self)
+{
+  const char* name = SDL_GetCurrentVideoDriver();
+  if (NULL == name) {
+    return mrb_nil_value();
+  }
+  return mrb_str_new_cstr(mrb, name);
+}
+
 /***************************************************************************
 *
 * module SDL2::Video::GL
@@ -982,6 +995,7 @@ mruby_sdl2_video_init(mrb_state *mrb)
   mrb_define_module_function(mrb, mod_Video, "video_drivers", mrb_sdl2_video_get_video_drivers,        MRB_ARGS_NONE());
   mrb_define_module_function(mrb, mod_Video, "display_modes", mrb_sdl2_video_get_display_modes,        MRB_ARGS_REQ(1));
   mrb_define_module_function(mrb, mod_Video, "displays",      mrb_sdl2_video_get_displays,             MRB_ARGS_NONE());
+  mrb_define_module_function(mrb, mod_Video, "current_driver",mrb_sdl2_video_get_current_video_driver, MRB_ARGS_NONE());
 
   mrb_define_module_function(mrb, mod_GL, "attribute_get",        mrb_sdl2_video_gl_get_attribute,          MRB_ARGS_REQ(1));
   mrb_define_module_function(mrb, mod_GL, "attribute_set",        mrb_sdl2_video_gl_set_attribute,          MRB_ARGS_REQ(2));

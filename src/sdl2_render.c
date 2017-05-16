@@ -25,7 +25,7 @@ typedef struct mrb_sdl2_video_pixelbuf_data_t {
 } mrb_sdl2_video_pixelbuf_data_t;
 
 typedef struct mrb_sdl2_video_rendererinfo_data_t {
-  SDL_RendererInfo *info;
+  SDL_RendererInfo info;
 } mrb_sdl2_video_rendererinfo_data_t;
 
 static void
@@ -123,7 +123,7 @@ mrb_sdl2_video_rendererinfo_get_ptr(mrb_state *mrb, mrb_value info)
   }
   data =
     (mrb_sdl2_video_rendererinfo_data_t*)mrb_data_get_ptr(mrb, info, &mrb_sdl2_video_rendererinfo_data_type);
-  return data->info;
+  return &data->info;
 }
 
 pixelbuf_data_t *
@@ -171,7 +171,7 @@ mrb_sdl2_video_rendererinfo(mrb_state *mrb, SDL_RendererInfo *info)
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
   }
   if (NULL != info) {
-    data->info = info;
+    data->info = *info;
   }
   return mrb_obj_value(Data_Wrap_Struct(mrb, class_RendererInfo, &mrb_sdl2_video_rendererinfo_data_type, data));
 }

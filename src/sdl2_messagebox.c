@@ -140,22 +140,18 @@ mrb_sdl2_message_boxdata_set_buttons(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_message_boxdata_data_t *data_ptr;
   SDL_MessageBoxButtonData * data;
-  struct RArray * rary;
   mrb_value buttons;
   int i;
+
   mrb_get_args(mrb, "A", &buttons);
-
-  data_ptr =
-    (mrb_sdl2_message_boxdata_data_t*)DATA_PTR(self);
-
-  rary = mrb_ary_ptr(buttons);
-  data_ptr->boxdata->numbuttons = (int) rary->len;
-  data = (SDL_MessageBoxButtonData *) SDL_malloc(sizeof(SDL_MessageBoxButtonData) * rary->len);
-  for (i = 0; i<rary->len; ++i) {
-    struct RArray * temp_rary = mrb_ary_ptr(rary->ptr[i]);
-    data[i].flags = (Uint32) temp_rary->ptr[0].value.i;
-    data[i].buttonid = (int) temp_rary->ptr[1].value.i;
-    data[i].text = RSTRING_PTR(temp_rary->ptr[2]);
+  data_ptr = (mrb_sdl2_message_boxdata_data_t*)DATA_PTR(self);
+  data_ptr->boxdata->numbuttons = RARRAY_LEN(buttons);
+  data = (SDL_MessageBoxButtonData *) SDL_malloc(sizeof(SDL_MessageBoxButtonData) * RARRAY_LEN(buttons));
+  for (i = 0; i<RARRAY_LEN(buttons); ++i) {
+    mrb_value temp_array = RARRAY_PTR(buttons)[i];
+    data[i].flags = (Uint32)(RARRAY_PTR(temp_array)[0].value.i);
+    data[i].buttonid = (int)(RARRAY_PTR(temp_array)[1].value.i);
+    data[i].text = RSTRING_PTR( RARRAY_PTR(temp_array)[2] );
   }
 
   data_ptr->boxdata->buttons = data;

@@ -834,7 +834,7 @@ mrb_sdl2_video_window_update_surface_rects(mrb_state *mrb, mrb_value self)
   int size, i;
   SDL_Rect *rects;
   mrb_get_args(mrb, "A", &rects_ary);
-  size = mrb_ary_len(mrb, rects_ary);
+  size = RARRAY_LEN(rects_ary);
   rects = (SDL_Rect *) SDL_malloc(size * sizeof(SDL_Rect));
   for (i = 0; i < size; i++) {
     SDL_Rect *r = mrb_sdl2_rect_get_ptr(mrb, mrb_ary_ref(mrb, rects_ary, i));

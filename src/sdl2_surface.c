@@ -112,7 +112,7 @@ mrb_sdl2_video_surface_blit_scaled(mrb_state *mrb, mrb_value self)
   ss = mrb_sdl2_video_surface_get_ptr(mrb, self);
   sr = mrb_sdl2_rect_get_ptr(mrb, src_rect);
   ds = mrb_sdl2_video_surface_get_ptr(mrb, dst);
-  if (argc == 3) 
+  if (argc == 3)
     dr = mrb_sdl2_rect_get_ptr(mrb, dst_rect);
   ret = SDL_BlitScaled(ss, sr, ds, dr);
   if (0 != ret) {
@@ -206,7 +206,7 @@ mrb_sdl2_video_surface_fill_rects(mrb_state *mrb, mrb_value self)
   if (!mrb_array_p(rects)) {
     mrb_raise(mrb, E_TYPE_ERROR, "given 2nd argument is unexpected type (expected Array).");
   }
-  n = mrb_ary_len(mrb, rects);
+  n = RARRAY_LEN(rects);
   s = mrb_sdl2_video_surface_get_ptr(mrb, self);
   r = (SDL_Rect *) SDL_malloc(sizeof(SDL_Rect) * n);
   for (i = 0; i < n; ++i) {
@@ -262,7 +262,7 @@ mrb_sdl2_video_surface_set_color_key(mrb_state *mrb, mrb_value self)
   mrb_value flag;
   SDL_Surface *s = mrb_sdl2_video_surface_get_ptr(mrb, self);
   mrb_get_args(mrb, "oiiii", &flag, &red, &green, &blue, &alpha);
-  
+
   if (0 != SDL_SetColorKey(s, mrb_bool(flag) ? SDL_TRUE : SDL_FALSE, SDL_MapRGBA(s->format, red, green, blue, alpha))) {
     mruby_sdl2_raise_error(mrb);
   }
@@ -475,7 +475,7 @@ mrb_sdl2_video_surface_convert(mrb_state *mrb, mrb_value self)
   mrb_get_args(mrb, "o", &pixel_format);
   p = mrb_sdl2_pixels_pixelformat_get_ptr(mrb, pixel_format);
   s = mrb_sdl2_video_surface_get_ptr(mrb, self);
-  
+
   new_s = SDL_ConvertSurface(s, p, 0);
   if (NULL == new_s) {
     mruby_sdl2_raise_error(mrb);
@@ -571,7 +571,7 @@ mrb_sdl2_video_surface_must_lock(mrb_state *mrb, mrb_value self)
 {
   SDL_Surface *surface;
   surface = mrb_sdl2_video_surface_get_ptr(mrb, self);
-  
+
   return SDL_MUSTLOCK(surface) == SDL_FALSE ? mrb_false_value() : mrb_true_value();
 }
 
@@ -580,7 +580,7 @@ mrb_sdl2_video_surface_locked_num(mrb_state *mrb, mrb_value self)
 {
   SDL_Surface *surface;
   surface = mrb_sdl2_video_surface_get_ptr(mrb, self);
-  
+
   return mrb_fixnum_value(surface->locked);
 }
 
@@ -622,7 +622,7 @@ mrb_sdl2_video_surface_gradient_fill_rect(mrb_state *mrb, mrb_value self)
       int g = g1 + difg * mod;
       int b = b1 + difb * mod;
       int a = a1 + difa * mod;
-      if (0 != SDL_FillRect(surface, 
+      if (0 != SDL_FillRect(surface,
 			    &rec,
 			    SDL_MapRGBA(surface->format,
 					r,
@@ -648,7 +648,7 @@ mrb_sdl2_video_surface_gradient_fill_rect(mrb_state *mrb, mrb_value self)
 			    SDL_MapRGBA(surface->format,
 					r, g, b,a))) {
 	mruby_sdl2_raise_error(mrb);
-      }				 
+      }
     }
   }
 

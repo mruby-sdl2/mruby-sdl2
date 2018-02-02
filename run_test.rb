@@ -21,7 +21,7 @@ MRuby::Build.new do |conf|
   conf.gembox 'default'
 
   conf.gembox 'default'
-  conf.gem github: 'ecirmoa/mruby-sdl2-ttf'
+  conf.gem github: 'ecirmoa/mruby-sdl2'
 
   conf.gem File.expand_path(File.dirname(__FILE__))
 end

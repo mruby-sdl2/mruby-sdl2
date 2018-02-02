@@ -1,5 +1,7 @@
-before_install:
-  - wget http://libsdl.org/release/SDL2-2.0.7.tar.gz -O - | tar xz
-  - cd SDL2-2.0.7 && ./configure && make -j && sudo make install && cd ..
+sudo: false
 script:
   - "ruby run_test.rb all test"
+addons:
+  apt:
+    packages:
+      - libsdl2-dev

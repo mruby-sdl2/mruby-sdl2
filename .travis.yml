@@ -1,8 +1,10 @@
+sudo: false
 matrix:
   include:
     - os: linux
     - os: osx
-sudo: false
+install:
+  - if [ $TRAVIS_OS_NAME = osx ]; then brew install sdl2; fi
 script:
   - "ruby run_test.rb all test"
 addons:

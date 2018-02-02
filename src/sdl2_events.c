@@ -133,9 +133,11 @@ mrb_sdl2_input_event(mrb_state *mrb, SDL_Event const *event)
     return mrb_obj_value(Data_Wrap_Struct(mrb, class_DropEvent, &mrb_sdl2_input_event_data_type, data));
   case SDL_USEREVENT:
     return mrb_obj_value(Data_Wrap_Struct(mrb, class_UserEvent, &mrb_sdl2_input_event_data_type, data));
+#if SDL_VERSION_ATLEAST(2,0,4)
   case SDL_AUDIODEVICEADDED:
   case SDL_AUDIODEVICEREMOVED:
   case SDL_KEYMAPCHANGED:
+#endif
   case SDL_CLIPBOARDUPDATE:
     break; /* missing event */
   default:

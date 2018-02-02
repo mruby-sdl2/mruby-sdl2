@@ -8,6 +8,7 @@
 #include "mruby/array.h"
 #include <SDL_video.h>
 #include <SDL_render.h>
+#include <SDL_version.h>
 
 struct RClass *mod_Video                = NULL;
 
@@ -880,6 +881,7 @@ mrb_sdl2_video_window_swap(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_window_set_opacity(mrb_state *mrb, mrb_value self)
 {
+#if SDL_VERSION_ATLEAST(2,0,5)
   mrb_float opacity;
   mrb_get_args(mrb, "f", &opacity);
   mrb_sdl2_video_window_data_t *data =
@@ -888,9 +890,9 @@ mrb_sdl2_video_window_set_opacity(mrb_state *mrb, mrb_value self)
     return mrb_nil_value();
   }
   SDL_SetWindowOpacity(data->window,opacity);
+#endif
   return self;
 }
-
 
 /***************************************************************************
 *

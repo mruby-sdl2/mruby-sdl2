@@ -6,9 +6,9 @@ matrix:
 install:
   - if [ $TRAVIS_OS_NAME = osx ]; then brew install sdl2; fi
 before_script:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; export DISPLAY=:99.0;         fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; sh -e /etc/init.d/xvfb start; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; sleep 3; fi
+  - if [ $TRAVIS_OS_NAME = linux ]; export DISPLAY=:99.0;         fi
+  - if [ $TRAVIS_OS_NAME = linux ]; sh -e /etc/init.d/xvfb start; fi
+  - if [ $TRAVIS_OS_NAME = linux ]; sleep 3;                      fi
 script:
   - "ruby run_test.rb all test"
 addons:

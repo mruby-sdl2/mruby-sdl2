@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ecirmoa/mruby-sdl2.svg?branch=master)](https://travis-ci.org/ecirmoa/mruby-sdl2)
+
 # mruby-sdl2
 
 _mruby-sdl2_ wrapped 'SDL2.0'.

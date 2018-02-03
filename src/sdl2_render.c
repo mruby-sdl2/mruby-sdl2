@@ -679,6 +679,7 @@ mrb_sdl2_video_renderer_save_bmp(mrb_state *mrb, mrb_value self)
   SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_ARGB8888, sshot->pixels, sshot->pitch);
   SDL_SaveBMP(sshot, RSTRING_PTR(filename));
   SDL_FreeSurface(sshot);
+  return self;
 }
 
 /***************************************************************************

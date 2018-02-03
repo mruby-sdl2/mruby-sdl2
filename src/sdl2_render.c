@@ -5,6 +5,7 @@
 #include "mruby/data.h"
 #include "mruby/class.h"
 #include "mruby/array.h"
+#include "mruby/string.h"
 #include <string.h>
 
 static struct RClass *class_Renderer     = NULL;
@@ -667,6 +668,19 @@ mrb_sdl2_video_renderer_get_name(mrb_state *mrb, mrb_value self)
   return mrb_str_new_cstr(mrb, info.name);
 }
 
+static mrb_value
+mrb_sdl2_video_renderer_save_bmp(mrb_state *mrb, mrb_value self)
+{
+  mrb_int w,h;
+  mrb_value filename;
+  mrb_get_args(mrb, "iio", &w, &h, &filename);
+  SDL_Renderer *renderer = mrb_sdl2_video_renderer_get_ptr(mrb, self);
+  SDL_Surface *sshot = SDL_CreateRGBSurface(0, w, h, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
+  SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_ARGB8888, sshot->pixels, sshot->pitch);
+  SDL_SaveBMP(sshot, RSTRING_PTR(filename));
+  SDL_FreeSurface(sshot);
+}
+
 /***************************************************************************
 *
 * class SDL2::Video::Texture
@@ -1098,6 +1112,7 @@ mruby_sdl2_video_renderer_init(mrb_state *mrb, struct RClass *mod_Video)
   mrb_define_method(mrb, class_Renderer, "present",          mrb_sdl2_video_renderer_present,             MRB_ARGS_NONE());
   mrb_define_method(mrb, class_Renderer, "read_pixels",      mrb_sdl2_video_renderer_read_pixels,         MRB_ARGS_REQ(1) | MRB_ARGS_OPT(1));
   mrb_define_method(mrb, class_Renderer, "name",             mrb_sdl2_video_renderer_get_name,            MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Renderer, "save_bmp",         mrb_sdl2_video_renderer_save_bmp,            MRB_ARGS_REQ(3));
 
   arena_size = mrb_gc_arena_save(mrb);
 

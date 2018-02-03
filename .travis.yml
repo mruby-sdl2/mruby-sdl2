@@ -1,18 +1,17 @@
 sudo: false
 matrix:
   include:
-    - os: osx
-      osx_image: xcode8
-    - os: osx
-      osx_image: xcode8.3
-    - os: osx
-      osx_image: xcode9
-    - os: osx
-      osx_image: xcode9.1
-    - os: osx
-      osx_image: xcode9.2
-install:
-  - if [ $TRAVIS_OS_NAME = osx ]; then brew update; brew install sdl2; fi
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - llvm-toolchain-trusty-5.0
+          packages:
+            - clang-5.0
+      env:
+        - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
+before_install:
+    - eval "${MATRIX_EVAL}"
 before_script:
   - if [ $TRAVIS_OS_NAME = linux ]; then export DISPLAY=:99.0;         fi
   - if [ $TRAVIS_OS_NAME = linux ]; then sh -e /etc/init.d/xvfb start; fi

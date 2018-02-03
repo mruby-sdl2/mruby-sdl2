@@ -4,6 +4,12 @@ matrix:
     - os: osx
       osx_image: xcode8
     - os: osx
+      osx_image: xcode8.3
+    - os: osx
+      osx_image: xcode9
+    - os: osx
+      osx_image: xcode9.1
+    - os: osx
       osx_image: xcode9.2
 install:
   - if [ $TRAVIS_OS_NAME = osx ]; then brew update; brew install sdl2; fi

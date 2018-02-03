@@ -6,7 +6,6 @@
 
 static struct RClass *class_Rect = NULL;
 static struct RClass *class_Point = NULL;
-static struct RClass *class_Size = NULL;
 
 typedef struct mrb_sdl2_rect_rect_data_t {
   SDL_Rect rect;
@@ -486,8 +485,6 @@ mruby_sdl2_rect_init(mrb_state *mrb)
   mrb_define_method(mrb, class_Rect, "h=",                 mrb_sdl2_rect_rect_set_h,             MRB_ARGS_REQ(1));
   mrb_define_method(mrb, class_Rect, "position",           mrb_sdl2_rect_rect_get_position,      MRB_ARGS_NONE());
   mrb_define_method(mrb, class_Rect, "position=",          mrb_sdl2_rect_rect_set_position,      MRB_ARGS_REQ(1));
-  mrb_define_method(mrb, class_Rect, "size",               mrb_sdl2_rect_rect_get_size,          MRB_ARGS_NONE());
-  mrb_define_method(mrb, class_Rect, "size=",              mrb_sdl2_rect_rect_set_size,          MRB_ARGS_REQ(1));
   mrb_define_method(mrb, class_Rect, "has_intersection?",  mrb_sdl2_rect_rect_has_intersection,  MRB_ARGS_REQ(2));
   mrb_define_method(mrb, class_Rect, "intersection",       mrb_sdl2_rect_rect_intersection,      MRB_ARGS_REQ(1));
   mrb_define_method(mrb, class_Rect, "intersection_line",  mrb_sdl2_rect_rect_intersection_line, MRB_ARGS_REQ(2));

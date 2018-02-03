@@ -445,20 +445,30 @@ mrb_sdl2_video_window_destroy(mrb_state *mrb, mrb_value self)
   return mrb_nil_value();
 }
 
-/*
- * SDL2::Window.size
- */
 static mrb_value
-mrb_sdl2_video_window_get_size(mrb_state *mrb, mrb_value self)
+mrb_sdl2_video_window_width(mrb_state *mrb, mrb_value self)
 {
-  int w, h;
-  mrb_sdl2_video_window_data_t *data =
-    (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
-  if (NULL == data->window) {
-    return mrb_nil_value();
-  }
-  SDL_GetWindowSize(data->window, &w, &h);
-  return mrb_sdl2_size(mrb, w, h);
+   int w,h;
+   mrb_sdl2_video_window_data_t *data =
+     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
+   if (NULL == data->window) {
+     return mrb_nil_value();
+   }
+   SDL_GetWindowSize(data->window, &w, &h);
+   return mrb_fixnum_value(w);
+}
+
+static mrb_value
+mrb_sdl2_video_window_height(mrb_state *mrb, mrb_value self)
+{
+   int w,h;
+   mrb_sdl2_video_window_data_t *data =
+     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
+   if (NULL == data->window) {
+     return mrb_nil_value();
+   }
+   SDL_GetWindowSize(data->window, &w, &h);
+   return mrb_fixnum_value(h);
 }
 
 static mrb_value
@@ -470,7 +480,6 @@ mrb_sdl2_video_window_set_size(mrb_state *mrb, mrb_value self)
   mrb_get_args(mrb, "ii", &w, &h);
   SDL_SetWindowSize(data->window, w, h);
   return self;
-
 }
 
 static mrb_value
@@ -1010,7 +1019,8 @@ mruby_sdl2_video_init(mrb_state *mrb)
   mrb_define_method(mrb, class_Window, "create",               mrb_sdl2_video_window_create,               MRB_ARGS_REQ(6));
   mrb_define_method(mrb, class_Window, "create_with_renderer", mrb_sdl2_video_window_create_with_renderer, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, class_Window, "destroy",              mrb_sdl2_video_window_destroy,              MRB_ARGS_NONE());
-  mrb_define_method(mrb, class_Window, "size",                 mrb_sdl2_video_window_get_size,             MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Window, "width",                mrb_sdl2_video_window_width,                MRB_ARGS_NONE());
+  mrb_define_method(mrb, class_Window, "height",               mrb_sdl2_video_window_height,               MRB_ARGS_NONE());
   mrb_define_method(mrb, class_Window, "set_size",             mrb_sdl2_video_window_set_size,             MRB_ARGS_REQ(2));
   mrb_define_method(mrb, class_Window, "position",             mrb_sdl2_video_window_get_position,         MRB_ARGS_NONE());
   mrb_define_method(mrb, class_Window, "position=",            mrb_sdl2_video_window_set_position,         MRB_ARGS_REQ(1));

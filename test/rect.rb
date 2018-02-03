@@ -52,15 +52,6 @@ begin
     r.position = SDL2::Point.new(10, 20)
     r.position.x == 10 && r.position.y == 20 && r.x == 10 && r.y == 20
   end
-  assert('SDL2::Rect.size') do
-    r = SDL2::Rect.new(1, 2, 3, 4)
-    r.size.w == 3 && r.size.h == 4
-  end
-  assert('SDL2::Rect.size=') do
-    r = SDL2::Rect.new(1, 2, 3, 4)
-    r.size = SDL2::Size.new(30, 40)
-    r.size.w == 30 && r.size.h == 40 && r.w == 30 && r.h == 40
-  end
   assert('SDL2::Rect.has_intersection?') do
     r = SDL2::Rect.new(0, 0, 100, 100)
     r.has_intersection?(SDL2::Rect.new(  10,  10, 20, 20)) &&  # inside

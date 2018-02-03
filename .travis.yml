@@ -1,12 +1,9 @@
 matrix:
   include:
-    - os: linux
     - os: osx
       osx_image: xcode8
-    - os: osx
-      osx_image: xcode9.2
 install:
-  - if [ $TRAVIS_OS_NAME = osx ]
+  - if [ $TRAVIS_OS_NAME = osx ]; then
       wget http://libsdl.org/release/SDL2-2.0.7.tar.gz -O - | tar xz
       cd SDL2-2.0.7 && ./configure && make && sudo make install && cd ..
     fi

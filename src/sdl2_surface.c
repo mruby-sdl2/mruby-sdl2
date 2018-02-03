@@ -180,7 +180,7 @@ mrb_sdl2_video_surface_fill_rect(mrb_state *mrb, mrb_value self)
   mrb_value rect;
   SDL_Surface *s;
   SDL_Rect * re = NULL;
-  Uint8 r, g, b, a;
+  mrb_int r, g, b, a;
   int argc = mrb_get_args(mrb, "iiii|o", &r, &g, &b, &a, &rect);
   s = mrb_sdl2_video_surface_get_ptr(mrb, self);
   if (argc == 5)
@@ -258,7 +258,7 @@ mrb_sdl2_video_surface_get_color_key(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_video_surface_set_color_key(mrb_state *mrb, mrb_value self)
 {
-  uint32_t red, green, blue, alpha;
+  mrb_int red, green, blue, alpha;
   mrb_value flag;
   SDL_Surface *s = mrb_sdl2_video_surface_get_ptr(mrb, self);
   mrb_get_args(mrb, "oiiii", &flag, &red, &green, &blue, &alpha);
@@ -683,7 +683,7 @@ mruby_sdl2_video_surface_init(mrb_state *mrb, struct RClass *mod_Video)
   mrb_define_method(mrb, class_Surface, "get_clip_rect",      mrb_sdl2_video_surface_get_clip_rect,      MRB_ARGS_NONE());
   mrb_define_method(mrb, class_Surface, "set_clip_rect",      mrb_sdl2_video_surface_set_clip_rect,      MRB_ARGS_REQ(1));
   mrb_define_method(mrb, class_Surface, "color_key_get",      mrb_sdl2_video_surface_get_color_key,      MRB_ARGS_NONE());
-  mrb_define_method(mrb, class_Surface, "color_key_set",      mrb_sdl2_video_surface_set_color_key,      MRB_ARGS_REQ(2));
+  mrb_define_method(mrb, class_Surface, "color_key_set",      mrb_sdl2_video_surface_set_color_key,      MRB_ARGS_REQ(5));
   mrb_define_method(mrb, class_Surface, "alpha_mod",          mrb_sdl2_video_surface_get_alpha_mod,      MRB_ARGS_NONE());
   mrb_define_method(mrb, class_Surface, "alpha_mod=",         mrb_sdl2_video_surface_set_alpha_mod,      MRB_ARGS_REQ(1));
   mrb_define_method(mrb, class_Surface, "blend_mode",         mrb_sdl2_video_surface_get_blend_mode,     MRB_ARGS_NONE());

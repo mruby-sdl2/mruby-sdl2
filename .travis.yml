@@ -8,6 +8,7 @@ matrix:
             - llvm-toolchain-trusty-5.0
           packages:
             - clang-5.0
+            - libsdl2-dev
       env:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
 before_install:
@@ -18,7 +19,3 @@ before_script:
   - if [ $TRAVIS_OS_NAME = linux ]; then sleep 3;                      fi
 script:
   - "ruby run_test.rb -v all test"
-addons:
-  apt:
-    packages:
-      - libsdl2-dev

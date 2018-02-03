@@ -17,8 +17,11 @@ if __FILE__ == $0
 end
 
 MRuby::Build.new do |conf|
-  toolchain :gcc
+  toolchain :clang
+  conf.cc.command = "clang-5.0"
   conf.enable_test
   conf.gembox 'default'
   conf.gem File.expand_path(File.dirname(__FILE__))
+
+  conf.cc.flags = %w(-O2 -Wall)
 end

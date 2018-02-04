@@ -484,16 +484,6 @@ mrb_sdl2_video_surface_convert(mrb_state *mrb, mrb_value self)
 }
 
 static mrb_value
-mrb_sdl2_video_surface_get_pixel(mrb_state *mrb, mrb_value self)
-{
-  SDL_Surface *surface;
-  mrb_int x, y;
-  mrb_get_args(mrb, "ii", &x, &y);
-  surface = mrb_sdl2_video_surface_get_ptr(mrb, self);
-  return mrb_sdl2_video_surface_return_pixel(mrb, surface, x, y);
-}
-
-static mrb_value
 mrb_sdl2_video_surface_return_pixel(mrb_state *mrb, SDL_Surface *surface, int x, int y)
 {
   int bpp;
@@ -522,6 +512,16 @@ mrb_sdl2_video_surface_return_pixel(mrb_state *mrb, SDL_Surface *surface, int x,
   }
 
   return mrb_fixnum_value(0);
+}
+
+static mrb_value
+mrb_sdl2_video_surface_get_pixel(mrb_state *mrb, mrb_value self)
+{
+  SDL_Surface *surface;
+  mrb_int x, y;
+  mrb_get_args(mrb, "ii", &x, &y);
+  surface = mrb_sdl2_video_surface_get_ptr(mrb, self);
+  return mrb_sdl2_video_surface_return_pixel(mrb, surface, x, y);
 }
 
 static mrb_value

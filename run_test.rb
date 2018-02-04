@@ -18,7 +18,7 @@ end
 
 MRuby::Build.new do |conf|
   toolchain :clang
-  conf.cc.command = "clang-5.0"
+  conf.cc.command = ENV['CC']
   conf.enable_test
   conf.gembox 'default'
   conf.gem File.expand_path(File.dirname(__FILE__))

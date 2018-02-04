@@ -23,7 +23,7 @@ MRuby::Build.new do |conf|
     toolchain :gcc
   end
 
-  conf.cc.command = ENV['CC']
+  conf.cc.command = ENV['CC'] || 'gcc'
   conf.enable_test
   conf.gembox 'default'
   conf.gem File.expand_path(File.dirname(__FILE__))

@@ -12,7 +12,7 @@ begin
     w = SDL2::Video::Window.new "sample", X, Y, W, H, FLAGS
     renderer = SDL2::Video::Renderer.new(w)
     1000.times do |n|
-      renderer.draw_color = SDL2::RGB.new(0, 0, 0)
+      renderer.set_draw_color(0, 0, 0)
       renderer.clear
       FW=20
       FH=20
@@ -22,11 +22,11 @@ begin
           r = (((0xff0000 & rgb) >> 16) + n) % 0xff
           g = (((0x00ff00 & rgb) >>  8) + n) % 0xff
           b = (((0x0000ff & rgb) >>  0) + n) % 0xff
-          renderer.draw_color = SDL2::RGB.new(r, g, b)
+          renderer.set_draw_color(r, g, b)
           renderer.fill_rect SDL2::Rect.new(x * FW, y * FH, FW, FH)
         end
       end
-      renderer.draw_color = SDL2::RGB.new(0xff, 0xff, 0xff)
+      renderer.set_draw_color(0xff, 0xff, 0xff)
       renderer.draw_line(SDL2::Point.new(0, 0), SDL2::Point.new(W, H))
       renderer.draw_line(SDL2::Point.new(W, 0), SDL2::Point.new(0, H))
       renderer.present

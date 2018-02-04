@@ -6,16 +6,17 @@ W = 640
 H = 480
 FLAGS = SDL2::Video::Window::SDL_WINDOW_OPENGL
 
+FW=20
+FH=20
+
 begin
   SDL2::Video::init
   begin
     w = SDL2::Video::Window.new "sample", X, Y, W, H, FLAGS
     surface = w.surface
-    FW=20
-    FH=20
     for y in 0..23
       for x in 0..31
-        surface.fill_rect (x * 8) << ((y / 8).to_i * 8), SDL2::Rect.new(x * FW, y * FH, FW, FH)
+        surface.fill_rect x*8,y*8,0,0xff, SDL2::Rect.new(x * FW, y * FH, FW, FH)
       end
     end
     w.update_surface

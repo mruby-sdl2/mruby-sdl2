@@ -1,17 +1,22 @@
 sudo: false
 matrix:
   include:
-    - os: linux
     - os: osx
-install:
-  - if [ $TRAVIS_OS_NAME = osx ]; then brew install sdl2; fi
+      osx_image: xcode9.2
+      env:
+        - CC="gcc-7"
+    - os: linux
+      addons:
+        apt:
+          packages:
+            - libsdl2-dev
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update      ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gcc; brew link --overwrite gcc; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install sdl2; fi
 before_script:
   - if [ $TRAVIS_OS_NAME = linux ]; then export DISPLAY=:99.0;         fi
   - if [ $TRAVIS_OS_NAME = linux ]; then sh -e /etc/init.d/xvfb start; fi
   - if [ $TRAVIS_OS_NAME = linux ]; then sleep 3;                      fi
 script:
-  - "ruby run_test.rb all test"
-addons:
-  apt:
-    packages:
-      - libsdl2-dev
+  - "ruby run_test.rb -v all test"

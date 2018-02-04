@@ -2,8 +2,8 @@ SDL2::init
 SDL2::Video::init
 width = 320
 height = 240
-x = SDL2::Video::Window::SDL_WINDOWPOS_UNDEFINED
-y = SDL2::Video::Window::SDL_WINDOWPOS_UNDEFINED
+x = SDL2::Video::Window::SDL_WINDOWPOS_CENTERED
+y = SDL2::Video::Window::SDL_WINDOWPOS_CENTERED
 flag = 0
 
 #

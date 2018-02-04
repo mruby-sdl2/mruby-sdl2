@@ -28,5 +28,8 @@ MRuby::Build.new do |conf|
   conf.gembox 'default'
   conf.gem File.expand_path(File.dirname(__FILE__))
 
-  conf.cc.flags = %w(-O2 -Wall)
+  conf.cc.defines += %w(MRB_UTF8_STRING)
+  conf.cc.defines += %w(MRB_32BIT)
+  conf.cc.defines += %w(MRB_METHOD_TABLE_INLINE MRB_METHOD_CACHE) # for 1.4.0
+  conf.cc.flags = %w(-O2 -Wall -std=gnu99)
 end

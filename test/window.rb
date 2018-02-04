@@ -8,7 +8,6 @@ assert('SDL2::Video::Window.new') do
   y = SDL2::Video::Window::SDL_WINDOWPOS_UNDEFINED
   flag = 0
   window = SDL2::Video::Window.new title, x,y, width,height, flag
-  SDL2::Input::poll()
 
   assert_equal title, window.title
   assert_equal width, window.width

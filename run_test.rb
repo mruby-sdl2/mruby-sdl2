@@ -17,7 +17,12 @@ if __FILE__ == $0
 end
 
 MRuby::Build.new do |conf|
-  toolchain :clang
+  if ENV['CC'].to_s.start_with? "clang"
+    toolchain :clang
+  else
+    toolchain :gcc
+  end
+
   conf.cc.command = ENV['CC']
   conf.enable_test
   conf.gembox 'default'

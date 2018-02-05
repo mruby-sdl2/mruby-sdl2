@@ -9,6 +9,7 @@ extern "C" {
 #endif
 
 extern struct RClass *mod_Video;
+extern struct RClass *class_Window;
 
 extern SDL_Window *mrb_sdl2_video_window_get_ptr(mrb_state *mrb, mrb_value window);
 extern mrb_value mrb_sdl2_video_window(mrb_state *mrb, SDL_Window *window);

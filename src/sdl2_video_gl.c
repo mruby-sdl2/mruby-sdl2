@@ -1,15 +1,8 @@
 #include "sdl2.h"
 #include "sdl2_video.h"
-// #include "sdl2_rect.h"
-// #include "sdl2_render.h"
-// #include "sdl2_surface.h"
 #include "mruby/class.h"
 #include "mruby/data.h"
-#include "mruby/string.h"
-#include "mruby/array.h"
 #include <SDL_video.h>
-#include <SDL_render.h>
-#include <SDL_version.h>
 
 static struct RClass *mod_GL            = NULL;
 static struct RClass *class_GLContext   = NULL;

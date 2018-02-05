@@ -3,6 +3,7 @@
 #include "sdl2_render.h"
 #include "sdl2_surface.h"
 #include "sdl2_video_gl.h"
+#include "sdl2_video_display.h"
 #include "mruby/class.h"
 #include "mruby/data.h"
 #include "mruby/string.h"
@@ -11,28 +12,13 @@
 #include <SDL_render.h>
 #include <SDL_version.h>
 
-struct RClass *mod_Video                = NULL;
-struct RClass *class_Window      = NULL;
-static struct RClass *class_DisplayMode = NULL;
-
-typedef struct mrb_sdl2_video_displaymode_data_t {
-  SDL_DisplayMode mode;
-} mrb_sdl2_video_displaymode_data_t;
+struct RClass *mod_Video    = NULL;
+struct RClass *class_Window = NULL;
 
 typedef struct mrb_sdl2_video_window_data_t {
   bool        is_associated;
   SDL_Window *window;
 } mrb_sdl2_video_window_data_t;
-
-static void
-mrb_sdl2_video_displaymode_data_free(mrb_state *mrb, void *p)
-{
-  mrb_sdl2_video_displaymode_data_t *data =
-    (mrb_sdl2_video_displaymode_data_t*)p;
-  if (NULL != data) {
-    mrb_free(mrb, data);
-  }
-}
 
 static void
 mrb_sdl2_video_window_data_free(mrb_state *mrb, void *p)
@@ -46,10 +32,6 @@ mrb_sdl2_video_window_data_free(mrb_state *mrb, void *p)
     mrb_free(mrb, data);
   }
 }
-
-static struct mrb_data_type const mrb_sdl2_video_displaymode_data_type = {
-  "DisplayMode", mrb_sdl2_video_displaymode_data_free
-};
 
 static struct mrb_data_type const mrb_sdl2_video_window_data_type = {
   "Window", mrb_sdl2_video_window_data_free
@@ -65,21 +47,6 @@ mrb_sdl2_video_window_get_ptr(mrb_state *mrb, mrb_value window)
   data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, window, &mrb_sdl2_video_window_data_type);
   return data->window;
-}
-
-SDL_DisplayMode *
-mrb_sdl2_video_displaymode_get_ptr(mrb_state *mrb, mrb_value displaymode)
-{
-  mrb_sdl2_video_displaymode_data_t *data;
-  if (mrb_nil_p(displaymode)) {
-    return NULL;
-  }
-  data =
-    (mrb_sdl2_video_displaymode_data_t*)
-      mrb_data_get_ptr(mrb,
-                       displaymode,
-                       &mrb_sdl2_video_displaymode_data_type);
-  return &data->mode;
 }
 
 mrb_value
@@ -190,38 +157,6 @@ mrb_sdl2_video_get_video_drivers(mrb_state *mrb, mrb_value self)
   for (i = 0; i < n; ++i) {
     mrb_value const str = mrb_str_new_cstr(mrb, SDL_GetVideoDriver(i));
     mrb_ary_push(mrb, array, str);
-  }
-  return array;
-}
-
-/*
- * SDL2::Video::display_modes
- */
-static mrb_value
-mrb_sdl2_video_get_display_modes(mrb_state *mrb, mrb_value self)
-{
-  mrb_int index;
-  int i;
-  mrb_value array;
-  int n;
-  mrb_get_args(mrb, "i", &index);
-  n = SDL_GetNumDisplayModes(index);
-  if (0 > n) {
-    mruby_sdl2_raise_error(mrb);
-  }
-  array = mrb_ary_new_capa(mrb, n);
-  for (i = 0; i < n; ++i) {
-    mrb_sdl2_video_displaymode_data_t *data =
-      (mrb_sdl2_video_displaymode_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_video_displaymode_data_t));
-    if (NULL == data) {
-      mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-    }
-    if (0 == SDL_GetDisplayMode(index, i, &data->mode)) {
-      mrb_value const item = mrb_obj_value(Data_Wrap_Struct(mrb, class_DisplayMode, &mrb_sdl2_video_displaymode_data_type, data));
-      mrb_ary_push(mrb, array, item);
-    } else {
-      mrb_free(mrb, data);
-    }
   }
   return array;
 }
@@ -529,26 +464,6 @@ mrb_sdl2_video_window_set_icon(mrb_state *mrb, mrb_value self)
   return self;
 }
 
-static mrb_value
-mrb_sdl2_video_window_get_brightness(mrb_state *mrb, mrb_value self)
-{
-  return mrb_float_value(mrb,
-                         SDL_GetWindowBrightness(
-                             mrb_sdl2_video_window_get_ptr(mrb, self)));
-}
-
-static mrb_value
-mrb_sdl2_video_window_set_brightness(mrb_state *mrb, mrb_value self)
-{
-  mrb_float brightness;
-  mrb_get_args(mrb, "f", &brightness);
-  if (0 != SDL_SetWindowBrightness(
-          mrb_sdl2_video_window_get_ptr(mrb, self),
-          brightness)) {
-    mruby_sdl2_raise_error(mrb);
-  }
-  return self;
-}
 
 static mrb_value
 mrb_sdl2_video_window_get_display_index(mrb_state *mrb, mrb_value self)
@@ -558,39 +473,6 @@ mrb_sdl2_video_window_get_display_index(mrb_state *mrb, mrb_value self)
           mrb_sdl2_video_window_get_ptr(mrb, self)));
 }
 
-static mrb_value
-mrb_sdl2_video_window_get_display_mode(mrb_state *mrb, mrb_value self)
-{
-  SDL_DisplayMode dm;
-  mrb_value item;
-  mrb_sdl2_video_displaymode_data_t *data = (mrb_sdl2_video_displaymode_data_t*)
-      mrb_malloc(mrb, sizeof(mrb_sdl2_video_displaymode_data_t));
-  if (NULL == data) {
-    mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-  }
-
-  SDL_GetWindowDisplayMode(mrb_sdl2_video_window_get_ptr(mrb, self), &dm);
-  data->mode = dm;
-  item = mrb_obj_value(
-      Data_Wrap_Struct(mrb,
-                       class_DisplayMode,
-                       &mrb_sdl2_video_displaymode_data_type,
-                       data));
-  return item;
-}
-
-static mrb_value
-mrb_sdl2_video_window_set_display_mode(mrb_state *mrb, mrb_value self)
-{
-  mrb_value displaymode;
-  mrb_get_args(mrb, "o", &displaymode);
-  if (0 != SDL_SetWindowDisplayMode(
-          mrb_sdl2_video_window_get_ptr(mrb, self),
-          mrb_sdl2_video_displaymode_get_ptr(mrb, displaymode))) {
-    mruby_sdl2_raise_error(mrb);
-  }
-  return self;
-}
 
 static mrb_value
 mrb_sdl2_video_window_get_flags(mrb_state *mrb, mrb_value self)
@@ -598,36 +480,6 @@ mrb_sdl2_video_window_get_flags(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(
       SDL_GetWindowFlags(
           mrb_sdl2_video_window_get_ptr(mrb, self)));
-}
-
-static mrb_value
-mrb_sdl2_video_window_get_gamma_ramp(mrb_state *mrb, mrb_value self)
-{
-  mrb_value ary;
-  Uint16 red, green, blue;
-  ary = mrb_ary_new_capa(mrb, 3);
-  SDL_GetWindowGammaRamp(mrb_sdl2_video_window_get_ptr(mrb, self),
-                         &red,
-                         &green,
-                         &blue);
-  mrb_ary_push(mrb, ary, mrb_fixnum_value(red));
-  mrb_ary_push(mrb, ary, mrb_fixnum_value(green));
-  mrb_ary_push(mrb, ary, mrb_fixnum_value(blue));
-  return self;
-}
-
-static mrb_value
-mrb_sdl2_video_window_set_gamma_ramp(mrb_state *mrb, mrb_value self)
-{
-  mrb_int red, green, blue;
-  mrb_get_args(mrb, "iii", &red, &green, &blue);
-  if (0 != SDL_SetWindowGammaRamp(mrb_sdl2_video_window_get_ptr(mrb, self),
-                                  &red,
-                                  &green,
-                                  &blue)) {
-    mruby_sdl2_raise_error(mrb);
-  }
-  return self;
 }
 
 static mrb_value
@@ -809,10 +661,8 @@ mruby_sdl2_video_init(mrb_state *mrb)
 {
   int arena_size;
   mod_Video = mrb_define_module_under(mrb, mod_SDL2,  "Video");
-  class_DisplayMode = mrb_define_class_under(mrb, mod_Video, "DisplayMode", mrb->object_class);
   class_Window      = mrb_define_class_under(mrb, mod_Video, "Window",      mrb->object_class);
 
-  MRB_SET_INSTANCE_TT(class_DisplayMode, MRB_TT_DATA);
   MRB_SET_INSTANCE_TT(class_Window,      MRB_TT_DATA);
 
   mrb_define_module_function(mrb, mod_Video, "init", mrb_sdl2_video_init, MRB_ARGS_REQ(1));
@@ -820,7 +670,7 @@ mruby_sdl2_video_init(mrb_state *mrb)
   mrb_define_module_function(mrb, mod_Video, "screen_saver?", mrb_sdl2_video_get_screen_saver_enabled, MRB_ARGS_NONE());
   mrb_define_module_function(mrb, mod_Video, "screen_saver=", mrb_sdl2_video_set_screen_saver_enabled, MRB_ARGS_REQ(1));
   mrb_define_module_function(mrb, mod_Video, "video_drivers", mrb_sdl2_video_get_video_drivers,        MRB_ARGS_NONE());
-  mrb_define_module_function(mrb, mod_Video, "display_modes", mrb_sdl2_video_get_display_modes,        MRB_ARGS_REQ(1));
+
   mrb_define_module_function(mrb, mod_Video, "displays",      mrb_sdl2_video_get_displays,             MRB_ARGS_NONE());
   mrb_define_module_function(mrb, mod_Video, "current_driver",mrb_sdl2_video_get_current_video_driver, MRB_ARGS_NONE());
 
@@ -842,14 +692,8 @@ mruby_sdl2_video_init(mrb_state *mrb)
   mrb_define_method(mrb, class_Window, "restore",              mrb_sdl2_video_window_restore,              MRB_ARGS_NONE());
   mrb_define_method(mrb, class_Window, "raise",                mrb_sdl2_video_window_raise,                MRB_ARGS_NONE());
   mrb_define_method(mrb, class_Window, "icon=",                mrb_sdl2_video_window_set_icon,             MRB_ARGS_REQ(1));
-  mrb_define_method(mrb, class_Window, "brightness",           mrb_sdl2_video_window_get_brightness,       MRB_ARGS_NONE());
-  mrb_define_method(mrb, class_Window, "brightness=",          mrb_sdl2_video_window_set_brightness,       MRB_ARGS_REQ(1));
   mrb_define_method(mrb, class_Window, "diplay_index",         mrb_sdl2_video_window_get_display_index,    MRB_ARGS_NONE());
-  mrb_define_method(mrb, class_Window, "display_mode",         mrb_sdl2_video_window_get_display_mode,     MRB_ARGS_NONE());
-  mrb_define_method(mrb, class_Window, "display_mode=",        mrb_sdl2_video_window_set_display_mode,     MRB_ARGS_REQ(1));
   mrb_define_method(mrb, class_Window, "flags",                mrb_sdl2_video_window_get_flags,            MRB_ARGS_NONE());
-  mrb_define_method(mrb, class_Window, "gamma_ramp",           mrb_sdl2_video_window_get_gamma_ramp,       MRB_ARGS_NONE());
-  mrb_define_method(mrb, class_Window, "gamma_ramp=",          mrb_sdl2_video_window_set_gamma_ramp,       MRB_ARGS_REQ(1));
   mrb_define_method(mrb, class_Window, "grab",                 mrb_sdl2_video_window_get_grab,             MRB_ARGS_NONE());
   mrb_define_method(mrb, class_Window, "grab=",                mrb_sdl2_video_window_set_grab,             MRB_ARGS_REQ(1));
   mrb_define_method(mrb, class_Window, "id",                   mrb_sdl2_video_window_get_id,               MRB_ARGS_NONE());
@@ -899,6 +743,7 @@ mruby_sdl2_video_init(mrb_state *mrb)
   mruby_sdl2_video_renderer_init(mrb, mod_Video);
   mruby_sdl2_video_surface_init(mrb, mod_Video);
   mruby_sdl2_video_gl_init(mrb);
+  mruby_sdl2_video_display_init(mrb);
 
   mrb_gc_arena_restore(mrb, arena_size);
 }
@@ -909,4 +754,5 @@ mruby_sdl2_video_final(mrb_state *mrb)
   mruby_sdl2_video_surface_final(mrb, mod_Video);
   mruby_sdl2_video_renderer_final(mrb, mod_Video);
   mruby_sdl2_video_gl_final(mrb);
+  mruby_sdl2_video_display_final(mrb);
 }

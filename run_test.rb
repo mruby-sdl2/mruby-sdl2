@@ -31,5 +31,5 @@ MRuby::Build.new do |conf|
   conf.cc.defines += %w(MRB_UTF8_STRING)
   conf.cc.defines += %w(MRB_32BIT)
   conf.cc.defines += %w(MRB_METHOD_TABLE_INLINE MRB_METHOD_CACHE) # for 1.4.0
-  conf.cc.flags = %w(-O2 -Wall -std=gnu99)
+  conf.cc.flags = %w(-O2 -std=c99 -Wall -Werror-implicit-function-declaration -Wwrite-strings)
 end

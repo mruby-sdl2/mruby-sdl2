@@ -854,6 +854,16 @@ mrb_sdl2_input_windowevent_get_data2(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(data->event.window.data2);
 }
 
+/* TextInputEvent */
+
+static mrb_value
+mrb_sdl2_input_textinputevent_get_text(mrb_state *mrb, mrb_value self)
+{
+  mrb_sdl2_input_event_data_t *data =
+    (mrb_sdl2_input_event_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_input_event_data_type);
+  return mrb_str_new_cstr(mrb,data->event.text.text);
+}
+
 void
 mruby_sdl2_events_init(mrb_state *mrb)
 {
@@ -963,6 +973,9 @@ mruby_sdl2_events_init(mrb_state *mrb)
   mrb_define_method(mrb, class_ControllerButtonEvent, "which",    mrb_sdl2_input_controllerbuttonevent_get_which,     MRB_ARGS_NONE());
   mrb_define_method(mrb, class_ControllerButtonEvent, "button",   mrb_sdl2_input_controllerbuttonevent_get_button, MRB_ARGS_NONE());
   mrb_define_method(mrb, class_ControllerButtonEvent, "state",    mrb_sdl2_input_controllerbuttonevent_get_state,     MRB_ARGS_NONE());
+
+  // SDL_TextInputEvent
+  mrb_define_method(mrb, class_TextInputEvent, "text",    mrb_sdl2_input_textinputevent_get_text,     MRB_ARGS_NONE());
 
   mrb_define_method(mrb, class_QuitEvent, "timestamp", mrb_sdl2_input_quitevent_timestamp, MRB_ARGS_NONE());
 

@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/ecirmoa/mruby-sdl2.svg?branch=master)](https://travis-ci.org/ecirmoa/mruby-sdl2)
+[![Build Status](https://travis-ci.org/kabies/mruby-sdl2.svg?branch=master)](https://travis-ci.org/kabies/mruby-sdl2)
 
 # mruby-sdl2
 
@@ -11,13 +11,11 @@ _mruby-sdl2_ wrapped 'SDL2.0'.
 
 build_config.rb:
 
-    conf.gem :github => 'ecirmoa/mruby-sdl2', :branch => 'master'
+    conf.gem :github => 'kabies/mruby-sdl2', :branch => 'master'
 
 # License
 
 MIT License
-
-this library forked from https://github.com/Moon4u/mruby-sdl2 and https://github.com/crimsonwoods/mruby-sdl2
 
 # Class and API
 

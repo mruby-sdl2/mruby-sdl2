@@ -1,6 +1,6 @@
 MRuby::Gem::Specification.new('mruby-sdl2') do |spec|
   spec.license = 'MIT'
-  spec.author = 'ecirmoa'
+  spec.author = 'kabies'
   spec.version = '0.1.0'
 
   if build.kind_of?(MRuby::CrossBuild)

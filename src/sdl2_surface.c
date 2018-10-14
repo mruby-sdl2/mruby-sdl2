@@ -61,13 +61,13 @@ mrb_sdl2_video_surface_get_ptr(mrb_state *mrb, mrb_value surface)
 static mrb_value
 mrb_sdl2_video_surface_initialize(mrb_state *mrb, mrb_value self)
 {
-  uint32_t flags, rmask, gmask, bmask, amask;
-  mrb_int width, height, depth;
-  mrb_sdl2_video_surface_data_t *data =
-    (mrb_sdl2_video_surface_data_t*)DATA_PTR(self);
-  mrb_get_args(mrb, "iiiiiiii", &flags, &width, &height, &depth, &rmask, &gmask, &bmask, &amask);
+  mrb_int width, height, depth, format;
+  mrb_get_args(mrb, "iiii", &width, &height, &depth, &format);
+
+  mrb_sdl2_video_surface_data_t *data = DATA_PTR(self);
+
   if (NULL == data) {
-    data = (mrb_sdl2_video_surface_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_video_surface_data_t));
+    data = mrb_malloc(mrb, sizeof(mrb_sdl2_video_surface_data_t));
     if (NULL == data) {
       mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
     }
@@ -77,7 +77,7 @@ mrb_sdl2_video_surface_initialize(mrb_state *mrb, mrb_value self)
       SDL_FreeSurface(data->surface);
     }
   }
-  data->surface = SDL_CreateRGBSurface(flags, width, height, depth, rmask, gmask, bmask, amask);
+  data->surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, depth, format);
   if (NULL == data->surface) {
     mrb_free(mrb, data);
     mruby_sdl2_raise_error(mrb);
@@ -667,7 +667,7 @@ mruby_sdl2_video_surface_init(mrb_state *mrb, struct RClass *mod_Video)
 
   MRB_SET_INSTANCE_TT(class_Surface, MRB_TT_DATA);
 
-  mrb_define_method(mrb, class_Surface, "initialize",         mrb_sdl2_video_surface_initialize,         MRB_ARGS_REQ(8));
+  mrb_define_method(mrb, class_Surface, "initialize",         mrb_sdl2_video_surface_initialize,         MRB_ARGS_REQ(4));
   mrb_define_method(mrb, class_Surface, "free",               mrb_sdl2_video_surface_free,               MRB_ARGS_NONE());
   mrb_define_method(mrb, class_Surface, "destroy",            mrb_sdl2_video_surface_free,               MRB_ARGS_NONE());
   mrb_define_method(mrb, class_Surface, "blit_scaled",        mrb_sdl2_video_surface_blit_scaled,        MRB_ARGS_REQ(3));

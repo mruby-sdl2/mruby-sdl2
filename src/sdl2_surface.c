@@ -146,6 +146,25 @@ mrb_sdl2_video_surface_blit_surface(mrb_state *mrb, mrb_value self)
 }
 
 static mrb_value
+mrb_sdl2_video_surface_blit(mrb_state *mrb, mrb_value self)
+{
+  SDL_Surface *src_surface, *dst_surface;
+  SDL_Rect dst_rect;
+  mrb_value dst;
+  mrb_int x,y;
+  mrb_get_args(mrb, "oii", &dst, &x, &y );
+  src_surface = mrb_sdl2_video_surface_get_ptr(mrb, self);
+  dst_surface = mrb_sdl2_video_surface_get_ptr(mrb, dst);
+  dst_rect.x = x;
+  dst_rect.y = y;
+
+  if (0 != SDL_BlitSurface(src_surface, NULL, dst_surface, &dst_rect)) {
+    mruby_sdl2_raise_error(mrb);
+  }
+  return self;
+}
+
+static mrb_value
 mrb_sdl2_video_surface_convert_format(mrb_state *mrb, mrb_value self)
 {
   SDL_Surface *s, *new_s;
@@ -672,6 +691,7 @@ mruby_sdl2_video_surface_init(mrb_state *mrb, struct RClass *mod_Video)
   mrb_define_method(mrb, class_Surface, "destroy",            mrb_sdl2_video_surface_free,               MRB_ARGS_NONE());
   mrb_define_method(mrb, class_Surface, "blit_scaled",        mrb_sdl2_video_surface_blit_scaled,        MRB_ARGS_REQ(3));
   mrb_define_method(mrb, class_Surface, "blit_surface",       mrb_sdl2_video_surface_blit_surface,       MRB_ARGS_REQ(3));
+  mrb_define_method(mrb, class_Surface, "blit",               mrb_sdl2_video_surface_blit,               MRB_ARGS_REQ(3));
   mrb_define_method(mrb, class_Surface, "convert_format",     mrb_sdl2_video_surface_convert_format,     MRB_ARGS_REQ(2));
   mrb_define_method(mrb, class_Surface, "width",              mrb_sdl2_video_surface_width,              MRB_ARGS_NONE());
   mrb_define_method(mrb, class_Surface, "height",             mrb_sdl2_video_surface_height,             MRB_ARGS_NONE());
